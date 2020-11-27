@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState } from "react"
 import "antd/dist/antd.css"
 import {
@@ -12,12 +13,15 @@ import {
   TreeSelect,
   Switch,
 } from "antd"
-import { changeConfirmLocale } from "antd/lib/modal/locale"
 
 const Edit = () => {
   const [componentSize, setComponentSize] = useState("default")
 
-  const onFormLayoutChange = ({ size }) => {
+  function onChange(value: any) {
+    console.log(value)
+  }
+
+  const onFormLayoutChange = ({ size }: { size: any }) => {
     setComponentSize(size)
   }
 
@@ -99,10 +103,6 @@ const Edit = () => {
       </Form>
     </>
   )
-}
-
-function onChange(value) {
-  console.log(value)
 }
 
 export default Edit
