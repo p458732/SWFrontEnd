@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from "react"
-import { User } from "../utils/interface.tsx"
+import React, { useCallback, useEffect, useState } from "react"
+import { User, Meeting } from "../utils/interface.tsx"
 import GSTC from "gantt-schedule-timeline-calendar"
 import { Plugin as TimelinePointer } from "gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js"
 import { Plugin as Selection } from "gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js"
@@ -8,6 +8,7 @@ import { Plugin as ItemMovement } from "gantt-schedule-timeline-calendar/dist/pl
 
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
+import { METHODS } from "http"
 
 let gstc, state
 
@@ -97,10 +98,22 @@ function initializeGSTC(element) {
 }
 
 function Scheduler() {
+  const [meetings, setMeetings] = useState([])
   const callback = useCallback(element => {
     if (element) initializeGSTC(element)
   }, [])
-
+  function getMeeting() {
+    fetch("https://hw.seabao.ml/meeting", {
+      method: "GET",
+    })
+      .then(response => {
+        console.log(response.json())
+        return response.json()
+      })
+      .catch(error => {
+        console.log("Unknown error")
+      })
+  }
   useEffect(() => {
     return () => {
       if (gstc) {
@@ -123,6 +136,7 @@ function Scheduler() {
   return (
     <div className="Scheduler">
       <div className="toolbox">
+        <button onClick={getMeeting}>test</button>
         <button onClick={updateFirstRow}>Update first row</button>
         <button onClick={changeZoomLevel}>Change zoom level</button>
       </div>

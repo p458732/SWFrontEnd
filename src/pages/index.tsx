@@ -1,6 +1,10 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import App from "../component/scheduler/scheduler"
+import Scheduler from "../component/scheduler/scheduler"
 export default function Home() {
-  return <App />
+  return (
+    <div>
+      <Scheduler />
+    </div>
+  )
 }
