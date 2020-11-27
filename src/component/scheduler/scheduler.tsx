@@ -1,5 +1,6 @@
+/* eslint-disable react/button-has-type */ /* eslint-disable prettier/prettier */
 /* eslint-disable import/extensions */
-import { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect } from "react"
 import GSTC from "gantt-schedule-timeline-calendar"
 import { Plugin as TimelinePointer } from "gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js"
 import { Plugin as Selection } from "gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js"
@@ -8,16 +9,16 @@ import { Plugin as ItemMovement } from "gantt-schedule-timeline-calendar/dist/pl
 
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
-import React from "react"
 
 // helper functions
-
+let state: any = {}
+let gstc: any = {}
 function generateRows() {
   /**
    * @type { import("gantt-schedule-timeline-calendar").Rows }
    */
-  const rows = {}
-  for (let i = 0; i < 100; i++) {
+  const rows: any = {}
+  for (let i = 0; i < 100; i += 1) {
     const id = GSTC.api.GSTCID(i.toString())
     rows[id] = {
       id,
@@ -31,10 +32,10 @@ function generateItems() {
   /**
    * @type { import("gantt-schedule-timeline-calendar").Items }
    */
-  const items = {}
+  const items: any = {}
   // @ts-ignore
   let start = GSTC.api.date().startOf("day").subtract(6, "day")
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 100; i += 1) {
     const id = GSTC.api.GSTCID(i.toString())
     const rowId = GSTC.api.GSTCID(Math.floor(Math.random() * 100).toString())
     start = start.add(1, "day")
@@ -51,7 +52,7 @@ function generateItems() {
   return items
 }
 
-function initializeGSTC(element) {
+function initializeGSTC(element: any) {
   /**
    * @type { import("gantt-schedule-timeline-calendar").Config }
    */
@@ -96,7 +97,7 @@ function initializeGSTC(element) {
 }
 
 function Scheduler() {
-  const [meetings, setMeetings] = useState([])
+  // const [meetings, setMeetings] = useState([])
   const callback = useCallback(element => {
     if (element) initializeGSTC(element)
   }, [])
@@ -108,7 +109,7 @@ function Scheduler() {
         console.log(response.json())
         return response.json()
       })
-      .catch(error => {
+      .catch(() => {
         console.log("Unknown error")
       })
   }
@@ -119,7 +120,8 @@ function Scheduler() {
   })
 
   function updateFirstRow() {
-    state.update(`config.list.rows.${GSTC.api.GSTCID("0")}`, row => {
+    state.update(`config.list.rows.${GSTC.api.GSTCID("0")}`, (row: any) => {
+      // eslint-disable-next-line no-param-reassign
       row.label = "Changed dynamically"
       return row
     })
