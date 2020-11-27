@@ -11,16 +11,39 @@
     "start": "npm run develop",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
+    "lint": "eslint src/**/*.{ts,tsx} --fix",
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
   },
   "dependencies": {
+    "@mikaelkristiansson/domready": "^1.0.10",
+    "@reach/router": "^1.3.4",
     "gantt-schedule-timeline-calendar": "^3.5.5",
     "gatsby": "^2.26.1",
+    "gatsby-legacy-polyfills": "^0.2.0",
+    "gatsby-link": "^2.6.1",
+    "gatsby-plugin-typescript": "^2.7.0",
+    "gatsby-react-router-scroll": "^3.2.0",
+    "mitt": "^2.1.0",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "shallow-compare": "^1.2.2",
+    "type-fest": "^0.20.2"
   },
   "devDependencies": {
-    "prettier": "2.1.2"
+    "@types/node": "^14.14.10",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.8.2",
+    "@typescript-eslint/parser": "^4.8.2",
+    "eslint": "^7.14.0",
+    "eslint-config-airbnb-typescript": "^12.0.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "prettier": "2.1.2",
+    "typescript": "^4.1.2"
   },
   "repository": {
     "type": "git",

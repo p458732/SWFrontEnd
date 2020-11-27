@@ -1,3 +1,16 @@
+export interface Department {
+  name: string
+}
+
+export interface Room {
+  name: string
+  capacity: number
+}
+
+export interface UserGroup {
+  name: string
+}
+
 export interface User {
   name: string
   password: string
@@ -5,6 +18,7 @@ export interface User {
   email: string
   group: UserGroup
 }
+
 export interface Meeting {
   title: string
   description: string
@@ -15,15 +29,4 @@ export interface Meeting {
   Repeat: string
   updatedDate: Date
   createdDate: Date
-}
-export interface Room {
-  name: string
-  capacity: number
-}
-export interface Department {
-  name: string
-}
-
-export interface UserGroup {
-  name: string
 }
