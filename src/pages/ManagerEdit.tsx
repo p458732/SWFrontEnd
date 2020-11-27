@@ -1,6 +1,6 @@
 import React from "react"
-import App from "../component/scheduler/scheduler"
+import Edit from "../component/ManagerEdit/Edit"
 
 export default function Home() {
-  return <App />
+  return <Edit />
 }
