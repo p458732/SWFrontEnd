@@ -12,7 +12,6 @@
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
-
   },
   "dependencies": {
     "gantt-schedule-timeline-calendar": "^3.5.5",
