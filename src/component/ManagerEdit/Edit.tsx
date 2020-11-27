@@ -1,10 +1,10 @@
-import React from 'react';
-import * as styles from './Edit.css';
-import Container from '../components/container';
+import React from "react"
+import * as styles from "./Edit.css"
+import Container from "../components/container"
 
-console.log(styles);
+console.log(styles)
 
-const User = (props) => (
+const User = props => (
   <div className={styles.user}>
     <img src={props.avatar} className={styles.avatar} alt="" />
     <div className={styles.description}>
@@ -12,7 +12,7 @@ const User = (props) => (
       <p className={styles.excerpt}>{props.excerpt}</p>
     </div>
   </div>
-);
+)
 
 export default () => (
   <Container>
@@ -29,4 +29,4 @@ export default () => (
       excerpt="I'm Bob Smith, a vertically aligned type of guy. Lorem ipsum dolor sit amet, consectetur adipisicing elit."
     />
   </Container>
-);
+)
