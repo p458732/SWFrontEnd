@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react"
-import { Icar } from "../utils/interface.tsx"
+import { User } from "../utils/interface.tsx"
 import GSTC from "gantt-schedule-timeline-calendar"
 import { Plugin as TimelinePointer } from "gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js"
 import { Plugin as Selection } from "gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js"
@@ -96,7 +96,7 @@ function initializeGSTC(element) {
   })
 }
 
-function App() {
+function Scheduler() {
   const callback = useCallback(element => {
     if (element) initializeGSTC(element)
   }, [])
@@ -121,14 +121,14 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="Scheduler">
       <div className="toolbox">
         <button onClick={updateFirstRow}>Update first row</button>
         <button onClick={changeZoomLevel}>Change zoom level</button>
       </div>
-      <div className="gstc-wrapper" ref={callback}></div>
+      <div className="gstc-w Schedulerer" ref={callback}></div>
     </div>
   )
 }
 
-export default App
+export default Scheduler
