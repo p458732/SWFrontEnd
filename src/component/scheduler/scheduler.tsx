@@ -10,48 +10,141 @@ import { Plugin as ItemMovement } from "gantt-schedule-timeline-calendar/dist/pl
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
 
+const meetingURL = "https://hw.seabao.ml/meeting"
+const roomURL = "https://hw.seabao.ml/room"
 // helper functions
 let state: any = {}
 let gstc: any = {}
-function generateRows() {
-  /**
-   * @type { import("gantt-schedule-timeline-calendar").Rows }
-   */
-  const rows: any = {}
-  for (let i = 0; i < 100; i += 1) {
-    const id = GSTC.api.GSTCID(i.toString())
+let testMeetingData: any = {
+  creatorUid: 0,
+  departments: [],
+  description: "test Data",
+  fromDate: "2020-11-26",
+  toDate: "2020-11-27",
+  title: "testPost",
+  repeatType: 0,
+  location: "TR-301",
+}
+let lastItemId = -1
+let lastRowId = -1
+function generateNewRows(room: any) {
+  const rows = {}
+  for (let i = 0; i < room.length; i += 1) {
+    const id = GSTC.api.GSTCID(room[i].name)
     rows[id] = {
       id,
-      label: `Row ${i}`,
+      label: room[i].name,
+      capacity: room[i].capacity,
+      expanded: false,
     }
   }
+  console.log(rows)
   return rows
 }
+// function generateRows() {
+//   /**
+//    * @type { import("gantt-schedule-timeline-calendar").Rows }
+//    */
+//   const rows: any = {}
+//   for (let i = 0; i < 10; i += 1) {
+//     const id = GSTC.api.GSTCID(i.toString())
+//     rows[id] = {
+//       id,
+//       label: `Row ${i}`,
+//     }
+//   }
+//   return rows
+// }
 
-function generateItems() {
-  /**
-   * @type { import("gantt-schedule-timeline-calendar").Items }
-   */
-  const items: any = {}
-  // @ts-ignore
-  let start = GSTC.api.date().startOf("day").subtract(6, "day")
-  for (let i = 0; i < 100; i += 1) {
-    const id = GSTC.api.GSTCID(i.toString())
-    const rowId = GSTC.api.GSTCID(Math.floor(Math.random() * 100).toString())
-    start = start.add(1, "day")
+function generateNewItems(meeting: any) {
+  let rowsIds = []
+  if (gstc) {
+    const rows = gstc.api.getAllRows()
+    rowsIds = Object.keys(rows)
+  } else {
+    for (let i = 0; i < iterations; i++) {
+      rowsIds.push(GSTC.api.GSTCID(String(i)))
+    }
+  }
+  const items = {}
+  for (let i = 0, len = meeting.length; i < len; i += 1) {
+    console.log(meeting[i])
+    const rowId = GSTC.api.GSTCID(meeting[i].location)
+    const id = GSTC.api.GSTCID(String((lastItemId += 1)))
+    const startDayjs = GSTC.api.date(meeting[i].fromDate)
     items[id] = {
       id,
-      label: `Item ${i}`,
-      rowId,
+      label: meeting[i].title,
       time: {
-        start: start.valueOf(),
-        end: start.add(1, "day").endOf("day").valueOf(),
+        start: startDayjs.valueOf(),
+        end: GSTC.api.date(meeting[i].toDate).valueOf(),
       },
+      rowId,
     }
   }
   return items
 }
+function postMeeting(data: any) {
+  data = testMeetingData
+  fetch(meetingURL, {
+    method: "POST",
+    body: JSON.stringify(data),
+  })
+    .then(response => {
+      return response.json()
+    })
+    .then(response => {
+      console.log(response)
+    })
+}
+function getRoom() {
+  fetch(roomURL, {
+    method: "GET",
+  })
+    .then(response => {
+      return response.json()
+    })
+    .then(room => {
+      state.update("config.list.rows", () => {
+        return generateNewRows(room)
+      })
+    })
+}
+function getMeeting() {
+  fetch(meetingURL, {
+    method: "GET",
+  })
+    .then(response => {
+      return response.json()
+    })
+    .then(meeting => {
+      state.update("config.chart.items", () => {
+        return generateNewItems(meeting)
+      })
+    })
+}
+const hours = [
+  {
+    zoomTo: 100, // we want to display this format for all zoom levels until 100
+    period: "day",
+    periodIncrement: 1,
+    format({ timeStart }) {
+      return timeStart.format("DD") // full list of formats: https://day.js.org/docs/en/display/format
+    },
+  },
+]
 
+const minutes = [
+  {
+    zoomTo: 100, // we want to display this format for all zoom levels until 100
+    period: "minute",
+    periodIncrement: 60,
+    main: true,
+    format({ timeStart, vido }) {
+      return timeStart.format("HH:mm") // full list of formats: https://day.js.org/docs/en/display/format
+    },
+  },
+]
 function initializeGSTC(element: any) {
   /**
    * @type { import("gantt-schedule-timeline-calendar").Config }
@@ -66,25 +159,45 @@ function initializeGSTC(element: any) {
           [GSTC.api.GSTCID("id")]: {
             id: GSTC.api.GSTCID("id"),
             width: 60,
-            data: ({ row }) => GSTC.api.sourceID(row.id),
+            sortable: "capacity",
             header: {
               content: "ID",
             },
           },
           [GSTC.api.GSTCID("label")]: {
             id: GSTC.api.GSTCID("label"),
+            sortable: ({ row }) => Number(GSTC.api.sourceID(row.id)),
             width: 200,
             data: "label",
+            sortable: "label",
             header: {
               content: "Label",
             },
           },
+          [GSTC.api.GSTCID("capacity")]: {
+            id: GSTC.api.GSTCID("capacity"),
+            width: 0,
+            data: "capacity",
+            header: {
+              content: "capacity",
+            },
+          },
         },
       },
-      rows: generateRows(),
+
+      rows: [
+        {
+          id: "0",
+          label: "",
+        },
+      ],
     },
     chart: {
-      items: generateItems(),
+      items: [],
+      calendarLevels: [hours, minutes],
+      time: {
+        zoom: 14,
+      },
     },
   }
 
@@ -98,21 +211,13 @@ function initializeGSTC(element: any) {
 
 function Scheduler() {
   // const [meetings, setMeetings] = useState([])
+
   const callback = useCallback(element => {
-    if (element) initializeGSTC(element)
+    if (element) {
+      initializeGSTC(element)
+    }
   }, [])
-  function getMeeting() {
-    fetch("https://hw.seabao.ml/meeting", {
-      method: "GET",
-    })
-      .then(response => {
-        console.log(response.json())
-        return response.json()
-      })
-      .catch(() => {
-        console.log("Unknown error")
-      })
-  }
+
   useEffect(() => () => {
     if (gstc) {
       gstc.destroy()
@@ -128,13 +233,15 @@ function Scheduler() {
   }
 
   function changeZoomLevel() {
-    state.update("config.chart.time.zoom", 21)
+    state.update("config.chart.time.zoom", 14)
   }
 
   return (
     <div className="Scheduler">
       <div className="toolbox">
-        <button onClick={getMeeting}>test</button>
+        <button onClick={getMeeting}>getMeeting</button>
+        <button onClick={getRoom}>getRoom</button>
+        <button onClick={postMeeting}>postMeeting</button>
         <button onClick={updateFirstRow}>Update first row</button>
         <button onClick={changeZoomLevel}>Change zoom level</button>
       </div>
