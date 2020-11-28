@@ -10,25 +10,25 @@ import { Plugin as ItemMovement } from "gantt-schedule-timeline-calendar/dist/pl
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
 
-const meetingURL = "https://hw.seabao.ml/meeting"
-const roomURL = "https://hw.seabao.ml/room"
+const meetingURL = "https://hw.seabao.ml/api/meeting"
+const roomURL = "https://hw.seabao.ml/api/room"
 // helper functions
 let state: any = {}
 let gstc: any = {}
-let testMeetingData: any = {
-  creatorUid: 0,
-  departments: [],
+
+const testMeetingData: any = {
+  departments: ["IE"],
   description: "test Data",
-  fromDate: "2020-11-26",
-  toDate: "2020-11-27",
+  fromDate: "2020-11-28T17:58:14.804Z",
+  toDate: "2020-11-30T17:58:14.804Z",
   title: "testPost",
   repeatType: 0,
-  location: "TR-301",
+  roomName: "TR-303",
 }
 let lastItemId = -1
 let lastRowId = -1
 function generateNewRows(room: any) {
-  const rows = {}
+  const rows: any = {}
   for (let i = 0; i < room.length; i += 1) {
     const id = GSTC.api.GSTCID(room[i].name)
     rows[id] = {
@@ -84,19 +84,7 @@ function generateNewItems(meeting: any) {
   }
   return items
 }
-function postMeeting(data: any) {
-  data = testMeetingData
-  fetch(meetingURL, {
-    method: "POST",
-    body: JSON.stringify(data),
-  })
-    .then(response => {
-      return response.json()
-    })
-    .then(response => {
-      console.log(response)
-    })
-}
+
 function getRoom() {
   fetch(roomURL, {
     method: "GET",
@@ -123,12 +111,32 @@ function getMeeting() {
       })
     })
 }
+function postMeeting(data: any) {
+  data = testMeetingData
+  fetch(meetingURL, {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: new Headers({
+      "Content-Type": "application/json",
+    }),
+  })
+    .then(response => {
+      return response.status
+    })
+    .then(status => {
+      if (status === 200) {
+        getMeeting()
+      } else {
+        alert("cannot add new meeting")
+      }
+    })
+}
 const hours = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
     period: "day",
     periodIncrement: 1,
-    format({ timeStart }) {
+    format({ timeStart }: { timeStart: any }) {
       return timeStart.format("DD") // full list of formats: https://day.js.org/docs/en/display/format
     },
   },
@@ -152,7 +160,7 @@ function initializeGSTC(element: any) {
   const config = {
     licenseKey:
       "====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====",
-    plugins: [TimelinePointer(), Selection(), ItemResizing(), ItemMovement()],
+    plugins: [TimelinePointer(), Selection()],
     list: {
       columns: {
         data: {
