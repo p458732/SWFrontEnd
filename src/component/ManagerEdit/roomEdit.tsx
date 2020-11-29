@@ -36,7 +36,7 @@ const tailLayout = {
   wrapperCol: { offset: 16, span: 16 },
 }
 const layout = {
-  labelCol: { span: 4, offset: 2 },
+  labelCol: { span: 6, offset: 0 },
   wrapperCol: { span: 16 },
 }
 
@@ -50,35 +50,23 @@ interface Props {
   visible?: boolean
 }
 
-const fakedata = [
-  {
-    name: "TR200",
-    capacity: 12,
-  },
-  {
-    name: "TR500",
-    capacity: 10,
-  },
-  {
-    name: "RB500",
-    capacity: 20,
-  },
-]
+const initRoom: Room = {
+  name: "",
+  capacity: 0,
+}
 
 function RoomEdit(props: Props) {
   const changeData: Room = { name: "", capacity: 0 }
   const { type, visible, roomList, setRoomList } = props
   const [form] = Form.useForm()
-  const [selectedRoom, setSelectRoom] = useState<Room>({
-    name: "",
-    capacity: 0,
-  })
+  const [selectedRoom, setSelectRoom] = useState<Room>(initRoom)
   useEffect(
     function updateFrom() {
       form.setFieldsValue({ roomName: selectedRoom.name, Capacity: selectedRoom.capacity })
       changeData.name = selectedRoom.name
       changeData.capacity = selectedRoom.capacity
-      console.log(selectedRoom)
+      console.log("selectedRoom", selectedRoom)
+      console.log("changeData", changeData)
     },
     [selectedRoom]
   )
@@ -111,8 +99,8 @@ function RoomEdit(props: Props) {
         })
           .then(() => {
             let name: string = ""
-            if (type !== "New")
-              setRoomList(
+            if (type === "Save")
+              setRoomList(() =>
                 roomList.map(room => {
                   if (room === selectedRoom) {
                     room.capacity = changeData.capacity
@@ -122,10 +110,14 @@ function RoomEdit(props: Props) {
                   return room
                 })
               )
-            else {
-              setRoomList(roomList.concat(changeData))
+            else if (type === "New") {
+              setRoomList(() => roomList.concat(changeData))
+            } else if (type === "Delete") {
+              setRoomList(() => roomList.filter(room => room.name !== selectedRoom.name))
             }
             setIsVisible(false)
+            setSelectRoom(initRoom)
+            form.resetFields()
           })
           .catch(() => {
             showErrorMessage("變更失敗!")
@@ -138,7 +130,11 @@ function RoomEdit(props: Props) {
   const onFinish = (values: any) => {
     if (changeData.name === "") showErrorMessage("尚未輸入房間名稱!")
     else if (changeData.capacity === 0) showErrorMessage("尚未輸入房間可容量人數!")
-    else if (changeData.name !== selectedRoom.name || changeData.capacity !== selectedRoom.capacity)
+    else if (
+      changeData.name !== selectedRoom.name ||
+      changeData.capacity !== selectedRoom.capacity ||
+      type === "Delete"
+    )
       showPromiseConfirm()
     else showErrorMessage("尚未變更!")
     console.log(values)
@@ -151,12 +147,15 @@ function RoomEdit(props: Props) {
 
   const onCancel = () => {
     setIsVisible(false)
+    setSelectRoom(initRoom)
     form.resetFields()
   }
 
   const onSelectRoom = (value: string) => {
+    console.log(selectedRoom)
     roomList.forEach(item => {
       if (item.name === value) {
+        console.log("item", item)
         setSelectRoom(item)
       }
     })
@@ -178,7 +177,7 @@ function RoomEdit(props: Props) {
   }
 
   return (
-    <Modal visible={isVisible} okText={type} onOk={onFinish} onCancel={onCancel} footer={false}>
+    <Modal visible={isVisible} okText={type} onCancel={onCancel} footer={false}>
       <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} onFinishFailed={onFinishFailed}>
         <Row justify="center">
           <h1>{type === "New" ? "新增房間" : "變更房間"}</h1>
@@ -217,7 +216,7 @@ function RoomEdit(props: Props) {
             <Button onClick={onCancel} type="default">
               Cancel
             </Button>
-            <Button type="primary" htmlType="submit" danger={type === "delete"}>
+            <Button type="primary" htmlType="submit" danger={type === "Delete"}>
               {type}
             </Button>
           </Space>
