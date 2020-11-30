@@ -10,7 +10,7 @@ import { Plugin as ItemMovement } from "gantt-schedule-timeline-calendar/dist/pl
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
 import RoomEdit from "../ManagerEdit/roomEdit"
-import ManagerEdit from "../../pages/ManagerEdit"
+import ManagerEdit from "../ManagerEdit/ManagerEdit"
 import { Room } from "../utils/interface"
 
 const meetingURL = "https://hw.seabao.ml/api/meeting"

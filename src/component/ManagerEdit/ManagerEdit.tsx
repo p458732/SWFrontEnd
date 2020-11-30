@@ -1,7 +1,7 @@
 import { Button } from "antd"
 import React, { useState } from "react"
-import RoomEdit from "../component/ManagerEdit/roomEdit"
-import { Room } from "../component/utils/interface"
+import RoomEdit from "./roomEdit"
+import { Room } from "../utils/interface"
 
 const fakedata = [
   {
