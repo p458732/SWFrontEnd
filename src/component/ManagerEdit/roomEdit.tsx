@@ -89,13 +89,15 @@ function RoomEdit(props: Props) {
   }
 
   function showPromiseConfirm() {
+    const judgecontent = type === "New" ? "新增" : "變更"
+    const Content = `確定要${judgecontent}此房間嗎?`
     confirm({
       title: "確認",
       icon: <ExclamationCircleOutlined />,
-      content: "確定要變更房間資訊嗎?",
+      content: Content,
       onOk() {
         return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.5 ? resolve : reject, 1000)
+          setTimeout(Math.random() > 0.1 ? resolve : reject, 1000)
         })
           .then(() => {
             let name: string = ""
@@ -134,10 +136,13 @@ function RoomEdit(props: Props) {
       changeData.name !== selectedRoom.name ||
       changeData.capacity !== selectedRoom.capacity ||
       type === "Delete"
-    )
+    ) {
+      if (type === "New" && roomList.some(room => room.name === changeData.name)) {
+        showErrorMessage("房間已存在!")
+        return
+      }
       showPromiseConfirm()
-    else showErrorMessage("尚未變更!")
-    console.log(values)
+    } else showErrorMessage("尚未變更!")
   }
 
   const onFinishFailed = () => {
@@ -177,7 +182,7 @@ function RoomEdit(props: Props) {
   }
 
   return (
-    <Modal visible={isVisible} okText={type} onCancel={onCancel} footer={false}>
+    <Modal visible={isVisible} okText={type} onCancel={onCancel} footer={false} forceRender>
       <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} onFinishFailed={onFinishFailed}>
         <Row justify="center">
           <h1>{type === "New" ? "新增房間" : "變更房間"}</h1>
