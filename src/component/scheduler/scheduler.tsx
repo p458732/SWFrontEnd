@@ -4,46 +4,21 @@ import React, { useCallback, useEffect, useState } from "react"
 import GSTC from "gantt-schedule-timeline-calendar"
 import { Plugin as TimelinePointer } from "gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js"
 import { Plugin as Selection } from "gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js"
-import { Plugin as ItemResizing } from "gantt-schedule-timeline-calendar/dist/plugins/item-resizing.esm.min.js"
-import { Plugin as ItemMovement } from "gantt-schedule-timeline-calendar/dist/plugins/item-movement.esm.min.js"
-
+import getRoom from "./fetchRoom"
+import { getMeeting, postMeeting } from "./fetchMeeting"
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
 import RoomEdit from "../ManagerEdit/roomEdit"
+
 import ManagerEdit from "../ManagerEdit/ManagerEdit"
+
+
 import { Room } from "../utils/interface"
 
-const meetingURL = "https://hw.seabao.ml/api/meeting"
-const roomURL = "https://hw.seabao.ml/api/room"
 // helper functions
 let state: any = {}
 let gstc: any = {}
 
-const testMeetingData: any = {
-  departments: ["IE"],
-  description: "test Data",
-  fromDate: "2020-11-28T17:58:14.804Z",
-  toDate: "2020-11-30T17:58:14.804Z",
-  title: "testPost",
-  repeatType: 0,
-  roomName: "TR-303",
-}
-let lastItemId = -1
-const lastRowId = -1
-function generateNewRows(room: any) {
-  const rows: any = {}
-  for (let i = 0; i < room.length; i += 1) {
-    const id = GSTC.api.GSTCID(room[i].name)
-    rows[id] = {
-      id,
-      label: room[i].name,
-      capacity: room[i].capacity,
-      expanded: false,
-    }
-  }
-  console.log(rows)
-  return rows
-}
 // function generateRows() {
 //   /**
 //    * @type { import("gantt-schedule-timeline-calendar").Rows }
@@ -59,81 +34,6 @@ function generateNewRows(room: any) {
 //   return rows
 // }
 
-function generateNewItems(meeting: any) {
-  let rowsIds = []
-  if (gstc) {
-    const rows = gstc.api.getAllRows()
-    rowsIds = Object.keys(rows)
-  } else {
-    for (let i = 0; i < iterations; i++) {
-      rowsIds.push(GSTC.api.GSTCID(String(i)))
-    }
-  }
-  const items = {}
-  for (let i = 0, len = meeting.length; i < len; i += 1) {
-    console.log(meeting[i])
-    const rowId = GSTC.api.GSTCID(meeting[i].location)
-    const id = GSTC.api.GSTCID(String((lastItemId += 1)))
-    const startDayjs = GSTC.api.date(meeting[i].fromDate)
-    items[id] = {
-      id,
-      label: meeting[i].title,
-      time: {
-        start: startDayjs.valueOf(),
-        end: GSTC.api.date(meeting[i].toDate).valueOf(),
-      },
-      rowId,
-    }
-  }
-  return items
-}
-
-function getRoom() {
-  fetch(roomURL, {
-    method: "GET",
-  })
-    .then(response => {
-      return response.json()
-    })
-    .then(room => {
-      state.update("config.list.rows", () => {
-        return generateNewRows(room)
-      })
-    })
-}
-function getMeeting() {
-  fetch(meetingURL, {
-    method: "GET",
-  })
-    .then(response => {
-      return response.json()
-    })
-    .then(meeting => {
-      state.update("config.chart.items", () => {
-        return generateNewItems(meeting)
-      })
-    })
-}
-function postMeeting(data: any) {
-  data = testMeetingData
-  fetch(meetingURL, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: new Headers({
-      "Content-Type": "application/json",
-    }),
-  })
-    .then(response => {
-      return response.status
-    })
-    .then(status => {
-      if (status === 200) {
-        getMeeting()
-      } else {
-        alert("cannot add new meeting")
-      }
-    })
-}
 const hours = [
   {
     zoomTo: 100, // we want to display this format for all zoom levels until 100
@@ -151,7 +51,7 @@ const minutes = [
     period: "minute",
     periodIncrement: 60,
     main: true,
-    format({ timeStart, vido }) {
+    format({ timeStart }: { timeStart: any }) {
       return timeStart.format("HH:mm") // full list of formats: https://day.js.org/docs/en/display/format
     },
   },
@@ -267,9 +167,27 @@ function Scheduler() {
   return (
     <div className="Scheduler">
       <div className="toolbox">
-        <button onClick={getMeeting}>getMeeting</button>
-        <button onClick={getRoom}>getRoom</button>
-        <button onClick={postMeeting}>postMeeting</button>
+        <button
+          onClick={() => {
+            getMeeting(state, gstc)
+          }}
+        >
+          getMeeting
+        </button>
+        <button
+          onClick={() => {
+            getRoom(state)
+          }}
+        >
+          getRoom
+        </button>
+        <button
+          onClick={() => {
+            postMeeting(state, gstc)
+          }}
+        >
+          postMeeting
+        </button>
         <button onClick={updateFirstRow}>Update first row</button>
         <button onClick={changeZoomLevel}>Change zoom level</button>
         <button

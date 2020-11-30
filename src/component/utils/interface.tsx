@@ -22,11 +22,14 @@ export interface User {
 export interface Meeting {
   title: string
   description: string
-  location: Room
+  roomName: string
   attendee: Array<User>
-  departments: Array<Department>
-  creator: User
-  Repeat: string
-  updatedDate: Date
-  createdDate: Date
+  departments: Array<string>
+  creator?: string
+  repeatType: Number
+  updatedDate?: Date
+  createdDate?: Date
+  fromDate: string
+  toDate: string
 }
+
