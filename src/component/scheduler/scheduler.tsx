@@ -1,6 +1,6 @@
 /* eslint-disable react/button-has-type */ /* eslint-disable prettier/prettier */
 /* eslint-disable import/extensions */
-import React, { useCallback, useEffect } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import GSTC from "gantt-schedule-timeline-calendar"
 import { Plugin as TimelinePointer } from "gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js"
 import { Plugin as Selection } from "gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js"
@@ -9,6 +9,9 @@ import { Plugin as ItemMovement } from "gantt-schedule-timeline-calendar/dist/pl
 
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
+import RoomEdit from "../ManagerEdit/roomEdit"
+import ManagerEdit from "../../pages/ManagerEdit"
+import { Room } from "../utils/interface"
 
 const meetingURL = "https://hw.seabao.ml/api/meeting"
 const roomURL = "https://hw.seabao.ml/api/room"
@@ -26,7 +29,7 @@ const testMeetingData: any = {
   roomName: "TR-303",
 }
 let lastItemId = -1
-let lastRowId = -1
+const lastRowId = -1
 function generateNewRows(room: any) {
   const rows: any = {}
   for (let i = 0; i < room.length; i += 1) {
@@ -217,8 +220,25 @@ function initializeGSTC(element: any) {
   })
 }
 
+const fakedata = [
+  {
+    name: "TR200",
+    capacity: 12,
+  },
+  {
+    name: "TR500",
+    capacity: 10,
+  },
+  {
+    name: "RB500",
+    capacity: 20,
+  },
+]
+
 function Scheduler() {
   // const [meetings, setMeetings] = useState([])
+  const [roomList, setroomList] = useState<Array<Room>>(fakedata)
+  const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
 
   const callback = useCallback(element => {
     if (element) {
@@ -252,8 +272,22 @@ function Scheduler() {
         <button onClick={postMeeting}>postMeeting</button>
         <button onClick={updateFirstRow}>Update first row</button>
         <button onClick={changeZoomLevel}>Change zoom level</button>
+        <button
+          onClick={() => {
+            setSaveEditFormVsible(true)
+          }}
+        >
+          Save
+        </button>
       </div>
       <div className="gstc-w Schedulerer" ref={callback} />
+      <RoomEdit
+        type="Save"
+        roomList={roomList}
+        setRoomList={setroomList}
+        setvisible={setSaveEditFormVsible}
+        visible={editSaveFormVisible}
+      />
     </div>
   )
 }

@@ -17,7 +17,7 @@ const fakedata = [
     capacity: 20,
   },
 ]
-export default function Home() {
+export default function ManagerEdit() {
   const [roomList, setroomList] = useState<Array<Room>>(fakedata)
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
   const [editNewFormVisible, setNewEditFormVsible] = useState(false)
