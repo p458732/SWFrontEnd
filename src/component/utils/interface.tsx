@@ -26,10 +26,9 @@ export interface Meeting {
   attendee: Array<User>
   departments: Array<string>
   creator?: string
-  repeatType: Number
-  updatedDate?: Date
-  createdDate?: Date
+  repeatType: boolean
+  updatedDate?: string
+  createdDate?: string
   fromDate: string
   toDate: string
 }
-

@@ -9,8 +9,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
+import Icon from "antd/lib/icon"
 import { FormInstance } from "antd/lib/form"
-import { ExclamationCircleOutlined } from "@ant-design/icons"
+import { EnvironmentOutlined, FontSizeOutlined } from "@ant-design/icons"
 import {
   Form,
   Input,
@@ -27,8 +28,14 @@ import {
   Col,
   Modal,
 } from "antd"
+
 import moment from "moment"
-import { Room, User, Meeting } from "../utils/interface"
+import Avatar from "antd/lib/avatar/avatar"
+import { connect } from "http2"
+import { Content } from "antd/lib/layout/layout"
+import { Room, User, Department, Meeting } from "../utils/interface"
+
+const { TextArea } = Input
 
 const { RangePicker } = DatePicker
 
@@ -37,6 +44,12 @@ const { Option } = Select
 const tailLayout = {
   wrapperCol: { offset: 16, span: 16 },
 }
+
+const SelectLayout = {
+  labelCol: { span: 6, offset: 0 },
+  wrapperCol: { offset: 0, span: 16 },
+}
+
 const SwitchLayout = {
   labelCol: { span: 8, offset: 0 },
   wrapperCol: { offset: 0, span: 16 },
@@ -46,17 +59,53 @@ const layout = {
   wrapperCol: { span: 16 },
 }
 
+const roomList: Array<Room> = [
+  {
+    name: "TR200",
+    capacity: 12,
+  },
+  {
+    name: "TR500",
+    capacity: 10,
+  },
+  {
+    name: "RB500",
+    capacity: 20,
+  },
+]
+
+const departmentList: Array<Department> = [
+  { name: "Personnel Department" },
+  { name: "Sales Department" },
+  { name: "Business Office" },
+]
+
+interface Meet {
+  title: string
+  description: string
+  roomName: string
+}
+
+const MeetingData: Meet = {
+  title: "Title",
+  description: "Hello World",
+  roomName: "TR-500",
+}
+
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
+  type: "Edit" | "View"
   meetingValue?: Meeting
 }
 
 function MeetingForm(Props: Init) {
+  const [content, setContent] = React.useState("11111111111111111111")
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const [modalText, setModalText] = React.useState("Content of the modal")
-  const { visible, setVisible } = Props
+  const { visible, setVisible, type } = Props
   const [form] = Form.useForm()
+  const typeBool = type === "Edit"
 
   function showErrorMessage(message: string) {
     Modal.error({
@@ -83,7 +132,7 @@ function MeetingForm(Props: Init) {
   const onFinish = (values: any) => {}
 
   const onFinishFailed = () => {
-    showErrorMessage("請選擇房間!")
+    showErrorMessage("請選擇日期!")
     console.log("error")
   }
 
@@ -93,40 +142,127 @@ function MeetingForm(Props: Init) {
     console.log("From: ", dateStrings[0], ", to: ", dateStrings[1])
   }
 
+  function onSelectRoom() {}
+
+  function handleDescript(event: any) {
+    console.log(event.target.value)
+  }
+
   return (
     <>
-      <Modal visible={visible} onOk={handleOk} confirmLoading={confirmLoading} onCancel={handleCancel}>
-        <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} onFinishFailed={onFinishFailed}>
-          <Row justify="start">
-            <h1>Title</h1>
-          </Row>
+      <Modal visible={visible} onOk={handleOk} confirmLoading={confirmLoading} onCancel={handleCancel} footer={false}>
+        <Form
+          {...layout}
+          form={form}
+          name="control-hooks"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          initialValues={{
+            descript: content,
+            meetingRoom: roomList[0].name,
+            allDay: true,
+            repeat: true,
+            department: departmentList[0].name,
+            titleName: MeetingData.title,
+          }}
+        >
+          <Form.Item name="title">
+            <Row justify="start">
+              <h1>{typeBool ? "編輯會議" : MeetingData.title}</h1>
+            </Row>
+          </Form.Item>
+          <Form.Item
+            name="titleName"
+            label="Title name"
+            hidden={!typeBool}
+            rules={[{ required: typeBool, message: "Title name is require" }]}
+          >
+            <Input disabled={!typeBool} />
+          </Form.Item>
           <Row>
-            <Col span={8}>
-              <Form.Item label="All Day" {...SwitchLayout}>
-                <Switch />
+            <Col span={8} offset={2}>
+              <Form.Item name="allDay" label="All Day" {...SwitchLayout} valuePropName="checked">
+                <Switch disabled={!typeBool} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="Repeat" {...SwitchLayout}>
-                <Switch />
+              <Form.Item name="repeat" label="Repeat" {...SwitchLayout} valuePropName="checked">
+                <Switch disabled={!typeBool} />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item>
+          <Form.Item
+            name="selectDate"
+            label="Select Date"
+            rules={[{ required: typeBool, message: "Select Date is require" }]}
+          >
             <RangePicker
               ranges={{
                 Today: [moment(), moment()],
                 "This Month": [moment().startOf("month"), moment().endOf("month")],
               }}
+              disabled={!typeBool}
               showTime
               format="YYYY/MM/DD HH:mm"
               onChange={onChange}
             />
           </Form.Item>
+          <Form.Item
+            name="meetingRoom"
+            label="Meeting Room"
+            {...SelectLayout}
+            rules={[{ required: typeBool, message: "Select room is require" }]}
+          >
+            <Select showSearch placeholder="Select a room" onChange={onSelectRoom} allowClear disabled={!typeBool}>
+              {roomList.map(item => (
+                <Option value={item.name} key={item.name}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="department"
+            label="Department"
+            {...SelectLayout}
+            rules={[{ required: typeBool, message: "Select department is require" }]}
+          >
+            <Select showSearch placeholder="Select a room" onChange={onSelectRoom} allowClear disabled={!typeBool}>
+              {departmentList.map(item => (
+                <Option value={item.name} key={item.name}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="descript" label="Descript">
+            <TextArea
+              allowClear
+              onChange={handleDescript}
+              placeholder="Descript"
+              autoSize={{ minRows: 3, maxRows: 5 }}
+              readOnly={!type}
+            />
+          </Form.Item>
+          <Form.Item name="button" {...tailLayout}>
+            <Space size="middle">
+              <Button onClick={handleCancel} type="default">
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Save
+              </Button>
+            </Space>
+          </Form.Item>
         </Form>
       </Modal>
     </>
   )
+}
+
+MeetingForm.defaultProps = {
+  visible: true,
+  type: "Edit",
 }
 
 export default MeetingForm
