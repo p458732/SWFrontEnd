@@ -157,10 +157,9 @@ function Scheduler() {
 
   function itemLabelContent({ item, vido }) {
     console.log(1)
-    return vido.html`<div class="my-item-content" style="cursor:pointer;" @click=${() =>
-      onItemClick(
-        item
-      )}><span style="width:12px;height:12px;background:white;border-radius:100%;display:inline-block;margin-right:4px;vertical-align:middle;"></span>My HTML content here!</div>`
+    return vido.html`<div class="my-item-content" style="width:100%"  @click=${() => onItemClick(item)}>${
+      item.title
+    }</div>`
   }
 
   function generateNewItems(meeting: any) {
