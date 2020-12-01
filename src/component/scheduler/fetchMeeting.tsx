@@ -1,6 +1,9 @@
+import React, { useCallback, useEffect, useState } from "react"
 import GSTC from "gantt-schedule-timeline-calendar"
-import { Meeting } from "../utils/interface"
+import { Meeting,Room } from "../utils/interface"
+import RoomEdit from "../ManagerEdit/roomEdit"
 
+import ManagerEdit from "../ManagerEdit/ManagerEdit"
 const testMeetingData: Meeting = {
   attendee: [],
   departments: ["IE"],
@@ -11,8 +14,20 @@ const testMeetingData: Meeting = {
   repeatType: 0,
   roomName: "TR-303",
 }
-let lastItemId = -1
 
+let lastItemId = -1
+function onItemClick(item) {
+  console.log(item)
+  alert("Item " + GSTC.api.sourceID(item.id) + " clicked!")
+}
+
+function itemLabelContent({ item, vido }) {
+  console.log(item)
+  return vido.html`<div class="my-item-content" style="cursor:pointer;" onclick=${() =>
+    onItemClick(
+      item
+    )}><span style="width:12px;height:12px;background:white;border-radius:100%;display:inline-block;margin-right:4px;vertical-align:middle;"></span>My HTML content here!</div>`
+}
 const meetingURL = "https://hw.seabao.ml/api/meeting"
 function generateNewItems(meeting: any, gstc: any) {
   let rowsIds = []
@@ -24,7 +39,7 @@ function generateNewItems(meeting: any, gstc: any) {
     //   rowsIds.push(GSTC.api.GSTCID(String(i)))
     // }
   }
-
+  // meeting[i].title
   const items = {}
   for (let i = 0, len = meeting.length; i < len; i += 1) {
     console.log(meeting[i])
@@ -33,7 +48,8 @@ function generateNewItems(meeting: any, gstc: any) {
     const startDayjs = GSTC.api.date(meeting[i].fromDate)
     items[id] = {
       id,
-      label: meeting[i].title,
+      label: itemLabelContent,
+      title: meeting[i].title,
       time: {
         start: startDayjs.valueOf(),
         end: GSTC.api.date(meeting[i].toDate).valueOf(),
@@ -77,5 +93,17 @@ function postMeeting(state: any, gstc: any, data?: Meeting) {
       }
     })
 }
-
-export { getMeeting, postMeeting }
+function MeetingButton() {
+  const [roomList, setroomList] = useState<Array<Room>>(fakedata)
+  const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
+  return (
+    <RoomEdit
+      type="Save"
+      roomList={roomList}
+      setRoomList={setroomList}
+      setvisible={setSaveEditFormVsible}
+      visible={editSaveFormVisible}
+    />
+  )
+}
+export { getMeeting, postMeeting, MeetingButton }
