@@ -12,7 +12,7 @@ import RoomEdit from "../ManagerEdit/roomEdit"
 
 import ManagerEdit from "../ManagerEdit/ManagerEdit"
 
-import { Room } from "../utils/interface"
+import { Room, Meeting } from "../utils/interface"
 
 // helper functions
 let state: any = {}
@@ -139,6 +139,7 @@ const fakedata = [
 function Scheduler() {
   // const [meetings, setMeetings] = useState([])
   const [roomList, setroomList] = useState<Array<Room>>(fakedata)
+  const [meetingList, setmeetingList] = useState(0)
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
 
   // useEffect(() => () => {
@@ -207,7 +208,7 @@ function Scheduler() {
       })
       .then(status => {
         if (status === 200) {
-          getMeeting(state, gstc)
+          getMeeting()
         } else {
           alert("cannot add new meeting")
         }
