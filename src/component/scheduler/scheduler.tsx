@@ -5,20 +5,21 @@ import GSTC from "gantt-schedule-timeline-calendar"
 import { Plugin as TimelinePointer } from "gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js"
 import { Plugin as Selection } from "gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js"
 import getRoom from "./fetchRoom"
-import { getMeeting, postMeeting } from "./fetchMeeting"
+
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
 import RoomEdit from "../ManagerEdit/roomEdit"
 
 import ManagerEdit from "../ManagerEdit/ManagerEdit"
 
-
-import { Room } from "../utils/interface"
+import { Room, Meeting } from "../utils/interface"
 
 // helper functions
 let state: any = {}
 let gstc: any = {}
 
+let lastItemId = -1
+const meetingURL = "https://hw.seabao.ml/api/meeting"
 // function generateRows() {
 //   /**
 //    * @type { import("gantt-schedule-timeline-calendar").Rows }
@@ -138,38 +139,108 @@ const fakedata = [
 function Scheduler() {
   // const [meetings, setMeetings] = useState([])
   const [roomList, setroomList] = useState<Array<Room>>(fakedata)
+  const [meetingList, setmeetingList] = useState(0)
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
 
-  const callback = useCallback(element => {
-    if (element) {
-      initializeGSTC(element)
-    }
-  }, [])
-
-  useEffect(() => () => {
-    if (gstc) {
-      gstc.destroy()
-    }
-  })
-
-  function updateFirstRow() {
-    state.update(`config.list.rows.${GSTC.api.GSTCID("0")}`, (row: any) => {
-      // eslint-disable-next-line no-param-reassign
-      row.label = "Changed dynamically"
-      return row
-    })
-  }
+  // useEffect(() => () => {
+  //   if (gstc) {
+  //     gstc.destroy()
+  //   }
+  // })
 
   function changeZoomLevel() {
     state.update("config.chart.time.zoom", 14)
   }
+  function onItemClick(item) {
+    setSaveEditFormVsible(true)
+  }
 
+  function itemLabelContent({ item, vido }) {
+    console.log(1)
+    return vido.html`<div class="my-item-content" style="width:100%"  @click=${() => onItemClick(item)}>${
+      item.title
+    }</div>`
+  }
+
+  function generateNewItems(meeting: any) {
+    let rowsIds = []
+    if (gstc) {
+      const rows = gstc.api.getAllRows()
+      rowsIds = Object.keys(rows)
+    } else {
+      // for (let i = 0; i < iterations; i++) {
+      //   rowsIds.push(GSTC.api.GSTCID(String(i)))
+      // }
+    }
+    // meeting[i].title
+    const items = {}
+    for (let i = 0, len = meeting.length; i < len; i += 1) {
+      console.log(meeting[i])
+      const rowId = GSTC.api.GSTCID(meeting[i].location)
+      const id = GSTC.api.GSTCID(String((lastItemId += 1)))
+      const startDayjs = GSTC.api.date(meeting[i].fromDate)
+      items[id] = {
+        id,
+        label: itemLabelContent,
+        title: meeting[i].title,
+
+        time: {
+          start: startDayjs.valueOf(),
+          end: GSTC.api.date(meeting[i].toDate).valueOf(),
+        },
+        rowId,
+      }
+    }
+    return items
+  }
+  function postMeeting(data?: Meeting) {
+    data = testMeetingData
+    fetch(meetingURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: new Headers({
+        "Content-Type": "application/json",
+      }),
+    })
+      .then(response => {
+        return response.status
+      })
+      .then(status => {
+        if (status === 200) {
+          getMeeting()
+        } else {
+          alert("cannot add new meeting")
+        }
+      })
+  }
+  function getMeeting() {
+    fetch(meetingURL, {
+      method: "GET",
+    })
+      .then(response => {
+        return response.json()
+      })
+      .then(meeting => {
+        state.update("config.chart.items", () => {
+          return generateNewItems(meeting, gstc)
+        })
+      })
+  }
+
+  const callback = useCallback(element => {
+    if (element) {
+      console.log(1)
+      initializeGSTC(element)
+      getRoom(state)
+      getMeeting()
+    }
+  }, [])
   return (
     <div className="Scheduler">
       <div className="toolbox">
         <button
           onClick={() => {
-            getMeeting(state, gstc)
+            getMeeting()
           }}
         >
           getMeeting
@@ -183,12 +254,11 @@ function Scheduler() {
         </button>
         <button
           onClick={() => {
-            postMeeting(state, gstc)
+            postMeeting(state)
           }}
         >
           postMeeting
         </button>
-        <button onClick={updateFirstRow}>Update first row</button>
         <button onClick={changeZoomLevel}>Change zoom level</button>
         <button
           onClick={() => {

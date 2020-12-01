@@ -6,6 +6,7 @@ import Edit from "../component/ManagerEdit/Edit"
 import ManagerEdit from "../component/ManagerEdit/ManagerEdit"
 import MeetingForm from "../component/Meeting/MeetingForm"
 
+
 export default function Home() {
   const [MeetingFromVisible, setMeetingFromVisible] = React.useState(false)
   const showModal = () => {
@@ -18,6 +19,7 @@ export default function Home() {
   }
   return (
     <div>
+     
       <ManagerEdit />
       <Button type="primary" onClick={showModal}>
         Open Modal with async logic
