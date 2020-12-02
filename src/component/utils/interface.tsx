@@ -12,6 +12,7 @@ export interface UserGroup {
 }
 
 export interface User {
+  uid: number
   name: string
   password: string
   department: Department
@@ -20,13 +21,14 @@ export interface User {
 }
 
 export interface Meeting {
+  meetingID: number
   title: string
   description: string
-  roomName: string
-  attendee: Array<User>
+  location: string
+  attendee?: Array<User>
   departments: Array<string>
-  creator?: string
-  repeatType: boolean
+  creatorUid?: number
+  repeatType: number
   updatedDate?: string
   createdDate?: string
   fromDate: string

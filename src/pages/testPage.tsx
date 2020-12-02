@@ -5,7 +5,7 @@ import { Meeting } from "../component/utils/interface"
 import Edit from "../component/ManagerEdit/Edit"
 import ManagerEdit from "../component/ManagerEdit/ManagerEdit"
 import MeetingForm from "../component/Meeting/MeetingForm"
-
+import ViewMeetingForm from "../component/Meeting/ViewMeetingForm"
 
 export default function Home() {
   const [MeetingFromVisible, setMeetingFromVisible] = React.useState(false)
@@ -19,12 +19,11 @@ export default function Home() {
   }
   return (
     <div>
-     
       <ManagerEdit />
       <Button type="primary" onClick={showModal}>
         Open Modal with async logic
       </Button>
-      <MeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} />
+      <ViewMeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} />
       <Edit />
     </div>
   )

@@ -31,19 +31,12 @@ import {
 } from "antd"
 
 import moment from "moment"
-import Avatar from "antd/lib/avatar/avatar"
-import { connect } from "http2"
-import { Content } from "antd/lib/layout/layout"
 import { Room, User, Department, Meeting } from "../utils/interface"
 
 const { TextArea } = Input
 
-const { RangePicker } = DatePicker
-
-const { Option } = Select
-
 const tailLayout = {
-  wrapperCol: { offset: 16, span: 16 },
+  wrapperCol: { offset: 18, span: 16 },
 }
 
 const SelectLayout = {
@@ -87,10 +80,16 @@ interface Meet {
   roomName: string
 }
 
-const MeetingData: Meet = {
-  title: "Title",
-  description: "Hello World",
-  roomName: "TR-500",
+const MeetingData: Meeting = {
+  meetingID: 0,
+  title: "string",
+  description: "string",
+  departments: ["IE"],
+  location: "TR-302",
+  repeatType: 0,
+  creatorUid: 0,
+  fromDate: "2020-12-02T07:54:36.799Z",
+  toDate: "2020-12-02T07:54:36.799Z",
 }
 
 const member = [
@@ -110,8 +109,7 @@ interface Init {
   meetingValue?: Meeting
 }
 
-function MeetingForm(Props: Init) {
-  const [content, setContent] = React.useState("11111111111111111111")
+function ViewMeetingForm(Props: Init) {
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const [modalText, setModalText] = React.useState("Content of the modal")
   const { visible, setVisible, type } = Props
@@ -157,22 +155,6 @@ function MeetingForm(Props: Init) {
     console.log("error")
   }
 
-  function onChange(dates: any, dateStrings: any) {
-    if (dates === null || dateStrings === null) return
-    console.log("From: ", dates[0], ", to: ", dates[1])
-    console.log("From: ", dateStrings[0], ", to: ", dateStrings[1])
-  }
-
-  function onSelectRoom() {}
-
-  function handleDescript(event: any) {
-    console.log(event.target.value)
-  }
-
-  function onSelectMember(value: any) {
-    console.log(value)
-  }
-
   return (
     <>
       <Modal visible={visible} onOk={handleOk} confirmLoading={confirmLoading} onCancel={handleCancel} footer={false}>
@@ -183,119 +165,54 @@ function MeetingForm(Props: Init) {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           initialValues={{
-            descript: content,
+            descript: MeetingData.description,
             meetingRoom: roomList[0].name,
             allDay: true,
             repeat: true,
             department: departmentList[0].name,
             titleName: MeetingData.title,
-            member: ["aaaa", "bbbb"],
-            selectDate: [moment(), moment()],
+            member: "aaaa\nbbbb\nrrrr\nddddd",
+            selectDate: `From  ${moment().format("YYYY-MM-DD HH:mm")}  to  ${moment("2020-12-02T07:54:36.799Z").format(
+              "YYYY-MM-DD HH:mm"
+            )}`,
           }}
         >
           <Form.Item name="title">
             <Row justify="start">
-              <h1>{typeBool ? "編輯會議" : MeetingData.title}</h1>
+              <h1> {MeetingData.title}</h1>
             </Row>
-          </Form.Item>
-          <Form.Item
-            name="titleName"
-            label="Title name"
-            hidden={!typeBool}
-            rules={[{ required: typeBool, message: "Title name is require" }]}
-          >
-            <Input disabled={!typeBool} />
           </Form.Item>
           <Row>
             <Col span={8} offset={2}>
               <Form.Item name="allDay" label="All Day" {...SwitchLayout} valuePropName="checked">
-                <Switch disabled={!typeBool} />
+                <Switch disabled />
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item name="repeat" label="Repeat" {...SwitchLayout} valuePropName="checked">
-                <Switch disabled={!typeBool} />
+                <Switch disabled />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item
-            name="selectDate"
-            label="Select Date"
-            rules={[{ required: typeBool, message: "Select Date is require" }]}
-          >
-            <RangePicker
-              ranges={{
-                Today: [moment(), moment()],
-                "This Month": [moment().startOf("month"), moment().endOf("month")],
-              }}
-              disabled={typeBool}
-              showTime
-              format="YYYY/MM/DD HH:mm"
-              onChange={onChange}
-            />
+          <Form.Item name="selectDate" label="Select Date">
+            <Input readOnly />
           </Form.Item>
-          <Form.Item
-            name="meetingRoom"
-            label="Meeting Room"
-            {...SelectLayout}
-            rules={[{ required: typeBool, message: "Select room is require" }]}
-          >
-            <Select showSearch placeholder="Select a room" onChange={onSelectRoom} allowClear disabled={!typeBool}>
-              {roomList.map(item => (
-                <Option value={item.name} key={item.name}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
+          <Form.Item name="meetingRoom" label="Meeting Room" {...SelectLayout}>
+            <Input readOnly />
           </Form.Item>
-          <Form.Item
-            name="department"
-            label="Department"
-            {...SelectLayout}
-            rules={[{ required: typeBool, message: "Select department is require" }]}
-          >
-            <Select showSearch placeholder="Select a room" onChange={onSelectRoom} allowClear disabled={!typeBool}>
-              {departmentList.map(item => (
-                <Option value={item.name} key={item.name}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
+          <Form.Item name="department" label="Department" {...SelectLayout}>
+            <Input readOnly />
           </Form.Item>
           <Form.Item name="member" label="Member">
-            <Select
-              mode="multiple"
-              onChange={onSelectMember}
-              showArrow
-              tagRender={tagRender}
-              style={{ width: "100%" }}
-              allowClear
-            >
-              {member.map(item => (
-                <Option value={item.email} key={item.uid}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
+            <TextArea allowClear placeholder="Descript" autoSize={{ minRows: 3, maxRows: 5 }} readOnly />
           </Form.Item>
           <Form.Item name="descript" label="Descript">
-            <TextArea
-              allowClear
-              onChange={handleDescript}
-              placeholder="Descript"
-              autoSize={{ minRows: 3, maxRows: 5 }}
-              readOnly={!type}
-            />
+            <TextArea allowClear placeholder="Descript" autoSize={{ minRows: 3, maxRows: 5 }} readOnly />
           </Form.Item>
           <Form.Item name="button" {...tailLayout}>
-            <Space size="middle">
-              <Button onClick={handleCancel} type="default">
-                Cancel
-              </Button>
-              <Button type="primary" htmlType="submit">
-                Save
-              </Button>
-            </Space>
+            <Button onClick={handleCancel} type="default">
+              Cancel
+            </Button>
           </Form.Item>
         </Form>
       </Modal>
@@ -303,9 +220,9 @@ function MeetingForm(Props: Init) {
   )
 }
 
-MeetingForm.defaultProps = {
+ViewMeetingForm.defaultProps = {
   visible: true,
   type: "Edit",
 }
 
-export default MeetingForm
+export default ViewMeetingForm
