@@ -46,7 +46,7 @@ const SelectLayout = {
 
 const SwitchLayout = {
   labelCol: { span: 8, offset: 0 },
-  wrapperCol: { offset: 0, span: 16 },
+  wrapperCol: { offset: 1, span: 16 },
 }
 const layout = {
   labelCol: { span: 6, offset: 0 },
@@ -80,67 +80,16 @@ interface Meet {
   roomName: string
 }
 
-const MeetingData: Meeting = {
-  meetingID: 0,
-  title: "string",
-  description: "string",
-  departments: ["IE"],
-  location: "TR-302",
-  repeatType: 0,
-  creatorUid: 0,
-  fromDate: "2020-12-02T07:54:36.799Z",
-  toDate: "2020-12-02T07:54:36.799Z",
-}
-
-const member = [
-  { name: "gold", uid: 0, email: "aaaa" },
-  { name: "lime", uid: 1, email: "bbbb" },
-  { name: "green", uid: 2, email: "cccc" },
-  { name: "cyan", uid: 3, email: "dddd" },
-  { name: "gold", uid: 4, email: "ffff" },
-  { name: "111", uid: 5, email: "gggg" },
-  { name: "33", uid: 6, email: "hhhh" },
-]
-
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
-  type: "Edit" | "View"
-  meetingValue?: Meeting
+  meetingData: Meeting
 }
 
 function ViewMeetingForm(Props: Init) {
   const [confirmLoading, setConfirmLoading] = React.useState(false)
-  const [modalText, setModalText] = React.useState("Content of the modal")
-  const { visible, setVisible, type } = Props
+  const { visible, setVisible, meetingData } = Props
   const [form] = Form.useForm()
-  const typeBool = type === "Edit"
-
-  function showErrorMessage(message: string) {
-    Modal.error({
-      title: "Error",
-      content: message,
-    })
-  }
-
-  function tagRender(props: any) {
-    const { label, value, closable, onClose } = props
-
-    return (
-      <Tag color="gold" closable={closable} onClose={onClose} style={{ marginRight: 3 }}>
-        {label}
-      </Tag>
-    )
-  }
-
-  const handleOk = () => {
-    setModalText("The modal will be closed after two seconds")
-    setConfirmLoading(true)
-    setTimeout(() => {
-      setVisible(false)
-      setConfirmLoading(false)
-    }, 2000)
-  }
 
   const handleCancel = () => {
     console.log("Clicked cancel button")
@@ -148,42 +97,37 @@ function ViewMeetingForm(Props: Init) {
     setVisible(false)
   }
 
-  const onFinish = (values: any) => {}
+  const fromDate = moment(meetingData.fromDate) //
+  const toDate = moment(meetingData.toDate) //
 
-  const onFinishFailed = () => {
-    showErrorMessage("請選擇日期!")
-    console.log("error")
+  function judgeAllday() {
+    if (fromDate.isSame(toDate, "day") && toDate.diff(fromDate, "hour") >= 23) return true
+    return false
   }
 
   return (
     <>
-      <Modal visible={visible} onOk={handleOk} confirmLoading={confirmLoading} onCancel={handleCancel} footer={false}>
+      <Modal visible={visible} confirmLoading={confirmLoading} onCancel={handleCancel} footer={false}>
         <Form
           {...layout}
           form={form}
           name="control-hooks"
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           initialValues={{
-            descript: MeetingData.description,
-            meetingRoom: roomList[0].name,
-            allDay: true,
-            repeat: true,
-            department: departmentList[0].name,
-            titleName: MeetingData.title,
-            member: "aaaa\nbbbb\nrrrr\nddddd",
-            selectDate: `From  ${moment().format("YYYY-MM-DD HH:mm")}  to  ${moment("2020-12-02T07:54:36.799Z").format(
-              "YYYY-MM-DD HH:mm"
-            )}`,
+            descript: meetingData.description,
+            meetingRoom: meetingData.location,
+            allDay: judgeAllday(),
+            repeat: meetingData.repeatType,
+            department: meetingData.departments.join("\n"),
+            titleName: meetingData.title,
+            member: meetingData.attendees?.filter(element => `${element.name} <${element.email}>`).join("\n"),
+            selectDate: `From  ${fromDate.format("YYYY-MM-DD HH:mm")}  to  ${toDate.format("YYYY-MM-DD HH:mm")}`,
           }}
         >
-          <Form.Item name="title">
-            <Row justify="start">
-              <h1> {MeetingData.title}</h1>
-            </Row>
-          </Form.Item>
+          <Row justify="center">
+            <h1> {`${meetingData.title}`}</h1>
+          </Row>
           <Row>
-            <Col span={8} offset={2}>
+            <Col span={8} offset={3}>
               <Form.Item name="allDay" label="All Day" {...SwitchLayout} valuePropName="checked">
                 <Switch disabled />
               </Form.Item>
@@ -201,10 +145,10 @@ function ViewMeetingForm(Props: Init) {
             <Input readOnly />
           </Form.Item>
           <Form.Item name="department" label="Department" {...SelectLayout}>
-            <Input readOnly />
+            <TextArea allowClear placeholder="Department" autoSize={{ minRows: 1, maxRows: 3 }} readOnly />
           </Form.Item>
           <Form.Item name="member" label="Member">
-            <TextArea allowClear placeholder="Descript" autoSize={{ minRows: 3, maxRows: 5 }} readOnly />
+            <TextArea allowClear placeholder="Member" autoSize={{ minRows: 3, maxRows: 5 }} readOnly />
           </Form.Item>
           <Form.Item name="descript" label="Descript">
             <TextArea allowClear placeholder="Descript" autoSize={{ minRows: 3, maxRows: 5 }} readOnly />
@@ -222,7 +166,6 @@ function ViewMeetingForm(Props: Init) {
 
 ViewMeetingForm.defaultProps = {
   visible: true,
-  type: "Edit",
 }
 
 export default ViewMeetingForm

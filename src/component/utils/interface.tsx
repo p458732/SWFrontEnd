@@ -14,7 +14,6 @@ export interface UserGroup {
 export interface User {
   uid: number
   name: string
-  password: string
   department: Department
   email: string
   group: UserGroup
@@ -25,7 +24,7 @@ export interface Meeting {
   title: string
   description: string
   location: string
-  attendee?: Array<User>
+  attendees?: Array<User>
   departments: Array<string>
   creatorUid?: number
   repeatType: number

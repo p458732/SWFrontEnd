@@ -228,7 +228,7 @@ function MeetingForm(Props: Init) {
                 Today: [moment(), moment()],
                 "This Month": [moment().startOf("month"), moment().endOf("month")],
               }}
-              disabled={typeBool}
+              disabled={!typeBool}
               showTime
               format="YYYY/MM/DD HH:mm"
               onChange={onChange}
