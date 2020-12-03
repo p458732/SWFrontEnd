@@ -12,7 +12,7 @@ import RoomEdit from "../ManagerEdit/roomEdit"
 
 import ManagerEdit from "../ManagerEdit/ManagerEdit"
 
-import { Room } from "../utils/interface"
+import { Room, Meeting } from "../utils/interface"
 
 // helper functions
 let state: any = {}
@@ -139,6 +139,7 @@ const fakedata = [
 function Scheduler() {
   // const [meetings, setMeetings] = useState([])
   const [roomList, setroomList] = useState<Array<Room>>(fakedata)
+  const [meetingList, setmeetingList] = useState(0)
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
 
   // useEffect(() => () => {
@@ -156,10 +157,9 @@ function Scheduler() {
 
   function itemLabelContent({ item, vido }) {
     console.log(1)
-    return vido.html`<div class="my-item-content" style="cursor:pointer;" @click=${() =>
-      onItemClick(
-        item
-      )}><span style="width:12px;height:12px;background:white;border-radius:100%;display:inline-block;margin-right:4px;vertical-align:middle;"></span>My HTML content here!</div>`
+    return vido.html`<div class="my-item-content" style="width:100%"  @click=${() => onItemClick(item)}>${
+      item.title
+    }</div>`
   }
 
   function generateNewItems(meeting: any) {
@@ -207,7 +207,7 @@ function Scheduler() {
       })
       .then(status => {
         if (status === 200) {
-          getMeeting(state, gstc)
+          getMeeting()
         } else {
           alert("cannot add new meeting")
         }

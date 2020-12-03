@@ -12,24 +12,24 @@ export interface UserGroup {
 }
 
 export interface User {
+  uid: number
   name: string
-  password: string
   department: Department
   email: string
   group: UserGroup
 }
 
 export interface Meeting {
+  meetingID: number
   title: string
   description: string
-  roomName: string
-  attendee: Array<User>
+  location: string
+  attendees?: Array<User>
   departments: Array<string>
-  creator?: string
-  repeatType: Number
-  updatedDate?: Date
-  createdDate?: Date
+  creatorUid?: number
+  repeatType: number
+  updatedDate?: string
+  createdDate?: string
   fromDate: string
   toDate: string
 }
-
