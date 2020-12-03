@@ -1,13 +1,23 @@
 import { Calendar, Select, Radio, Col, Row, Typography } from "antd"
 import "antd/dist/antd.css"
-import React from "react"
+import React, { useState } from "react"
+import moment from "moment"
 
 function onPanelChange(value: any, mode: any) {
-  console.log(value, mode)
+  console.log(222222222222)
 }
 
 function SidebarCalendar() {
+  // 取得時間
+  const currentDateTime = moment().format("YYYY/MM/DD HH:mm:ss")
+  const [value, setValue] = useState(currentDateTime)
+  const [selectedValue, setSelectedValue] = useState(currentDateTime)
   // eslint-disable-next-line prettier/prettier
+  function onSelect(value) {
+    setValue(value)
+    setSelectedValue(value)
+    console.log(value)
+  }
   return (
     <div className="site-calendar-customize-header-wrapper">
       <Calendar
@@ -87,6 +97,7 @@ function SidebarCalendar() {
           )
         }}
         onPanelChange={onPanelChange}
+        onSelect={onSelect}
       />
     </div>
   )
