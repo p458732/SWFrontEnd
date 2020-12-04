@@ -202,7 +202,7 @@ function RoomEdit(props: Props) {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="roomName" name="roomName">
+        <Form.Item label="Room name" name="roomName">
           <Input readOnly={type === "delete"} onChange={changeRoomName} type="text" />
         </Form.Item>
         <Form.Item label="Capacity" name="Capacity">
