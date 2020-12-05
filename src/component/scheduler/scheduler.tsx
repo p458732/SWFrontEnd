@@ -17,7 +17,7 @@ import { Room, Meeting } from "../utils/interface"
 // helper functions
 let state: any = {}
 let gstc: any = {}
-
+let previousDate: any
 let lastItemId = -1
 const meetingURL = "https://hw.seabao.ml/api/meeting"
 // function generateRows() {
@@ -61,7 +61,8 @@ function initializeGSTC(element: any) {
   /**
    * @type { import("gantt-schedule-timeline-calendar").Config }
    */
-  const date = GSTC.api.date;
+
+  const date = GSTC.api.date
   const config = {
     licenseKey:
       "====BEGIN LICENSE KEY====\nXOfH/lnVASM6et4Co473t9jPIvhmQ/l0X3Ewog30VudX6GVkOB0n3oDx42NtADJ8HjYrhfXKSNu5EMRb5KzCLvMt/pu7xugjbvpyI1glE7Ha6E5VZwRpb4AC8T1KBF67FKAgaI7YFeOtPFROSCKrW5la38jbE5fo+q2N6wAfEti8la2ie6/7U2V+SdJPqkm/mLY/JBHdvDHoUduwe4zgqBUYLTNUgX6aKdlhpZPuHfj2SMeB/tcTJfH48rN1mgGkNkAT9ovROwI7ReLrdlHrHmJ1UwZZnAfxAC3ftIjgTEHsd/f+JrjW6t+kL6Ef1tT1eQ2DPFLJlhluTD91AsZMUg==||U2FsdGVkX1/SWWqU9YmxtM0T6Nm5mClKwqTaoF9wgZd9rNw2xs4hnY8Ilv8DZtFyNt92xym3eB6WA605N5llLm0D68EQtU9ci1rTEDopZ1ODzcqtTVSoFEloNPFSfW6LTIC9+2LSVBeeHXoLEQiLYHWihHu10Xll3KsH9iBObDACDm1PT7IV4uWvNpNeuKJc\npY3C5SG+3sHRX1aeMnHlKLhaIsOdw2IexjvMqocVpfRpX4wnsabNA0VJ3k95zUPS3vTtSegeDhwbl6j+/FZcGk9i+gAy6LuetlKuARjPYn2LH5Be3Ah+ggSBPlxf3JW9rtWNdUoFByHTcFlhzlU9HnpnBUrgcVMhCQ7SAjN9h2NMGmCr10Rn4OE0WtelNqYVig7KmENaPvFT+k2I0cYZ4KWwxxsQNKbjEAxJxrzK4HkaczCvyQbzj4Ppxx/0q+Cns44OeyWcwYD/vSaJm4Kptwpr+L4y5BoSO/WeqhSUQQ85nvOhtE0pSH/ZXYo3pqjPdQRfNm6NFeBl2lwTmZUEuw==\n====END LICENSE KEY====",
@@ -109,8 +110,8 @@ function initializeGSTC(element: any) {
       items: [],
       calendarLevels: [hours, minutes],
       time: {
-        from: date('2020-01-01').valueOf(), // from 2020-01-01
-        to: date('2020-01-01').endOf('month').valueOf(), // to 2020-01-31
+        from: date("2020-01-01").valueOf(), // from 2020-01-01
+        to: date("2020-01-02").valueOf(), // to 2020-01-31
         zoom: 14,
       },
     },
@@ -139,12 +140,25 @@ const fakedata = [
   },
 ]
 
-function Scheduler() {
+function Scheduler(props) {
+  const date = GSTC.api.date
+  console.log(props.currentDate.val)
   // const [meetings, setMeetings] = useState([])
   const [roomList, setroomList] = useState<Array<Room>>(fakedata)
   const [meetingList, setmeetingList] = useState(0)
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
+  if (gstc && state.id !== undefined) {
+    if (previousDate > props.currentDate.val.valueOf()) {
+      state.update("config.chart.time.from", props.currentDate.val.startOf("day").valueOf())
+      state.update("config.chart.time.to", props.currentDate.val.endOf("day").valueOf())
+    } else {
+      state.update("config.chart.time.to", props.currentDate.val.endOf("day").valueOf())
+      state.update("config.chart.time.from", props.currentDate.val.startOf("day").valueOf())
+    }
+    previousDate = props.currentDate.val.valueOf()
 
+    console.log(props.currentDate.val)
+  }
   // useEffect(() => () => {
   //   if (gstc) {
   //     gstc.destroy()
@@ -152,7 +166,10 @@ function Scheduler() {
   // })
 
   function changeZoomLevel() {
-    state.update("config.chart.time.zoom", 14)
+    console.log(props.currentDate.val)
+    console.log(state)
+    console.log(date("2020-02-06").valueOf())
+    state.update("config.chart.time.from", date("2020-02-06").valueOf())
   }
   function onItemClick(item) {
     setSaveEditFormVsible(true)
@@ -232,10 +249,11 @@ function Scheduler() {
 
   const callback = useCallback(element => {
     if (element) {
-      console.log(1)
+      console.log(props.currentDate.val)
       initializeGSTC(element)
       getRoom(state)
       getMeeting()
+      previousDate = date("2020-01-01").valueOf()
     }
   }, [])
   return (
