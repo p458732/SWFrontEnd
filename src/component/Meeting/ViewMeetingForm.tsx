@@ -116,8 +116,12 @@ function ViewMeetingForm(Props: Init) {
             descript: meetingData.description,
             meetingRoom: meetingData.location,
             allDay: judgeAllday(),
-            repeat: meetingData.repeatType,
-            department: meetingData.departments.join("\n"),
+            // todo
+            // repeat: meetingData.repeatType,
+            // todo
+            // department: meetingData.departments.join("\n"),
+            department: "tes",
+            repeat: 0,
             titleName: meetingData.title,
             member: meetingData.attendees?.filter(element => `${element.name} <${element.email}>`).join("\n"),
             selectDate: `From  ${fromDate.format("YYYY-MM-DD HH:mm")}  to  ${toDate.format("YYYY-MM-DD HH:mm")}`,

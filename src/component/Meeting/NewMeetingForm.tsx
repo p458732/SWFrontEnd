@@ -148,6 +148,7 @@ function NewMeetingForm(Props: Init) {
           .then(() => {
             form.resetFields()
             setVisible(false)
+            // 放changeData
           })
           .catch(() => {
             showErrorMessage("變更失敗!")
