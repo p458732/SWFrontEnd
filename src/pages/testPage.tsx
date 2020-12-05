@@ -5,6 +5,7 @@ import { Meeting } from "../component/utils/interface"
 import Edit from "../component/ManagerEdit/Edit"
 import ManagerEdit from "../component/ManagerEdit/ManagerEdit"
 import MeetingForm from "../component/Meeting/MeetingForm"
+import NewMeetingForm from "../component/Meeting/NewMeetingForm"
 import ViewMeetingForm from "../component/Meeting/ViewMeetingForm"
 
 const MeetingData: Meeting = {
@@ -35,7 +36,10 @@ export default function Home() {
       <Button type="primary" onClick={showModal}>
         Open Modal with async logic
       </Button>
-      <ViewMeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} meetingData={MeetingData} />
+      {/*
+      <ViewMeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} meetingData={MeetingData} /> 
+      */}
+      <NewMeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} />
       <Edit />
     </div>
   )
