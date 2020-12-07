@@ -254,7 +254,13 @@ function MeetingForm(Props: Init) {
             {...SelectLayout}
             rules={[{ required: typeBool, message: "Select department is require" }]}
           >
-            <Select showSearch placeholder="Select a room" onChange={onSelectRoom} allowClear disabled={!typeBool}>
+            <Select
+              showSearch
+              placeholder="Select a department"
+              onChange={onSelectRoom}
+              allowClear
+              disabled={!typeBool}
+            >
               {departmentList.map(item => (
                 <Option value={item.name} key={item.name}>
                   {item.name}
