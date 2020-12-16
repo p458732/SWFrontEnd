@@ -2,6 +2,7 @@ import { Button } from "antd"
 import React, { useState } from "react"
 import RoomEdit from "./roomEdit"
 import { Room } from "../utils/interface"
+import EmployeeEdit from "./EmployeeEdit"
 
 const fakedata = [
   {
@@ -22,6 +23,7 @@ export default function ManagerEdit() {
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
   const [editNewFormVisible, setNewEditFormVsible] = useState(false)
   const [editDeleteFormVisible, setDeleteEditFormVsible] = useState(false)
+  const [editEmployeeEditVisible, setEmployeeEditVisible] = useState(false)
 
   return (
     <>
@@ -47,6 +49,13 @@ export default function ManagerEdit() {
         >
           Delete
         </Button>
+        <Button
+          onClick={() => {
+            setEmployeeEditVisible(true)
+          }}
+        >
+          EmployeeEdit
+        </Button>
       </div>
       <RoomEdit
         type="Save"
@@ -69,6 +78,7 @@ export default function ManagerEdit() {
         setvisible={setDeleteEditFormVsible}
         visible={editDeleteFormVisible}
       />
+      <EmployeeEdit setVisible={setEmployeeEditVisible} visible={editEmployeeEditVisible} />
     </>
   )
 }
