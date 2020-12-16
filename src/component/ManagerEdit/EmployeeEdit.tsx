@@ -58,8 +58,14 @@ interface Meet {
   description: string
   roomName: string
 }
+interface Member {
+  name: string
+  uid: number
+  email: string
+  department: Department
+}
 
-const member = [
+const member: Array<Member> = [
   { name: "gold", uid: 0, email: "123@gmail.com", department: { name: "Personnel Department" } },
   { name: "lime", uid: 1, email: "456@gmail.com", department: { name: "Personnel Department" } },
   { name: "green", uid: 2, email: "789@gmail.com", department: { name: "Sales Department" } },
@@ -68,22 +74,20 @@ const member = [
   { name: "111", uid: 5, email: "321@gmail.com", department: { name: "Business Office" } },
 ]
 
-const initEmployee = { name: "", uid: 0, email: "", department: { name: "" } }
+const initEmployee: Member = { name: "", uid: 0, email: "", department: { name: "" } }
 
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
-  type: "Edit" | "View"
-  meetingValue?: Meeting
 }
 
-function MeetingForm(Props: Init) {
+function EmployeeEdit(Props: Init) {
   const [Employee, setEmployee] = React.useState(initEmployee)
   const { visible, setVisible } = Props
   const [form] = Form.useForm()
   useEffect(() => {
-    form.setFieldsValue({ email: Employee.email })
-  })
+    form.setFieldsValue({ email: Employee.email, department: Employee.department.name })
+  }, [Employee])
 
   function showErrorMessage(message: string) {
     Modal.error({
@@ -121,7 +125,15 @@ function MeetingForm(Props: Init) {
             {...SelectLayout}
             rules={[{ required: true, message: "Select employee is require" }]}
           >
-            <Select showSearch placeholder="Select Employee" onChange={onSelectRoom} allowClear>
+            <Select
+              showSearch
+              placeholder="Select Employee"
+              onChange={value => {
+                const temp = member.find(element => value === element.email)
+                if (temp !== undefined) setEmployee(temp)
+              }}
+              allowClear
+            >
               {member.map(item => (
                 <Option value={item.email} key={item.uid}>
                   {item.name}
@@ -133,15 +145,19 @@ function MeetingForm(Props: Init) {
             <Input />
           </Form.Item>
           <Form.Item name="password" label="password" rules={[{ required: true, message: "password is require" }]}>
-            <Input />
+            <Input style={{ width: "75%" }} />
+            <Button size="middle" onClick={value => {}}>
+              change
+            </Button>
           </Form.Item>
+
           <Form.Item
             name="department"
             label="Department"
             {...SelectLayout}
             rules={[{ required: true, message: "Select department is require" }]}
           >
-            <Select showSearch placeholder="Select a department" onChange={onSelectRoom} allowClear>
+            <Select showSearch placeholder="Select a department" onChange={value => {}} allowClear>
               {departmentList.map(item => (
                 <Option value={item.name} key={item.name}>
                   {item.name}
@@ -165,9 +181,4 @@ function MeetingForm(Props: Init) {
   )
 }
 
-MeetingForm.defaultProps = {
-  visible: true,
-  type: "Edit",
-}
-
-export default MeetingForm
+export default EmployeeEdit
