@@ -22,9 +22,8 @@ const MeetingData: Meeting = {
 
 export default function Home() {
   const [MeetingFromVisible, setMeetingFromVisible] = React.useState(false)
-  const showModal = () => {
-    setMeetingFromVisible(true)
-  }
+  const [NewMeetingFromVisible, setNewMeetingFromVisible] = React.useState(false)
+
   const InitData: any = {
     visible: MeetingFromVisible,
     setVisible: setMeetingFromVisible,
@@ -33,14 +32,24 @@ export default function Home() {
   return (
     <div>
       <ManagerEdit />
-      <Button type="primary" onClick={showModal}>
-        Open Modal with async logic
+      <Button
+        type="primary"
+        onClick={() => {
+          setMeetingFromVisible(true)
+        }}
+      >
+        viewMeet
       </Button>
-      {/*
-      <ViewMeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} meetingData={MeetingData} /> 
-      */}
-      <NewMeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} />
-      <Edit />
+      <Button
+        type="primary"
+        onClick={() => {
+          setNewMeetingFromVisible(true)
+        }}
+      >
+        newMeet
+      </Button>
+      <ViewMeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} meetingData={MeetingData} />
+      <NewMeetingForm visible={NewMeetingFromVisible} setVisible={setNewMeetingFromVisible} />
     </div>
   )
 }

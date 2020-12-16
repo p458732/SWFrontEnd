@@ -50,17 +50,6 @@ const layout = {
   wrapperCol: { span: 16 },
 }
 
-const departmentList: Array<Department> = [
-  { name: "Personnel Department" },
-  { name: "Sales Department" },
-  { name: "Business Office" },
-]
-
-interface Meet {
-  title: string
-  description: string
-  roomName: string
-}
 interface Member {
   name: string
   uid: number
@@ -84,27 +73,16 @@ interface Init {
   visible: boolean
 }
 
-let changeEmployeeData: Member = initEmployee
-
-function EmployeeEdit(Props: Init) {
+function EmployeeDelete(Props: Init) {
   const { visible, setVisible } = Props
   const [Employee, setEmployee] = React.useState(initEmployee)
-  const [disablePassWord, setDisablepassWord] = useState(true)
-  const [require, setRequire] = useState(false)
   const [form] = Form.useForm()
-  let changePassWord = ""
   useEffect(() => {
-    console.log(Employee)
-    changeEmployeeData = Employee
-    console.log(changeEmployeeData)
-    changePassWord = ""
     form.setFieldsValue({ email: Employee.email, department: Employee.department.name })
   }, [Employee])
 
   useEffect(() => {
     setEmployee(initEmployee)
-    setDisablepassWord(true)
-    setRequire(false)
   }, [visible])
 
   function showErrorMessage(message: string) {
@@ -124,7 +102,7 @@ function EmployeeEdit(Props: Init) {
     confirm({
       title: "確認",
       icon: <ExclamationCircleOutlined />,
-      content: "你確定要變更此成員嗎?",
+      content: "你確定要刪除此成員嗎?",
       onOk() {
         return new Promise((resolve, reject) => {
           setTimeout(Math.random() > 0.1 ? resolve : reject, 1000)
@@ -135,7 +113,7 @@ function EmployeeEdit(Props: Init) {
             // 放changeData
           })
           .catch(() => {
-            showErrorMessage("變更失敗!")
+            showErrorMessage("刪除失敗!")
           })
       },
       onCancel() {},
@@ -143,8 +121,6 @@ function EmployeeEdit(Props: Init) {
   }
 
   const onFinish = (values: any) => {
-    console.log(changeEmployeeData)
-    console.log(changePassWord)
     showPromiseConfirm()
   }
 
@@ -158,7 +134,7 @@ function EmployeeEdit(Props: Init) {
         <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} onFinishFailed={onFinishFailed}>
           <Form.Item name="title">
             <Row justify="start">
-              <h1>編輯成員</h1>
+              <h1>刪除成員</h1>
             </Row>
           </Form.Item>
           <Form.Item
@@ -173,11 +149,9 @@ function EmployeeEdit(Props: Init) {
               onChange={value => {
                 if (value === undefined) {
                   form.resetFields()
-                  setRequire(false)
                   setEmployee(initEmployee)
                   return
                 }
-                setRequire(true)
                 const temp = member.find(element => value === element.email)
                 if (temp !== undefined) setEmployee(temp)
               }}
@@ -190,72 +164,19 @@ function EmployeeEdit(Props: Init) {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="email" label="email" rules={[{ required: require, message: "Email is require" }]}>
-            <Input
-              disabled={!require}
-              onChange={event => {
-                changeEmployeeData.email = event.target.value
-              }}
-            />
+          <Form.Item name="email" label="email">
+            <Input disabled={!require} readOnly />
           </Form.Item>
-          <Row>
-            <Col span={16} offset={2}>
-              <Form.Item
-                label="PassWord"
-                name="password"
-                rules={[{ required: !disablePassWord, message: "password is require" }]}
-              >
-                <Input
-                  disabled={disablePassWord}
-                  onChange={event => {
-                    changePassWord = event.target.value
-                  }}
-                />
-              </Form.Item>
-            </Col>
-            <Col>
-              <Button
-                size="middle"
-                onClick={value => {
-                  console.log(disablePassWord)
-                  console.log(require)
-                  setDisablepassWord(!disablePassWord)
-                }}
-              >
-                change
-              </Button>
-            </Col>
-          </Row>
-          <Form.Item
-            name="department"
-            label="Department"
-            {...SelectLayout}
-            rules={[{ required: require, message: "Select department is require" }]}
-          >
-            <Select
-              showSearch
-              placeholder="Select a department"
-              onChange={value => {
-                changeEmployeeData.department.name = String(value)
-                console.log(changeEmployeeData.department.name)
-              }}
-              allowClear
-              disabled={!require}
-            >
-              {departmentList.map(item => (
-                <Option value={item.name} key={item.name}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
+          <Form.Item name="department" label="Department" {...SelectLayout}>
+            <Input disabled={!require} readOnly />
           </Form.Item>
           <Form.Item name="button" {...tailLayout}>
             <Space size="middle">
               <Button onClick={handleCancel} type="default">
                 Cancel
               </Button>
-              <Button type="primary" htmlType="submit">
-                Save
+              <Button type="primary" htmlType="submit" danger>
+                Delete
               </Button>
             </Space>
           </Form.Item>
@@ -265,4 +186,4 @@ function EmployeeEdit(Props: Init) {
   )
 }
 
-export default EmployeeEdit
+export default EmployeeDelete

@@ -145,11 +145,6 @@ function RoomEdit(props: Props) {
     } else showErrorMessage("尚未變更!")
   }
 
-  const onFinishFailed = () => {
-    showErrorMessage("請選擇房間!")
-    console.log("error")
-  }
-
   const onCancel = () => {
     setIsVisible(false)
     setSelectRoom(initRoom)
@@ -158,6 +153,7 @@ function RoomEdit(props: Props) {
 
   const onSelectRoom = (value: string) => {
     console.log(selectedRoom)
+    if (value === undefined) form.resetFields()
     roomList.forEach(item => {
       if (item.name === value) {
         console.log("item", item)
@@ -183,7 +179,7 @@ function RoomEdit(props: Props) {
 
   return (
     <Modal visible={isVisible} okText={type} onCancel={onCancel} footer={false} forceRender>
-      <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+      <Form {...layout} form={form} name="control-hooks" onFinish={onFinish}>
         <Row justify="center">
           <h1>{type === "New" ? "新增房間" : "變更房間"}</h1>
         </Row>
@@ -191,7 +187,6 @@ function RoomEdit(props: Props) {
           name="select"
           label="Select room"
           rules={[{ required: type !== "New", message: "Select room is require" }]}
-          hasFeedback
           hidden={type === "New"}
         >
           <Select showSearch placeholder="Select a room" onChange={onSelectRoom} allowClear>
@@ -202,10 +197,18 @@ function RoomEdit(props: Props) {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="Room name" name="roomName">
+        <Form.Item
+          label="Room name"
+          name="roomName"
+          rules={[{ required: type === "New", message: "Room name is require" }]}
+        >
           <Input readOnly={type === "delete"} onChange={changeRoomName} type="text" />
         </Form.Item>
-        <Form.Item label="Capacity" name="Capacity">
+        <Form.Item
+          label="Capacity"
+          name="Capacity"
+          rules={[{ required: type === "New", message: "Capacity is require" }]}
+        >
           <InputNumber
             readOnly={type === "delete"}
             onChange={changeRoomCapacity}

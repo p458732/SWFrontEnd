@@ -3,6 +3,7 @@ import React, { useState } from "react"
 import RoomEdit from "./roomEdit"
 import { Room } from "../utils/interface"
 import EmployeeEdit from "./EmployeeEdit"
+import EmployeeDelete from "./EmployeeDelete"
 
 const fakedata = [
   {
@@ -24,6 +25,7 @@ export default function ManagerEdit() {
   const [editNewFormVisible, setNewEditFormVsible] = useState(false)
   const [editDeleteFormVisible, setDeleteEditFormVsible] = useState(false)
   const [editEmployeeEditVisible, setEmployeeEditVisible] = useState(false)
+  const [editEmployeeDeleteVisible, setEmployeeDeleteVisible] = useState(false)
 
   return (
     <>
@@ -56,6 +58,13 @@ export default function ManagerEdit() {
         >
           EmployeeEdit
         </Button>
+        <Button
+          onClick={() => {
+            setEmployeeDeleteVisible(true)
+          }}
+        >
+          EmployeeDelete
+        </Button>
       </div>
       <RoomEdit
         type="Save"
@@ -79,6 +88,7 @@ export default function ManagerEdit() {
         visible={editDeleteFormVisible}
       />
       <EmployeeEdit setVisible={setEmployeeEditVisible} visible={editEmployeeEditVisible} />
+      <EmployeeDelete setVisible={setEmployeeDeleteVisible} visible={editEmployeeDeleteVisible} />
     </>
   )
 }
