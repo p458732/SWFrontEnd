@@ -13,24 +13,7 @@ import Icon from "antd/lib/icon"
 import { FormInstance } from "antd/lib/form"
 import { EnvironmentOutlined, FontSizeOutlined, ExclamationCircleOutlined } from "@ant-design/icons"
 
-import {
-  Form,
-  Input,
-  Button,
-  Radio,
-  Select,
-  Cascader,
-  DatePicker,
-  InputNumber,
-  TreeSelect,
-  Switch,
-  Space,
-  Row,
-  Col,
-  Modal,
-  Tag,
-} from "antd"
-import { Room, User, Department, Meeting } from "../utils/interface"
+import { Form, Input, Button, Select, Space, Row, Col, Modal } from "antd"
 
 const { Option } = Select
 
@@ -49,12 +32,10 @@ const layout = {
   labelCol: { span: 6, offset: 0 },
   wrapperCol: { span: 16 },
 }
-
-const departmentList: Array<Department> = [
-  { name: "Personnel Department" },
-  { name: "Sales Department" },
-  { name: "Business Office" },
-]
+interface Department {
+  name: string
+  attendees: Array<any>
+}
 interface Member {
   name: string
   id: string
@@ -70,19 +51,24 @@ interface Init {
 }
 
 let changeEmployeeData: Member = initEmployee
-
+let changePassWord = ""
+const DepartmentData: Array<Department> = []
 function EmployeeEdit(Props: Init) {
   const { visible, setVisible } = Props
   const [Employee, setEmployee] = React.useState(initEmployee)
+  const [DepartmentList, setDepartmentList] = useState<Department[]>([])
   const [disablePassWord, setDisablepassWord] = useState(true)
   const [member, setMember] = useState<Member[]>([])
   const [require, setRequire] = useState(false)
   const [form] = Form.useForm()
-  let changePassWord = ""
+
   useEffect(() => {
-    console.log(Employee)
-    changeEmployeeData = Employee
-    console.log(changeEmployeeData)
+    changeEmployeeData = {
+      name: Employee.name,
+      id: Employee.id,
+      email: Employee.email,
+      departmentName: Employee.departmentName,
+    }
     changePassWord = ""
     form.setFieldsValue({ email: Employee.email, department: Employee.departmentName })
   }, [Employee])
@@ -101,8 +87,25 @@ function EmployeeEdit(Props: Init) {
       .catch(error => console.log("error", error))
   }
 
+  function getDepartment() {
+    const data: Array<Department> = []
+    fetch("https://hw.seabao.ml/api/department")
+      .then(res => res.json())
+      .then(response => {
+        response.forEach((employee: any) => {
+          data.push(employee)
+        })
+        setDepartmentList(data)
+        console.log("Success", data)
+      })
+      .catch(error => console.log("error", error))
+  }
+
   useEffect(() => {
-    if (visible) getEmployeeInfo()
+    if (visible) {
+      getEmployeeInfo()
+      getDepartment()
+    }
     setEmployee(initEmployee)
     setDisablepassWord(true)
     setRequire(false)
@@ -127,10 +130,15 @@ function EmployeeEdit(Props: Init) {
       icon: <ExclamationCircleOutlined />,
       content: "你確定要變更此成員嗎?",
       onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.1 ? resolve : reject, 1000)
+        return fetch("https://hw.seabao.ml/api/user", {
+          method: "PATCH",
+          body: JSON.stringify(changeEmployeeData), // data can be `string` or {object}!
+          headers: new Headers({
+            "Content-Type": "application/json",
+          }),
         })
-          .then(() => {
+          .then(res => {
+            console.log("success", res)
             form.resetFields()
             setVisible(false)
             // 放changeData
@@ -144,9 +152,18 @@ function EmployeeEdit(Props: Init) {
   }
 
   const onFinish = (values: any) => {
+    console.log(Employee)
     console.log(changeEmployeeData)
     console.log(changePassWord)
-    showPromiseConfirm()
+    if (
+      Employee.email === changeEmployeeData.email &&
+      Employee.departmentName === changeEmployeeData.departmentName &&
+      changePassWord === ""
+    )
+      showErrorMessage("成員資料未變更")
+    else {
+      showPromiseConfirm()
+    }
   }
 
   const onFinishFailed = () => {
@@ -249,7 +266,7 @@ function EmployeeEdit(Props: Init) {
               allowClear
               disabled={!require}
             >
-              {departmentList.map(item => (
+              {DepartmentList.map(item => (
                 <Option value={item.name} key={item.name}>
                   {item.name}
                 </Option>

@@ -116,8 +116,8 @@ function RoomEdit(props: Props) {
         method: "DELETE",
       })
     } else {
-      choose = fetch(`https://hw.seabao.ml/api/room?roomName=${changeData.id}`, {
-        method: "DELETE",
+      choose = fetch(`https://hw.seabao.ml/api/room/${changeData.id}?capacity=${changeData.capacity}`, {
+        method: "PATCH",
       })
     }
     return choose
@@ -218,7 +218,7 @@ function RoomEdit(props: Props) {
           name="roomName"
           rules={[{ required: type === "New", message: "Room name is require" }]}
         >
-          <Input readOnly={type === "delete"} onChange={changeRoomName} type="text" />
+          <Input readOnly={type !== "New"} onChange={changeRoomName} type="text" />
         </Form.Item>
         <Form.Item
           label="Capacity"
@@ -226,7 +226,7 @@ function RoomEdit(props: Props) {
           rules={[{ required: type === "New", message: "Capacity is require" }]}
         >
           <InputNumber
-            readOnly={type === "delete"}
+            readOnly={type === "Delete"}
             onChange={changeRoomCapacity}
             type="text"
             formatter={limitDecimals}
