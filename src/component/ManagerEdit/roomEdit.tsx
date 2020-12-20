@@ -28,6 +28,7 @@ import {
   Col,
   Modal,
 } from "antd"
+import { promises } from "fs"
 import { Room, User } from "../utils/interface"
 
 const { Option } = Select
@@ -44,8 +45,6 @@ const { confirm } = Modal
 
 interface Props {
   type: string
-  roomList: Array<Room>
-  setRoomList: React.Dispatch<React.SetStateAction<Room[]>>
   setvisible: React.Dispatch<React.SetStateAction<boolean>>
   visible?: boolean
 }
@@ -53,11 +52,13 @@ interface Props {
 const initRoom: Room = {
   name: "",
   capacity: 0,
+  id: -1,
 }
 
 function RoomEdit(props: Props) {
-  const changeData: Room = { name: "", capacity: 0 }
-  const { type, visible, roomList, setRoomList } = props
+  const changeData: Room = { name: "", capacity: 0, id: -1 }
+  const { type, visible } = props
+  const [roomList, setRoomList] = useState<Array<Room>>([])
   const [form] = Form.useForm()
   const [selectedRoom, setSelectRoom] = useState<Room>(initRoom)
   useEffect(
@@ -65,11 +66,23 @@ function RoomEdit(props: Props) {
       form.setFieldsValue({ roomName: selectedRoom.name, Capacity: selectedRoom.capacity })
       changeData.name = selectedRoom.name
       changeData.capacity = selectedRoom.capacity
+      changeData.id = selectedRoom.id
       console.log("selectedRoom", selectedRoom)
       console.log("changeData", changeData)
     },
     [selectedRoom]
   )
+
+  useEffect(() => {
+    if (!visible) return
+    fetch("https://hw.seabao.ml/api/room")
+      .then(data => data.json())
+      .then(res => {
+        setRoomList(res)
+        console.log("Success", roomList)
+      })
+      .catch(error => console.log("error", error))
+  }, [visible])
 
   // const [roomList, setRoomList] = useState<Array<Room>>(fakedata)
   useEffect(
@@ -88,6 +101,28 @@ function RoomEdit(props: Props) {
     })
   }
 
+  function Choose(): Promise<Response> {
+    let choose: Promise<Response>
+    if (type === "New") {
+      choose = fetch("https://hw.seabao.ml/api/room", {
+        method: "POST", // or 'PUT'
+        body: JSON.stringify({ name: changeData.name, capacity: changeData.capacity }), // data can be `string` or {object}!
+        headers: new Headers({
+          "Content-Type": "application/json",
+        }),
+      })
+    } else if (type === "Delete") {
+      choose = fetch(`https://hw.seabao.ml/api/room?roomName=${changeData.name}`, {
+        method: "DELETE",
+      })
+    } else {
+      choose = fetch(`https://hw.seabao.ml/api/room?roomName=${changeData.id}`, {
+        method: "DELETE",
+      })
+    }
+    return choose
+  }
+
   function showPromiseConfirm() {
     const judgecontent = type === "New" ? "新增" : "變更"
     const Content = `確定要${judgecontent}此房間嗎?`
@@ -96,27 +131,8 @@ function RoomEdit(props: Props) {
       icon: <ExclamationCircleOutlined />,
       content: Content,
       onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.1 ? resolve : reject, 1000)
-        })
+        Choose()
           .then(() => {
-            let name: string = ""
-            if (type === "Save")
-              setRoomList(() =>
-                roomList.map(room => {
-                  if (room === selectedRoom) {
-                    room.capacity = changeData.capacity
-                    room.name = changeData.name
-                    name = room.name
-                  }
-                  return room
-                })
-              )
-            else if (type === "New") {
-              setRoomList(() => roomList.concat(changeData))
-            } else if (type === "Delete") {
-              setRoomList(() => roomList.filter(room => room.name !== selectedRoom.name))
-            }
             setIsVisible(false)
             setSelectRoom(initRoom)
             form.resetFields()
@@ -179,7 +195,7 @@ function RoomEdit(props: Props) {
 
   return (
     <Modal visible={isVisible} okText={type} onCancel={onCancel} footer={false} forceRender>
-      <Form {...layout} form={form} name="control-hooks" onFinish={onFinish}>
+      <Form {...layout} form={form} name={`control-hooks-roomEdit ${type}`} onFinish={onFinish}>
         <Row justify="center">
           <h1>{type === "New" ? "新增房間" : "變更房間"}</h1>
         </Row>

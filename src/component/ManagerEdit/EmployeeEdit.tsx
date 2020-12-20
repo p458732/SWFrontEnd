@@ -55,29 +55,14 @@ const departmentList: Array<Department> = [
   { name: "Sales Department" },
   { name: "Business Office" },
 ]
-
-interface Meet {
-  title: string
-  description: string
-  roomName: string
-}
 interface Member {
   name: string
-  uid: number
+  id: string
   email: string
-  department: Department
+  departmentName: string
 }
 
-const member: Array<Member> = [
-  { name: "gold", uid: 0, email: "123@gmail.com", department: { name: "Personnel Department" } },
-  { name: "lime", uid: 1, email: "456@gmail.com", department: { name: "Personnel Department" } },
-  { name: "green", uid: 2, email: "789@gmail.com", department: { name: "Sales Department" } },
-  { name: "cyan", uid: 3, email: "987@gmail.com", department: { name: "Personnel Department" } },
-  { name: "gold", uid: 4, email: "654@gmail.com", department: { name: "Sales Department" } },
-  { name: "111", uid: 5, email: "321@gmail.com", department: { name: "Business Office" } },
-]
-
-const initEmployee: Member = { name: "", uid: -1, email: "", department: { name: "" } }
+const initEmployee: Member = { name: "", id: "-1", email: "", departmentName: "" }
 
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
@@ -90,6 +75,7 @@ function EmployeeEdit(Props: Init) {
   const { visible, setVisible } = Props
   const [Employee, setEmployee] = React.useState(initEmployee)
   const [disablePassWord, setDisablepassWord] = useState(true)
+  const [member, setMember] = useState<Member[]>([])
   const [require, setRequire] = useState(false)
   const [form] = Form.useForm()
   let changePassWord = ""
@@ -98,10 +84,25 @@ function EmployeeEdit(Props: Init) {
     changeEmployeeData = Employee
     console.log(changeEmployeeData)
     changePassWord = ""
-    form.setFieldsValue({ email: Employee.email, department: Employee.department.name })
+    form.setFieldsValue({ email: Employee.email, department: Employee.departmentName })
   }, [Employee])
 
+  function getEmployeeInfo() {
+    const data: Array<Member> = []
+    fetch("https://hw.seabao.ml/api/user")
+      .then(res => res.json())
+      .then(response => {
+        response.forEach((employee: any) => {
+          data.push(employee)
+        })
+        setMember(data)
+        console.log("Success", data)
+      })
+      .catch(error => console.log("error", error))
+  }
+
   useEffect(() => {
+    if (visible) getEmployeeInfo()
     setEmployee(initEmployee)
     setDisablepassWord(true)
     setRequire(false)
@@ -155,7 +156,13 @@ function EmployeeEdit(Props: Init) {
   return (
     <>
       <Modal visible={visible} onCancel={handleCancel} footer={false}>
-        <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+        <Form
+          {...layout}
+          form={form}
+          name="control-hooks-EmployeeEdit"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+        >
           <Form.Item name="title">
             <Row justify="start">
               <h1>編輯成員</h1>
@@ -184,7 +191,7 @@ function EmployeeEdit(Props: Init) {
               allowClear
             >
               {member.map(item => (
-                <Option value={item.email} key={item.uid}>
+                <Option value={item.email} key={item.id}>
                   {item.name}
                 </Option>
               ))}
@@ -236,8 +243,8 @@ function EmployeeEdit(Props: Init) {
               showSearch
               placeholder="Select a department"
               onChange={value => {
-                changeEmployeeData.department.name = String(value)
-                console.log(changeEmployeeData.department.name)
+                changeEmployeeData.departmentName = String(value)
+                console.log(changeEmployeeData.departmentName)
               }}
               allowClear
               disabled={!require}

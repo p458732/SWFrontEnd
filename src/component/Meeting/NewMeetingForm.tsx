@@ -67,14 +67,17 @@ const roomList: Array<Room> = [
   {
     name: "TR200",
     capacity: 12,
+    id: 13,
   },
   {
     name: "TR500",
     capacity: 10,
+    id: 10,
   },
   {
     name: "RB500",
     capacity: 20,
+    id: 11,
   },
 ]
 
@@ -193,7 +196,14 @@ function NewMeetingForm(Props: Init) {
   return (
     <>
       <Modal visible={visible} onCancel={handleCancel} footer={false}>
-        <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+        <Form
+          {...layout}
+          form={form}
+          name="control-hooks-NewMeeting"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          key={Math.random()}
+        >
           <Form.Item name="title">
             <Row justify="start">
               <h1> 新增會議</h1>

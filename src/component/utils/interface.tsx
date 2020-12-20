@@ -5,6 +5,7 @@ export interface Department {
 export interface Room {
   name: string
   capacity: number
+  id: number
 }
 
 export interface UserGroup {

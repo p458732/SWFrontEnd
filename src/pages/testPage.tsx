@@ -2,9 +2,7 @@
 import { Button } from "antd"
 import React, { useState } from "react"
 import { Meeting } from "../component/utils/interface"
-import Edit from "../component/ManagerEdit/Edit"
 import ManagerEdit from "../component/ManagerEdit/ManagerEdit"
-import MeetingForm from "../component/Meeting/MeetingForm"
 import NewMeetingForm from "../component/Meeting/NewMeetingForm"
 import ViewMeetingForm from "../component/Meeting/ViewMeetingForm"
 
@@ -21,21 +19,16 @@ const MeetingData: Meeting = {
 }
 
 export default function Home() {
-  const [MeetingFromVisible, setMeetingFromVisible] = React.useState(false)
+  const [ViewMeetingFromVisible, setViewMeetingFromVisible] = React.useState(false)
   const [NewMeetingFromVisible, setNewMeetingFromVisible] = React.useState(false)
 
-  const InitData: any = {
-    visible: MeetingFromVisible,
-    setVisible: setMeetingFromVisible,
-    meetingValue: null,
-  }
   return (
     <div>
       <ManagerEdit />
       <Button
         type="primary"
         onClick={() => {
-          setMeetingFromVisible(true)
+          setViewMeetingFromVisible(true)
         }}
       >
         viewMeet
@@ -48,7 +41,11 @@ export default function Home() {
       >
         newMeet
       </Button>
-      <ViewMeetingForm visible={MeetingFromVisible} setVisible={setMeetingFromVisible} meetingData={MeetingData} />
+      <ViewMeetingForm
+        visible={ViewMeetingFromVisible}
+        setVisible={setViewMeetingFromVisible}
+        meetingData={MeetingData}
+      />
       <NewMeetingForm visible={NewMeetingFromVisible} setVisible={setNewMeetingFromVisible} />
     </div>
   )

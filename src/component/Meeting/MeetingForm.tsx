@@ -64,14 +64,17 @@ const roomList: Array<Room> = [
   {
     name: "TR200",
     capacity: 12,
+    id: 10,
   },
   {
     name: "TR500",
     capacity: 10,
+    id: 11,
   },
   {
     name: "RB500",
     capacity: 20,
+    id: 12,
   },
 ]
 
@@ -179,7 +182,7 @@ function MeetingForm(Props: Init) {
         <Form
           {...layout}
           form={form}
-          name="control-hooks"
+          name="control-hooks-EditMetting"
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           initialValues={{

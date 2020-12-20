@@ -57,14 +57,17 @@ const roomList: Array<Room> = [
   {
     name: "TR200",
     capacity: 12,
+    id: 11,
   },
   {
     name: "TR500",
     capacity: 10,
+    id: 10,
   },
   {
     name: "RB500",
     capacity: 20,
+    id: 9,
   },
 ]
 
@@ -111,7 +114,7 @@ function ViewMeetingForm(Props: Init) {
         <Form
           {...layout}
           form={form}
-          name="control-hooks"
+          name="control-hooks-viewMetting"
           initialValues={{
             descript: meetingData.description,
             meetingRoom: meetingData.location,

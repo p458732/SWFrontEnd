@@ -9,28 +9,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import Icon from "antd/lib/icon"
-import { FormInstance } from "antd/lib/form"
-import { EnvironmentOutlined, FontSizeOutlined, ExclamationCircleOutlined } from "@ant-design/icons"
 
-import {
-  Form,
-  Input,
-  Button,
-  Radio,
-  Select,
-  Cascader,
-  DatePicker,
-  InputNumber,
-  TreeSelect,
-  Switch,
-  Space,
-  Row,
-  Col,
-  Modal,
-  Tag,
-} from "antd"
-import { Room, User, Department, Meeting } from "../utils/interface"
+import { ExclamationCircleOutlined } from "@ant-design/icons"
+
+import { Form, Input, Button, Select, Space, Row, Modal } from "antd"
 
 const { Option } = Select
 
@@ -52,21 +34,12 @@ const layout = {
 
 interface Member {
   name: string
-  uid: number
+  id: string
   email: string
-  department: Department
+  departmentName: string
 }
 
-const member: Array<Member> = [
-  { name: "gold", uid: 0, email: "123@gmail.com", department: { name: "Personnel Department" } },
-  { name: "lime", uid: 1, email: "456@gmail.com", department: { name: "Personnel Department" } },
-  { name: "green", uid: 2, email: "789@gmail.com", department: { name: "Sales Department" } },
-  { name: "cyan", uid: 3, email: "987@gmail.com", department: { name: "Personnel Department" } },
-  { name: "gold", uid: 4, email: "654@gmail.com", department: { name: "Sales Department" } },
-  { name: "111", uid: 5, email: "321@gmail.com", department: { name: "Business Office" } },
-]
-
-const initEmployee: Member = { name: "", uid: -1, email: "", department: { name: "" } }
+const initEmployee: Member = { name: "", id: "-1", email: "", departmentName: "" }
 
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
@@ -76,12 +49,28 @@ interface Init {
 function EmployeeDelete(Props: Init) {
   const { visible, setVisible } = Props
   const [Employee, setEmployee] = React.useState(initEmployee)
+  const [member, setMember] = useState<Member[]>([])
   const [form] = Form.useForm()
   useEffect(() => {
-    form.setFieldsValue({ email: Employee.email, department: Employee.department.name })
+    form.setFieldsValue({ email: Employee.email, department: Employee.departmentName })
   }, [Employee])
 
+  function getEmployeeInfo() {
+    const data: Array<Member> = []
+    fetch("https://hw.seabao.ml/api/user")
+      .then(res => res.json())
+      .then(response => {
+        response.forEach((employee: any) => {
+          data.push(employee)
+        })
+        setMember(data)
+        console.log("Success", data)
+      })
+      .catch(error => console.log("error", error))
+  }
+
   useEffect(() => {
+    if (visible) getEmployeeInfo()
     setEmployee(initEmployee)
   }, [visible])
 
@@ -104,10 +93,11 @@ function EmployeeDelete(Props: Init) {
       icon: <ExclamationCircleOutlined />,
       content: "你確定要刪除此成員嗎?",
       onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.1 ? resolve : reject, 1000)
+        return fetch(`https://hw.seabao.ml/api/user?userId=${parseInt(Employee.id, 10)}`, {
+          method: "DELETE",
         })
-          .then(() => {
+          .then(res => {
+            console.log("success", res)
             form.resetFields()
             setVisible(false)
             // 放changeData
@@ -131,7 +121,13 @@ function EmployeeDelete(Props: Init) {
   return (
     <>
       <Modal visible={visible} onCancel={handleCancel} footer={false}>
-        <Form {...layout} form={form} name="control-hooks" onFinish={onFinish} onFinishFailed={onFinishFailed}>
+        <Form
+          {...layout}
+          form={form}
+          name="control-hooks-EmployeeDelete"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+        >
           <Form.Item name="title">
             <Row justify="start">
               <h1>刪除成員</h1>
@@ -158,7 +154,7 @@ function EmployeeDelete(Props: Init) {
               allowClear
             >
               {member.map(item => (
-                <Option value={item.email} key={item.uid}>
+                <Option value={item.email} key={item.id}>
                   {item.name}
                 </Option>
               ))}
