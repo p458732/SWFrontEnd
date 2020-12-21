@@ -1,10 +1,12 @@
 import { Button, Popover } from "antd"
 import React, { useState } from "react"
+import { EditFilled } from "@ant-design/icons"
 import RoomEdit from "./roomEdit"
 import EmployeeEdit from "./EmployeeEdit"
 import EmployeeDelete from "./EmployeeDelete"
 import NewDepartment from "./NewDepartment"
 import DeleteDepartment from "./DeleteDepartment"
+import EditDepartment from "./EditDepartment"
 
 export default function ManagerEdit() {
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
@@ -14,6 +16,7 @@ export default function ManagerEdit() {
   const [editEmployeeDeleteVisible, setEmployeeDeleteVisible] = useState(false)
   const [editNewDepartmentVisible, setNewDepartmentVisible] = useState(false)
   const [editDeleteDepartmentVisible, setDeleteDepartmentVisible] = useState(false)
+  const [editEditDepartmentVisible, setEditDepartmentVisible] = useState(false)
 
   const content = (
     <div>
@@ -57,6 +60,13 @@ export default function ManagerEdit() {
       <h4 style={{ padding: "5px" }}>DepartmentEdit</h4>
       <Button
         onClick={() => {
+          setEditDepartmentVisible(true)
+        }}
+      >
+        Edit
+      </Button>
+      <Button
+        onClick={() => {
           setNewDepartmentVisible(true)
         }}
       >
@@ -73,8 +83,8 @@ export default function ManagerEdit() {
   )
   return (
     <>
-      <Popover content={content}>
-        <Button type="primary">ManagerEdit</Button>
+      <Popover content={content} placement="bottomLeft">
+        <Button icon={<EditFilled />} style={{ width: 80 }} />
       </Popover>
 
       <RoomEdit type="Save" setvisible={setSaveEditFormVsible} visible={editSaveFormVisible} />
@@ -84,6 +94,7 @@ export default function ManagerEdit() {
       <EmployeeDelete setVisible={setEmployeeDeleteVisible} visible={editEmployeeDeleteVisible} />
       <NewDepartment setVisible={setNewDepartmentVisible} visible={editNewDepartmentVisible} />
       <DeleteDepartment setVisible={setDeleteDepartmentVisible} visible={editDeleteDepartmentVisible} />
+      <EditDepartment setVisible={setEditDepartmentVisible} visible={editEditDepartmentVisible} />
     </>
   )
 }

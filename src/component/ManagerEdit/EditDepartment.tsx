@@ -12,8 +12,7 @@ import "antd/dist/antd.css"
 
 import { ExclamationCircleOutlined } from "@ant-design/icons"
 
-import { Form, Input, Button, Select, Space, Row, Modal, Tag } from "antd"
-import { SelectValue } from "antd/lib/tree-select"
+import { Form, Button, Select, Space, Row, Modal, Tag } from "antd"
 
 const { Option } = Select
 
@@ -23,14 +22,14 @@ const tailLayout = {
   wrapperCol: { offset: 16, span: 16 },
 }
 
-const SelectLayout = {
-  labelCol: { span: 6, offset: 0 },
-  wrapperCol: { offset: 0, span: 16 },
-}
-
 const layout = {
   labelCol: { span: 6, offset: 0 },
   wrapperCol: { span: 16 },
+}
+
+const SelectLayout = {
+  labelCol: { span: 6, offset: 0 },
+  wrapperCol: { offset: 0, span: 16 },
 }
 
 interface Member {
@@ -42,7 +41,7 @@ interface Member {
 
 interface Department {
   name: string
-  attendees: SelectValue
+  attendees: Array<any>
 }
 
 interface Init {
@@ -50,27 +49,39 @@ interface Init {
   visible: boolean
 }
 const InitDepartment: Department = { name: "", attendees: [] }
-function NewDepartment(Props: Init) {
+let changeData: Department = InitDepartment
+function EditDepartment(Props: Init) {
   const { visible, setVisible } = Props
-  const [member, setMamber] = useState<Member[]>([])
-  const [DepartmentData, setDepartmentData] = useState<Department[]>([])
-  const [Department, setDepartment] = useState(InitDepartment)
+  const [member, setMember] = useState<Member[]>([])
+  const [Department, setDepartment] = useState<Department>(InitDepartment)
+  const [DepartmentList, setDepartmentList] = useState<Department[]>([])
   const [form] = Form.useForm()
-  const changeData: Department = InitDepartment
 
-  function getEmployeeInfo() {
+  async function getEmployeeInfo() {
     const data: Array<Member> = []
-    fetch("https://hw.seabao.ml/api/user")
+    await fetch("https://hw.seabao.ml/api/user")
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
           data.push(employee)
         })
-        setMamber(data)
+        setMember(data)
         console.log("Success", data)
       })
       .catch(error => console.log("error", error))
   }
+
+  useEffect(() => {
+    changeData.name = Department.name
+    getEmployeeInfo().then(() => {
+      const judgeData = member.filter(element => Department?.attendees.some(judge => element.id === judge))
+      console.log(judgeData)
+      changeData.attendees = judgeData.map(element => `${element.email}`)
+      form.setFieldsValue({
+        member: judgeData.map(element => `${element.email}`),
+      })
+    })
+  }, [Department])
 
   function getDepartment() {
     const data: Array<Department> = []
@@ -80,20 +91,17 @@ function NewDepartment(Props: Init) {
         response.forEach((employee: any) => {
           data.push(employee)
         })
-        setDepartmentData(data)
+        setDepartmentList(data)
         console.log("Success", data)
       })
       .catch(error => console.log("error", error))
   }
 
   useEffect(() => {
-    const data: Array<Member> = []
-  }, [DepartmentData])
-
-  useEffect(() => {
     if (visible) {
-      getEmployeeInfo()
       getDepartment()
+    } else {
+      changeData = InitDepartment
     }
   }, [visible])
 
@@ -121,21 +129,30 @@ function NewDepartment(Props: Init) {
   }
 
   function showPromiseConfirm() {
+    const num: number[] = []
+    member.forEach(item => {
+      if (changeData.attendees.some(email => email === item.email)) num.push(Number(item.id))
+    })
     confirm({
       title: "確認",
       icon: <ExclamationCircleOutlined />,
-      content: "你確定要變更此成員嗎?",
+      content: "你確定要新增此部門嗎?",
       onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.1 ? resolve : reject, 1000)
+        return fetch("https://hw.seabao.ml/api/department", {
+          method: "POST",
+          body: JSON.stringify({ name: changeData.name, ids: num }), // data can be `string` or {object}!
+          headers: new Headers({
+            "Content-Type": "application/json",
+          }),
         })
-          .then(() => {
+          .then(res => {
+            console.log("success", res)
             form.resetFields()
             setVisible(false)
             // 放changeData
           })
           .catch(() => {
-            showErrorMessage("變更失敗!")
+            showErrorMessage("新增失敗!")
           })
       },
       onCancel() {},
@@ -143,7 +160,12 @@ function NewDepartment(Props: Init) {
   }
 
   const onFinish = (values: any) => {
-    showPromiseConfirm()
+    if (
+      changeData.attendees.length === Department.attendees.length &&
+      changeData.attendees.every(element => Department.attendees.some(judge => judge.email === element.email))
+    )
+      showErrorMessage("未變更資料")
+    else showPromiseConfirm()
     console.log("finish", changeData)
   }
 
@@ -157,13 +179,13 @@ function NewDepartment(Props: Init) {
         <Form
           {...layout}
           form={form}
-          name="control-hooks-NewDepartment"
+          name="control-hooks-EditDepartment"
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
         >
           <Form.Item name="title">
             <Row justify="start">
-              <h1>新增部門</h1>
+              <h1>編輯部門</h1>
             </Row>
           </Form.Item>
           <Form.Item
@@ -176,30 +198,31 @@ function NewDepartment(Props: Init) {
               showSearch
               placeholder="Select a department"
               onChange={value => {
-                changeData.name = String(value)
-                console.log(changeData.name)
+                const temp = DepartmentList.find(item => item.name === value)
+                if (temp !== undefined) setDepartment(temp)
               }}
               allowClear
-              disabled={!require}
             >
-              {DepartmentData.map(item => (
+              {DepartmentList.map(item => (
                 <Option value={item.name} key={item.name}>
                   {item.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="attendees" label="Member" rules={[{ required: true, message: "Select Member is require" }]}>
+          <Form.Item name="member" label="Member" rules={[{ required: true, message: "Select Member is require" }]}>
             <Select
               mode="multiple"
               showArrow
               tagRender={tagRender}
               style={{ width: "100%" }}
               allowClear
-              onChange={(value: SelectValue) => {
+              onChange={(value: any) => {
                 changeData.attendees = value
+                console.log(changeData)
               }}
               maxTagCount={5}
+              maxTagTextLength={40}
             >
               {member.map(item => (
                 <Option value={item.email} key={item.id}>
@@ -224,4 +247,4 @@ function NewDepartment(Props: Init) {
   )
 }
 
-export default NewDepartment
+export default EditDepartment
