@@ -14,6 +14,9 @@ import RoomEdit from "../ManagerEdit/roomEdit"
 import NewMeetingForm from "../Meeting/NewMeetingForm"
 import ViewMeetingForm from "../Meeting/ViewMeetingForm"
 import { Room, Meeting } from "../utils/interface"
+import { Row, Col, Menu, Dropdown, Button } from "antd"
+import { PlusOutlined, EditFilled, DeliveredProcedureOutlined, UserOutlined, DownOutlined } from "@ant-design/icons"
+import ManagerEdit from "../ManagerEdit/ManagerEdit"
 
 // helper functions
 let state: any = {}
@@ -24,6 +27,7 @@ let lastItemId = -1
 function Scheduler(props) {
   // getNowDate
   const date = GSTC.api.date
+
   const fakedata = [
     {
       name: "TR200",
@@ -40,11 +44,12 @@ function Scheduler(props) {
   ]
   const [roomList, setroomList] = useState<Array<Room>>(fakedata)
   const [meetingList, setmeetingList] = useState(0)
-  const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
-  const [newMeetingFormVisible, setNewMeetingFormVisible] = useState(false)
-  const [viewMeetingFormVisible, setViewMeetingFormVisible] = useState(false)
+  const [editSaveFormVisible, setSaveEditFormVsible] = useState(false) // 決定是否要開啟編輯meeting表單
+  const [newMeetingFormVisible, setNewMeetingFormVisible] = useState(false) // 決定是否要開啟建立meeting表單
+  const [viewMeetingFormVisible, setViewMeetingFormVisible] = useState(false) // 決定是否要開啟查看meeting表單
   const [currentSelectMeeting, setCurrentSelectMeeting] = useState({})
-  const meetingURL = "https://hw.seabao.ml/api/meeting"
+  const meetingURL = "https://hw.seabao.ml/api/meeting" // 資料來源
+  const [downButtonStr, setDownButtonStr] = useState("day")
   const hours = [
     {
       zoomTo: 100, // we want to display this format for all zoom levels until 100
@@ -67,6 +72,7 @@ function Scheduler(props) {
       },
     },
   ]
+  // 當表格中的空格被點擊時 開啟建立新會議表單
   function onCellClick(row, time) {
     setNewMeetingFormVisible(true)
   }
@@ -137,7 +143,7 @@ function Scheduler(props) {
         calendarLevels: [hours, minutes],
         time: {
           from: date("2020-01-01").valueOf(), // from 2020-01-01
-          to: date("2020-01-02").valueOf(), // to 2020-01-31
+          to: date(props.currentDate.val).endOf("month").valueOf(), //
           zoom: 14,
         },
       },
@@ -275,38 +281,44 @@ function Scheduler(props) {
       previousDate = date("2020-01-01").valueOf()
     }
   }, [])
+  // 下拉式選單內的文字
+
   return (
     <div className="Scheduler">
       <div className="toolbox">
-        <button
-          onClick={() => {
-            getMeeting()
-          }}
-        >
-          getMeeting
-        </button>
-        <button
-          onClick={() => {
-            getRoom(state)
-          }}
-        >
-          getRoom
-        </button>
-        <button
-          onClick={() => {
-            postMeeting(state)
-          }}
-        >
-          postMeeting
-        </button>
-        <button onClick={changeZoomLevel}>Change zoom level</button>
-        <button
-          onClick={() => {
-            setSaveEditFormVsible(true)
-          }}
-        >
-          Save
-        </button>
+        <Row>
+          <Col span={3}>
+            <ManagerEdit />
+          </Col>
+          <Col span={3} offset={9}>
+            <PlusOutlined style={{ fontSize: "48px" }} />{" "}
+          </Col>
+          <Col span={3}>
+            <DeliveredProcedureOutlined style={{ fontSize: "48px" }} />
+          </Col>
+          <Col span={3}>
+            <UserOutlined style={{ fontSize: "48px" }} />
+          </Col>
+          <Col span={3}>
+            <Dropdown
+              overlay={
+                <Menu
+                  onClick={e => {
+                    setDownButtonStr(e.key)
+                  }}
+                >
+                  <Menu.Item key="day">day</Menu.Item>
+                  <Menu.Item key="week">week</Menu.Item>
+                </Menu>
+              }
+            >
+              <Button>
+                {downButtonStr}
+                <DownOutlined />
+              </Button>
+            </Dropdown>
+          </Col>
+        </Row>
       </div>
       <div className="gstc-w Schedulerer" ref={callback} />
       <NewMeetingForm setVisible={setNewMeetingFormVisible} visible={newMeetingFormVisible} />
