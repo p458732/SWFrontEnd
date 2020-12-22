@@ -4,6 +4,7 @@ import moment from "moment"
 import { Layout } from "antd"
 import SideBarCalendar from "../component/sideBar/calendar"
 import Scheduler from "../component/scheduler/scheduler"
+import Schedulerr from "../component/scheduler/scheduler2"
 
 const { Sider, Content } = Layout
 

@@ -22,6 +22,7 @@ import ManagerEdit from "../ManagerEdit/ManagerEdit"
 let state: any = {}
 let gstc: any = {}
 let previousDate: any
+let previousDateEndOfMonth: any
 let lastItemId = -1
 
 function Scheduler(props) {
@@ -52,18 +53,26 @@ function Scheduler(props) {
   const [downButtonStr, setDownButtonStr] = useState("day")
   const hours = [
     {
-      zoomTo: 100, // we want to display this format for all zoom levels until 100
+      zoomTo: 14, // we want to display this format for all zoom levels until 100
       period: "day",
       periodIncrement: 1,
       format({ timeStart }: { timeStart: any }) {
         return timeStart.format("DD") // full list of formats: https://day.js.org/docs/en/display/format
       },
     },
+    {
+      zoomTo: 19, // this format will be used as first level when config.chart.time.zoom will be greater than 22 (23...100)
+      period: "month",
+      periodIncrement: 1,
+      format({ timeStart }) {
+        return timeStart.format("MM") // full list of formats: https://day.js.org/docs/en/display/format
+      },
+    },
   ]
   // 表格的橫軸大小
   const minutes = [
     {
-      zoomTo: 100, // we want to display this format for all zoom levels until 100
+      zoomTo: 14, // we want to display this format for all zoom levels until 100
       period: "minute",
       periodIncrement: 60,
       main: true,
@@ -71,12 +80,36 @@ function Scheduler(props) {
         return timeStart.format("HH:mm") // full list of formats: https://day.js.org/docs/en/display/format
       },
     },
+    {
+      zoomTo: 19, // this format will be used as second level when config.chart.time.zoom will be greater than 22 (23...100)
+      period: "day",
+      periodIncrement: 1,
+      main: true, // we want grid to be divided by this period = month = there will be year level and month level from zoom >= 23
+      format({ timeStart }) {
+        return timeStart.format("DD") // full list of formats: https://day.js.org/docs/en/display/format
+      },
+    },
   ]
   // 當表格中的空格被點擊時 開啟建立新會議表單
   function onCellClick(row, time) {
     setNewMeetingFormVisible(true)
   }
-
+  function getMeeting() {
+    fetch(meetingURL, {
+      method: "GET",
+    })
+      .then(response => {
+        return response.json()
+      })
+      .then(meeting => {
+        state.update("config.chart.items", () => {
+          return generateNewItems(meeting)
+        })
+        // state.update("config.chart.grid.cell.onCreate", () => {
+        //   return [onCellCreate]
+        // })
+      })
+  }
   function onCellCreate({ time, row, vido }) {
     return vido.html`<div class="my-grid-cell" @click=${() =>
       onCellClick(row, time)} style="color:white;cursor:pointer;width:100%;height:70px;"></div>`
@@ -131,6 +164,34 @@ function Scheduler(props) {
             id: "0",
             label: "",
           },
+          {
+            id: "2",
+            label: "",
+          },
+          {
+            id: "3",
+            label: "",
+          },
+          {
+            id: "3",
+            label: "",
+          },
+          {
+            id: "3",
+            label: "",
+          },
+          {
+            id: "3",
+            label: "",
+          },
+          {
+            id: "3",
+            label: "",
+          },
+          {
+            id: "3",
+            label: "",
+          },
         ],
       },
       chart: {
@@ -142,8 +203,9 @@ function Scheduler(props) {
         },
         calendarLevels: [hours, minutes],
         time: {
-          from: date("2020-01-01").valueOf(), // from 2020-01-01
-          to: date(props.currentDate.val).endOf("month").valueOf(), //
+          from: GSTC.api.date(props.currentDate.val).startOf("day").valueOf(), // from 2020-01-01
+          to: GSTC.api.date(props.currentDate.val).endOf("day").valueOf(), //
+
           zoom: 14,
         },
       },
@@ -160,19 +222,21 @@ function Scheduler(props) {
   // 當點選小日曆時要根據點選的日期來改變表格
   if (gstc && state.id !== undefined) {
     if (previousDate > props.currentDate.val.valueOf()) {
-      state.update("config.chart.time.from", props.currentDate.val.startOf("day").valueOf())
-      state.update("config.chart.time.to", props.currentDate.val.endOf("day").valueOf())
+      state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
+      state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
     } else {
-      state.update("config.chart.time.to", props.currentDate.val.endOf("day").valueOf())
-      state.update("config.chart.time.from", props.currentDate.val.startOf("day").valueOf())
+      state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
+      state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
     }
     previousDate = props.currentDate.val.valueOf()
-
-    console.log(props.currentDate.val)
+    previousDateEndOfMonth = props.currentDate.val.endOf("month").valueOf()
+    console.log("dsss" + props.currentDate.val)
   }
 
-  function changeZoomLevel() {
-    state.update("config.chart.time.from", date("2020-02-06").valueOf())
+  function changeZoomLevel(zoom: number) {
+    state.update("config.chart.time.zoom", zoom)
+    //  state.update("config.chart.time.from", props.currentDate.val.startOf("month").valueOf())
+    // state.update("config.chart.time.to", props.currentDate.val.endOf("month").valueOf())
   }
 
   // 處理Meeting 可以點選視窗 以及內容---------------------------------------------------------------
@@ -234,43 +298,7 @@ function Scheduler(props) {
     }
     return items
   }
-  function postMeeting(data?: Meeting) {
-    data = testMeetingData
-    fetch(meetingURL, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: new Headers({
-        "Content-Type": "application/json",
-      }),
-    })
-      .then(response => {
-        return response.status
-      })
-      .then(status => {
-        if (status === 200) {
-          getMeeting()
-        } else {
-          alert("cannot add new meeting")
-        }
-      })
-  }
-  function getMeeting() {
-    fetch(meetingURL, {
-      method: "GET",
-    })
-      .then(response => {
-        return response.json()
-      })
-      .then(meeting => {
-        state.update("config.chart.items", () => {
-          return generateNewItems(meeting)
-        })
-        state.update("config.chart.grid.cell.onCreate", () => {
-          return [onCellCreate]
-        })
-        console.log(state)
-      })
-  }
+
   // ----------------------------------處理Meeting 可以點選視窗 以及內容END---------------------------------------------------------------
   const callback = useCallback(element => {
     if (element) {
@@ -278,7 +306,8 @@ function Scheduler(props) {
       initializeGSTC(element)
       getRoom(state)
       getMeeting()
-      previousDate = date("2020-01-01").valueOf()
+
+      previousDate = props.currentDate.val.valueOf()
     }
   }, [])
   // 下拉式選單內的文字
@@ -291,7 +320,7 @@ function Scheduler(props) {
             <ManagerEdit />
           </Col>
           <Col span={3} offset={9}>
-            <PlusOutlined style={{ fontSize: "48px" }} />{" "}
+            <PlusOutlined onClick={() => getMeeting()} style={{ fontSize: "48px" }} />{" "}
           </Col>
           <Col span={3}>
             <DeliveredProcedureOutlined style={{ fontSize: "48px" }} />
@@ -305,6 +334,8 @@ function Scheduler(props) {
                 <Menu
                   onClick={e => {
                     setDownButtonStr(e.key)
+                    if (e.key === "week") changeZoomLevel(19)
+                    else changeZoomLevel(14)
                   }}
                 >
                   <Menu.Item key="day">day</Menu.Item>
