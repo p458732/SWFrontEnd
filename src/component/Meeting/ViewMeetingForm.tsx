@@ -9,29 +9,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import Icon from "antd/lib/icon"
-import { FormInstance } from "antd/lib/form"
-import { EnvironmentOutlined, FontSizeOutlined } from "@ant-design/icons"
-import {
-  Form,
-  Input,
-  Button,
-  Radio,
-  Select,
-  Cascader,
-  DatePicker,
-  InputNumber,
-  TreeSelect,
-  Switch,
-  Space,
-  Row,
-  Col,
-  Modal,
-  Tag,
-} from "antd"
+import { Form, Input, Button, Switch, Row, Col, Modal, Tag } from "antd"
 
 import moment from "moment"
-import { Room, User, Department, Meeting } from "../utils/interface"
+import { Meeting, Member } from "../utils/interface"
 
 const { TextArea } = Input
 
@@ -53,36 +34,6 @@ const layout = {
   wrapperCol: { span: 16 },
 }
 
-const roomList: Array<Room> = [
-  {
-    name: "TR200",
-    capacity: 12,
-    id: 11,
-  },
-  {
-    name: "TR500",
-    capacity: 10,
-    id: 10,
-  },
-  {
-    name: "RB500",
-    capacity: 20,
-    id: 9,
-  },
-]
-
-const departmentList: Array<Department> = [
-  { name: "Personnel Department" },
-  { name: "Sales Department" },
-  { name: "Business Office" },
-]
-
-interface Meet {
-  title: string
-  description: string
-  roomName: string
-}
-
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
@@ -92,6 +43,7 @@ interface Init {
 function ViewMeetingForm(Props: Init) {
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const { visible, setVisible, meetingData } = Props
+  const [member, setMember] = useState<Member[]>([])
   const [form] = Form.useForm()
 
   const handleCancel = () => {
@@ -99,6 +51,36 @@ function ViewMeetingForm(Props: Init) {
     form.resetFields()
     setVisible(false)
   }
+
+  function getEmployeeInfo() {
+    const data: Array<Member> = []
+    fetch("https://hw.seabao.ml/api/user")
+      .then(res => res.json())
+      .then(response => {
+        response.forEach((employee: any) => {
+          data.push(employee)
+        })
+        setMember(data)
+        console.log("Success", data)
+      })
+      .catch(error => console.log("error", error))
+  }
+
+  useEffect(() => {
+    if (visible) getEmployeeInfo()
+  }, [visible])
+
+  useEffect(() => {
+    form.setFieldsValue({
+      member: meetingData.attendees
+        ?.map(element => {
+          const User = member.find(user => user.id === element)
+          if (User !== undefined) return `${User.name} <${User.email}>`
+          return ""
+        })
+        .join("\n"),
+    })
+  }, [member])
 
   const fromDate = moment(meetingData.fromDate) //
   const toDate = moment(meetingData.toDate) //
@@ -123,31 +105,31 @@ function ViewMeetingForm(Props: Init) {
             // repeat: meetingData.repeatType,
             // todo
             // department: meetingData.departments.join("\n"),
-            department: "tes",
-            repeat: 0,
+            department: meetingData.departments,
+            repeat: meetingData.repeatType,
             titleName: meetingData.title,
-            member: meetingData.attendees?.filter(element => `${element.name} <${element.email}>`).join("\n"),
             selectDate: `From  ${fromDate.format("YYYY-MM-DD HH:mm")}  to  ${toDate.format("YYYY-MM-DD HH:mm")}`,
           }}
         >
           <Row justify="center">
             <h1> {`${meetingData.title}`}</h1>
           </Row>
+          <Form.Item name="selectDate" label="Select Date">
+            <Input readOnly />
+          </Form.Item>
           <Row>
-            <Col span={8} offset={3}>
+            {/* {<Col span={8} offset={3}>
               <Form.Item name="allDay" label="All Day" {...SwitchLayout} valuePropName="checked">
                 <Switch disabled />
               </Form.Item>
-            </Col>
-            <Col span={8}>
+            </Col>} */}
+            <Col span={8} offset={3}>
               <Form.Item name="repeat" label="Repeat" {...SwitchLayout} valuePropName="checked">
                 <Switch disabled />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="selectDate" label="Select Date">
-            <Input readOnly />
-          </Form.Item>
+
           <Form.Item name="meetingRoom" label="Meeting Room" {...SelectLayout}>
             <Input readOnly />
           </Form.Item>

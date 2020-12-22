@@ -21,16 +21,21 @@ export interface User {
 }
 
 export interface Meeting {
-  meetingID: number
   title: string
   description: string
   location: string
-  attendees?: Array<User>
-  departments: Array<string>
-  creatorUid?: number
   repeatType: number
-  updatedDate?: string
-  createdDate?: string
-  fromDate: string
   toDate: string
+  fromDate: string
+  attendees: Array<any>
+  departments: string[]
+  meetingID?: number
+  creatorUid?: number
+}
+
+export interface Member {
+  name: string
+  id: string
+  email: string
+  departmentName: string
 }

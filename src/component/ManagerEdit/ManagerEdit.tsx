@@ -1,5 +1,5 @@
 import { Button, Popover } from "antd"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { EditFilled } from "@ant-design/icons"
 import RoomEdit from "./roomEdit"
 import EmployeeEdit from "./EmployeeEdit"
@@ -8,6 +8,7 @@ import NewDepartment from "./NewDepartment"
 import DeleteDepartment from "./DeleteDepartment"
 import EditDepartment from "./EditDepartment"
 
+let lock = false
 export default function ManagerEdit() {
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
   const [editNewFormVisible, setNewEditFormVsible] = useState(false)
@@ -17,27 +18,41 @@ export default function ManagerEdit() {
   const [editNewDepartmentVisible, setNewDepartmentVisible] = useState(false)
   const [editDeleteDepartmentVisible, setDeleteDepartmentVisible] = useState(false)
   const [editEditDepartmentVisible, setEditDepartmentVisible] = useState(false)
+  useEffect(() => {
+    if (
+      !editSaveFormVisible &&
+      !editNewFormVisible &&
+      !editDeleteFormVisible &&
+      !editEmployeeEditVisible &&
+      !editEmployeeDeleteVisible &&
+      !editNewDepartmentVisible &&
+      !editDeleteDepartmentVisible &&
+      !editEditDepartmentVisible
+    )
+      lock = false
+    else lock = true
+  })
 
   const content = (
     <div>
       <h4 style={{ padding: "5px" }}>RoomEdit</h4>
       <Button
         onClick={() => {
-          setSaveEditFormVsible(true)
+          if (!lock) setSaveEditFormVsible(true)
         }}
       >
         Edit
       </Button>
       <Button
         onClick={() => {
-          setNewEditFormVsible(true)
+          if (!lock) setNewEditFormVsible(true)
         }}
       >
         New
       </Button>
       <Button
         onClick={() => {
-          setDeleteEditFormVsible(true)
+          if (!lock) setDeleteEditFormVsible(true)
         }}
       >
         Delete
@@ -45,14 +60,14 @@ export default function ManagerEdit() {
       <h4 style={{ padding: "5px" }}>EmployeeEdit</h4>
       <Button
         onClick={() => {
-          setEmployeeEditVisible(true)
+          if (!lock) setEmployeeEditVisible(true)
         }}
       >
         Edit
       </Button>
       <Button
         onClick={() => {
-          setEmployeeDeleteVisible(true)
+          if (!lock) setEmployeeDeleteVisible(true)
         }}
       >
         Delete
@@ -60,21 +75,21 @@ export default function ManagerEdit() {
       <h4 style={{ padding: "5px" }}>DepartmentEdit</h4>
       <Button
         onClick={() => {
-          setEditDepartmentVisible(true)
+          if (!lock) setEditDepartmentVisible(true)
         }}
       >
         Edit
       </Button>
       <Button
         onClick={() => {
-          setNewDepartmentVisible(true)
+          if (!lock) setNewDepartmentVisible(true)
         }}
       >
         New
       </Button>
       <Button
         onClick={() => {
-          setDeleteDepartmentVisible(true)
+          if (!lock) setDeleteDepartmentVisible(true)
         }}
       >
         Delete
