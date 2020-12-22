@@ -229,7 +229,7 @@ function Scheduler(props) {
       state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
     }
     previousDate = props.currentDate.val.valueOf()
-    previousDateEndOfMonth = props.currentDate.val.endOf("month").valueOf()
+
     console.log("dsss" + props.currentDate.val)
   }
 
@@ -241,22 +241,11 @@ function Scheduler(props) {
 
   // 處理Meeting 可以點選視窗 以及內容---------------------------------------------------------------
   function onItemClick(item) {
-    console.log(item)
-    let meetingDataTemp = {
-      meetingID: item.id.match(/\d+/),
-      title: item.title,
-      description: "null temp",
-      location: item.rowId.substr(6),
-      // attendees?: Array<User>
-      // departments: Array<string>
-      // creatorUid?: number
-      repeatType: 0,
-      // updatedDate?: string
-      // createdDate?: string
-      fromDate: moment(item.time.start).format(),
-      toDate: moment(item.time.end).format(),
-    }
-    setCurrentSelectMeeting(meetingDataTemp)
+    console.log("iteMMASDADASDASDASDAS", item)
+
+    // item.fromDate = moment(item.time.start).format()
+    // item.toDate = moment(item.time.end).format()
+    setCurrentSelectMeeting(item.meetingJSON)
     setViewMeetingFormVisible(true)
   }
 
@@ -288,7 +277,7 @@ function Scheduler(props) {
         id,
         label: itemLabelContent,
         title: meeting[i].title,
-
+        meetingJSON: meeting[i],
         time: {
           start: startDayjs.valueOf(),
           end: GSTC.api.date(meeting[i].toDate).valueOf(),
