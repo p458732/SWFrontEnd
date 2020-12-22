@@ -10,32 +10,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import Icon from "antd/lib/icon"
-import { FormInstance } from "antd/lib/form"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
-import {
-  Form,
-  Input,
-  Button,
-  Radio,
-  Select,
-  Cascader,
-  DatePicker,
-  InputNumber,
-  TreeSelect,
-  Switch,
-  Space,
-  Row,
-  Col,
-  Modal,
-  Tag,
-} from "antd"
-import { SelectValue } from "antd/lib/select"
+import { Form, Input, Button, Select, DatePicker, Switch, Space, Row, Col, Modal, Tag } from "antd"
 import moment from "moment"
-import Avatar from "antd/lib/avatar/avatar"
-import { connect } from "http2"
-import { Content } from "antd/lib/layout/layout"
-import { Room, User, Department, Meeting } from "../utils/interface"
+import { Room, Meeting, Member } from "../utils/interface"
 
 const { TextArea } = Input
 
@@ -63,74 +41,33 @@ const layout = {
   wrapperCol: { span: 16 },
 }
 
-const roomList: Array<Room> = [
-  {
-    name: "TR200",
-    capacity: 12,
-    id: 13,
-  },
-  {
-    name: "TR500",
-    capacity: 10,
-    id: 10,
-  },
-  {
-    name: "RB500",
-    capacity: 20,
-    id: 11,
-  },
-]
-
-const departmentList: Array<Department> = [
-  { name: "Personnel Department" },
-  { name: "Sales Department" },
-  { name: "Business Office" },
-]
-
-interface Meet {
-  titleName: string
-  description: string
-  location: string
-  AllDay: number
-  repeat: number
-  toDate: string
-  fromDate: string
-  member: SelectValue
-  department: string
+interface Department {
+  name: string
+  attendees: Array<any>
 }
-
-const newData: Meet = {
-  titleName: "",
+const InitMeeting: Meeting = {
+  title: "",
   description: "",
   location: "",
-  AllDay: 0,
-  repeat: 0,
+  repeatType: 0,
   toDate: "",
   fromDate: "",
-  member: [],
-  department: "",
+  attendees: [],
+  departments: [""],
 }
-
-const member = [
-  { name: "gold", uid: 0, email: "123@gmail.com" },
-  { name: "lime", uid: 1, email: "456@gmail.com" },
-  { name: "green", uid: 2, email: "789@gmail.com" },
-  { name: "cyan", uid: 3, email: "987@gmail.com" },
-  { name: "gold", uid: 4, email: "654@gmail.com" },
-  { name: "111", uid: 5, email: "321@gmail.com" },
-]
-
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
   meetingValue?: Meeting
 }
-
+const Allday: number = 0
+let changeData = InitMeeting
 function NewMeetingForm(Props: Init) {
   const { visible, setVisible } = Props
+  const [member, setMember] = useState<Member[]>([])
+  const [roomList, setRoomList] = useState<Array<Room>>([])
+  const [DepartmentList, setDepartmentList] = useState<Department[]>([])
   const [form] = Form.useForm()
-
-  const changeData: Meet = newData
 
   function showErrorMessage(message: string) {
     Modal.error({
@@ -139,22 +76,81 @@ function NewMeetingForm(Props: Init) {
     })
   }
 
+  function getRoomInfo() {
+    fetch("https://hw.seabao.ml/api/room")
+      .then(data => data.json())
+      .then(res => {
+        setRoomList(res)
+        console.log("Success", roomList)
+      })
+      .catch(error => console.log("error", error))
+  }
+
+  function getEmployeeInfo() {
+    const data: Array<Member> = []
+    fetch("https://hw.seabao.ml/api/user")
+      .then(res => res.json())
+      .then(response => {
+        response.forEach((employee: any) => {
+          data.push(employee)
+        })
+        setMember(data)
+        console.log("Success", data)
+      })
+      .catch(error => console.log("error", error))
+  }
+
+  function getDepartment() {
+    const data: Array<Department> = []
+    fetch("https://hw.seabao.ml/api/department")
+      .then(res => res.json())
+      .then(response => {
+        response.forEach((employee: any) => {
+          data.push(employee)
+        })
+        setDepartmentList(data)
+        console.log("Success", data)
+      })
+      .catch(error => console.log("error", error))
+  }
+
+  useEffect(() => {
+    if (visible) {
+      getRoomInfo()
+      getDepartment()
+      getEmployeeInfo()
+    } else {
+      changeData = InitMeeting
+    }
+  }, [visible])
+
   function showPromiseConfirm() {
+    const num: number[] = []
+    member.forEach(item => {
+      if (changeData.attendees.some(email => email === item.email)) num.push(Number(item.id))
+    })
+    changeData.attendees = num
+    console.log(changeData)
     confirm({
       title: "確認",
       icon: <ExclamationCircleOutlined />,
       content: "你確定要新增此會議嗎?",
       onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.1 ? resolve : reject, 1000)
+        return fetch("https://hw.seabao.ml/api/meeting", {
+          method: "POST",
+          body: JSON.stringify(changeData), // data can be `string` or {object}!
+          headers: new Headers({
+            "Content-Type": "application/json",
+          }),
         })
-          .then(() => {
+          .catch(() => {
+            showErrorMessage("新增失敗!")
+          })
+          .then(res => {
+            console.log("success", res)
             form.resetFields()
             setVisible(false)
             // 放changeData
-          })
-          .catch(() => {
-            showErrorMessage("變更失敗!")
           })
       },
       onCancel() {},
@@ -188,8 +184,8 @@ function NewMeetingForm(Props: Init) {
 
   function onChangeDate(dates: any, dateStrings: any) {
     if (dates === null || dateStrings === null) return
-    changeData.fromDate = dates[0].format()
-    changeData.toDate = dates[1].format()
+    changeData.fromDate = String(dates[0].format())
+    changeData.toDate = String(dates[1].format())
     console.log("From: ", changeData.fromDate, ", to: ", changeData.toDate)
   }
 
@@ -213,25 +209,25 @@ function NewMeetingForm(Props: Init) {
             <Input
               allowClear
               onChange={e => {
-                changeData.titleName = e.target.value
+                changeData.title = e.target.value
               }}
             />
           </Form.Item>
           <Row>
-            <Col span={8} offset={3}>
+            {/* {<Col span={8} offset={3}>
               <Form.Item name="allDay" label="All Day" {...SwitchLayout} valuePropName="checked">
                 <Switch
                   onChange={checked => {
-                    changeData.AllDay = checked ? 1 : 0
+                    Allday = checked ? 1 : 0
                   }}
                 />
               </Form.Item>
-            </Col>
-            <Col span={8}>
+            </Col>} */}
+            <Col span={8} offset={3}>
               <Form.Item name="repeat" label="Repeat" {...SwitchLayout} valuePropName="checked">
                 <Switch
                   onChange={checked => {
-                    changeData.repeat = checked ? 1 : 0
+                    changeData.repeatType = checked ? 1 : 0
                   }}
                 />
               </Form.Item>
@@ -284,12 +280,12 @@ function NewMeetingForm(Props: Init) {
               showSearch
               placeholder="Select a room"
               onChange={value => {
-                changeData.department = String(value)
-                console.log(changeData.department)
+                changeData.departments = [String(value)]
+                console.log(changeData.departments)
               }}
               allowClear
             >
-              {departmentList.map(item => (
+              {DepartmentList.map(item => (
                 <Option value={item.name} key={item.name}>
                   {item.name}
                 </Option>
@@ -303,13 +299,15 @@ function NewMeetingForm(Props: Init) {
               tagRender={tagRender}
               style={{ width: "100%" }}
               allowClear
-              onChange={(value: SelectValue) => {
-                changeData.member = value
+              onChange={(value: any) => {
+                changeData.attendees = value
               }}
+              maxTagCount={5}
+              maxTagTextLength={40}
             >
               {member.map(item => (
-                <Option value={item.email} key={item.uid}>
-                  {item.name}
+                <Option value={item.email} key={item.id}>
+                  {`${item.name} <${item.email}>`}
                 </Option>
               ))}
             </Select>

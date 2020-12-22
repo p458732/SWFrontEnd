@@ -7,15 +7,16 @@ import NewMeetingForm from "../component/Meeting/NewMeetingForm"
 import ViewMeetingForm from "../component/Meeting/ViewMeetingForm"
 
 const MeetingData: Meeting = {
-  meetingID: 0,
-  title: "78軟體工程",
-  description: "心累阿",
-  departments: ["IE", "CSIE"],
-  location: "TR-302",
-  repeatType: 0,
+  meetingID: 13,
   creatorUid: 0,
-  fromDate: "2020-12-02 00:00",
-  toDate: "2020-12-02 23:59",
+  title: "123",
+  description: "string",
+  departments: ["EE"],
+  attendees: [15, 16, 18, 20],
+  location: "TR-305",
+  repeatType: 0,
+  fromDate: "2020-12-16T17:10:04",
+  toDate: "2020-12-23T17:10:04",
 }
 
 export default function Home() {
