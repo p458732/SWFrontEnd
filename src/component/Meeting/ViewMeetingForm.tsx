@@ -39,7 +39,16 @@ interface Init {
   visible: boolean
   meetingData: Meeting
 }
-
+const InitMeeting: Meeting = {
+  title: "",
+  description: "",
+  location: "",
+  repeatType: 0,
+  toDate: "",
+  fromDate: "",
+  attendees: [],
+  departments: [""],
+}
 function ViewMeetingForm(Props: Init) {
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const { visible, setVisible, meetingData } = Props
@@ -68,6 +77,7 @@ function ViewMeetingForm(Props: Init) {
 
   useEffect(() => {
     if (visible) getEmployeeInfo()
+    else form.resetFields()
   }, [visible])
 
   useEffect(() => {

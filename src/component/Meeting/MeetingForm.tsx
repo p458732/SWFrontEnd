@@ -9,9 +9,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import Icon from "antd/lib/icon"
-import { FormInstance } from "antd/lib/form"
-import { EnvironmentOutlined, FontSizeOutlined } from "@ant-design/icons"
+import { ExclamationCircleOutlined } from "@ant-design/icons"
 import {
   Form,
   Input,
@@ -31,16 +29,15 @@ import {
 } from "antd"
 
 import moment from "moment"
-import Avatar from "antd/lib/avatar/avatar"
-import { connect } from "http2"
-import { Content } from "antd/lib/layout/layout"
-import { Room, User, Department, Meeting } from "../utils/interface"
+import { Room, Member, Department, Meeting } from "../utils/interface"
 
 const { TextArea } = Input
 
 const { RangePicker } = DatePicker
 
 const { Option } = Select
+
+const { confirm } = Modal
 
 const tailLayout = {
   wrapperCol: { offset: 16, span: 16 },
@@ -60,66 +57,29 @@ const layout = {
   wrapperCol: { span: 16 },
 }
 
-const roomList: Array<Room> = [
-  {
-    name: "TR200",
-    capacity: 12,
-    id: 10,
-  },
-  {
-    name: "TR500",
-    capacity: 10,
-    id: 11,
-  },
-  {
-    name: "RB500",
-    capacity: 20,
-    id: 12,
-  },
-]
-
-const departmentList: Array<Department> = [
-  { name: "Personnel Department" },
-  { name: "Sales Department" },
-  { name: "Business Office" },
-]
-
-interface Meet {
-  title: string
-  description: string
-  roomName: string
+const InitMeeting: Meeting = {
+  title: "",
+  description: "",
+  location: "",
+  repeatType: 0,
+  toDate: "",
+  fromDate: "",
+  attendees: [],
+  departments: [""],
 }
-
-const MeetingData: Meet = {
-  title: "Title",
-  description: "Hello World",
-  roomName: "TR-500",
-}
-
-const member = [
-  { name: "gold", uid: 0, email: "aaaa" },
-  { name: "lime", uid: 1, email: "bbbb" },
-  { name: "green", uid: 2, email: "cccc" },
-  { name: "cyan", uid: 3, email: "dddd" },
-  { name: "gold", uid: 4, email: "ffff" },
-  { name: "111", uid: 5, email: "gggg" },
-  { name: "33", uid: 6, email: "hhhh" },
-]
 
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
-  type: "Edit" | "View"
-  meetingValue?: Meeting
+  meetingData: Meeting
 }
-
+let changeData: Meeting = InitMeeting
 function MeetingForm(Props: Init) {
-  const [content, setContent] = React.useState("11111111111111111111")
-  const [confirmLoading, setConfirmLoading] = React.useState(false)
-  const [modalText, setModalText] = React.useState("Content of the modal")
-  const { visible, setVisible, type } = Props
+  const [member, setMember] = useState<Member[]>([])
+  const [roomList, setRoomList] = useState<Array<Room>>([])
+  const [DepartmentList, setDepartmentList] = useState<Department[]>([])
+  const { visible, setVisible, meetingData } = Props
   const [form] = Form.useForm()
-  const typeBool = type === "Edit"
 
   function showErrorMessage(message: string) {
     Modal.error({
@@ -128,8 +88,70 @@ function MeetingForm(Props: Init) {
     })
   }
 
+  function getRoomInfo() {
+    fetch("https://hw.seabao.ml/api/room")
+      .then(data => data.json())
+      .then(res => {
+        setRoomList(res)
+        console.log("Success", roomList)
+      })
+      .catch(error => console.log("error", error))
+  }
+
+  function getEmployeeInfo() {
+    const data: Array<Member> = []
+    fetch("https://hw.seabao.ml/api/user")
+      .then(res => res.json())
+      .then(response => {
+        response.forEach((employee: any) => {
+          data.push(employee)
+        })
+        setMember(data)
+        console.log("Success", data)
+      })
+      .catch(error => console.log("error", error))
+  }
+
+  function getDepartment() {
+    const data: Array<Department> = []
+    fetch("https://hw.seabao.ml/api/department")
+      .then(res => res.json())
+      .then(response => {
+        response.forEach((employee: any) => {
+          data.push(employee)
+        })
+        setDepartmentList(data)
+        console.log("Success", data)
+      })
+      .catch(error => console.log("error", error))
+  }
+
+  useEffect(() => {
+    if (visible) {
+      changeData = meetingData
+      console.log(changeData)
+      getRoomInfo()
+      getDepartment()
+      getEmployeeInfo()
+    } else {
+      changeData = InitMeeting
+    }
+  }, [visible])
+
+  useEffect(() => {
+    if (member.length === 0) return
+    meetingData.attendees = meetingData.attendees?.map(element => {
+      const User = member.find(user => user.id === element)
+      if (User !== undefined) return User.email
+      return ""
+    })
+    form.setFieldsValue({
+      member: meetingData.attendees,
+    })
+  }, [member])
+
   function tagRender(props: any) {
-    const { label, value, closable, onClose } = props
+    const { label, closable, onClose } = props
 
     return (
       <Tag color="gold" closable={closable} onClose={onClose} style={{ marginRight: 3 }}>
@@ -138,13 +160,38 @@ function MeetingForm(Props: Init) {
     )
   }
 
-  const handleOk = () => {
-    setModalText("The modal will be closed after two seconds")
-    setConfirmLoading(true)
-    setTimeout(() => {
-      setVisible(false)
-      setConfirmLoading(false)
-    }, 2000)
+  function showPromiseConfirm() {
+    const num: number[] = []
+    member.forEach(item => {
+      if (changeData.attendees.some(email => email === item.email)) num.push(Number(item.id))
+    })
+    changeData.attendees = num
+    delete changeData.creatorUid
+    console.log(changeData)
+    confirm({
+      title: "確認",
+      icon: <ExclamationCircleOutlined />,
+      content: "你確定要新增此會議嗎?",
+      onOk() {
+        return fetch("https://hw.seabao.ml/api/meeting", {
+          method: "PATCH",
+          body: JSON.stringify(changeData), // data can be `string` or {object}!
+          headers: new Headers({
+            "Content-Type": "application/json",
+          }),
+        })
+          .catch(() => {
+            showErrorMessage("新增失敗!")
+          })
+          .then(res => {
+            console.log("success", res)
+            form.resetFields()
+            setVisible(false)
+            // 放changeData
+          })
+      },
+      onCancel() {},
+    })
   }
 
   const handleCancel = () => {
@@ -153,97 +200,99 @@ function MeetingForm(Props: Init) {
     setVisible(false)
   }
 
-  const onFinish = (values: any) => {}
+  const onFinish = (values: any) => {
+    showPromiseConfirm()
+    console.log("onFiniish", changeData)
+  }
 
   const onFinishFailed = () => {
     showErrorMessage("請選擇日期!")
     console.log("error")
   }
 
-  function onChange(dates: any, dateStrings: any) {
+  function onChangeDate(dates: any, dateStrings: any) {
+    console.log("From: ", changeData.fromDate, ", to: ", changeData.toDate)
     if (dates === null || dateStrings === null) return
-    console.log("From: ", dates[0], ", to: ", dates[1])
-    console.log("From: ", dateStrings[0], ", to: ", dateStrings[1])
-  }
-
-  function onSelectRoom() {}
-
-  function handleDescript(event: any) {
-    console.log(event.target.value)
-  }
-
-  function onSelectMember(value: any) {
-    console.log(value)
+    changeData.fromDate = String(dates[0].format())
+    changeData.toDate = String(dates[1].format())
   }
 
   return (
     <>
-      <Modal visible={visible} onOk={handleOk} confirmLoading={confirmLoading} onCancel={handleCancel} footer={false}>
+      <Modal visible={visible} onCancel={handleCancel} footer={false}>
         <Form
           {...layout}
           form={form}
-          name="control-hooks-EditMetting"
+          name="control-hooks-EditMeeting"
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           initialValues={{
-            descript: content,
-            meetingRoom: roomList[0].name,
-            allDay: true,
-            repeat: true,
-            department: departmentList[0].name,
-            titleName: MeetingData.title,
-            member: ["aaaa", "bbbb"],
-            selectDate: [moment(), moment()],
+            descript: meetingData.description,
+            meetingRoom: meetingData.location,
+            repeat: meetingData.repeatType,
+            department: meetingData.departments,
+            titleName: meetingData.title,
+            selectDate: [moment(meetingData.fromDate), moment(meetingData.toDate)],
           }}
         >
           <Form.Item name="title">
             <Row justify="start">
-              <h1>{typeBool ? "編輯會議" : MeetingData.title}</h1>
+              <h1>{meetingData.title}</h1>
             </Row>
           </Form.Item>
-          <Form.Item
-            name="titleName"
-            label="Title name"
-            hidden={!typeBool}
-            rules={[{ required: typeBool, message: "Title name is require" }]}
-          >
-            <Input disabled={!typeBool} />
+          <Form.Item name="titleName" label="Title name" rules={[{ required: true, message: "Title name is require" }]}>
+            <Input
+              allowClear
+              onChange={e => {
+                changeData.title = e.target.value
+              }}
+            />
           </Form.Item>
           <Row>
-            <Col span={8} offset={2}>
+            {/* { <Col span={8} offset={2}>
               <Form.Item name="allDay" label="All Day" {...SwitchLayout} valuePropName="checked">
-                <Switch disabled={!typeBool} />
+                <Switch />
               </Form.Item>
-            </Col>
-            <Col span={8}>
+            </Col>} */}
+            <Col span={8} offset={3}>
               <Form.Item name="repeat" label="Repeat" {...SwitchLayout} valuePropName="checked">
-                <Switch disabled={!typeBool} />
+                <Switch
+                  onChange={checked => {
+                    changeData.repeatType = checked ? 1 : 0
+                  }}
+                />
               </Form.Item>
             </Col>
           </Row>
           <Form.Item
             name="selectDate"
             label="Select Date"
-            rules={[{ required: typeBool, message: "Select Date is require" }]}
+            rules={[{ required: true, message: "Select Date is require" }]}
           >
             <RangePicker
               ranges={{
                 Today: [moment(), moment()],
                 "This Month": [moment().startOf("month"), moment().endOf("month")],
               }}
-              disabled={!typeBool}
               showTime
               format="YYYY/MM/DD HH:mm"
-              onChange={onChange}
+              onChange={onChangeDate}
             />
           </Form.Item>
           <Form.Item
             name="meetingRoom"
             label="Meeting Room"
             {...SelectLayout}
-            rules={[{ required: typeBool, message: "Select room is require" }]}
+            rules={[{ required: true, message: "Select room is require" }]}
           >
-            <Select showSearch placeholder="Select a room" onChange={onSelectRoom} allowClear disabled={!typeBool}>
+            <Select
+              showSearch
+              placeholder="Select a room"
+              onChange={(value: any) => {
+                changeData.location = value
+              }}
+              allowClear
+            >
               {roomList.map(item => (
                 <Option value={item.name} key={item.name}>
                   {item.name}
@@ -255,34 +304,41 @@ function MeetingForm(Props: Init) {
             name="department"
             label="Department"
             {...SelectLayout}
-            rules={[{ required: typeBool, message: "Select department is require" }]}
+            rules={[{ required: true, message: "Select department is require" }]}
           >
             <Select
               showSearch
-              placeholder="Select a department"
-              onChange={onSelectRoom}
+              placeholder="Select a Department"
+              onChange={value => {
+                changeData.departments = [String(value)]
+                console.log(changeData.departments)
+              }}
               allowClear
-              disabled={!typeBool}
             >
-              {departmentList.map(item => (
+              {DepartmentList.map(item => (
                 <Option value={item.name} key={item.name}>
                   {item.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="member" label="Member">
+          <Form.Item name="member" label="Member" rules={[{ required: true, message: "Select Member is require" }]}>
             <Select
               mode="multiple"
-              onChange={onSelectMember}
               showArrow
               tagRender={tagRender}
               style={{ width: "100%" }}
               allowClear
+              onChange={(value: any) => {
+                console.log("attendees", value)
+                changeData.attendees = value
+              }}
+              maxTagCount={5}
+              maxTagTextLength={40}
             >
               {member.map(item => (
-                <Option value={item.email} key={item.uid}>
-                  {item.name}
+                <Option value={item.email} key={item.id}>
+                  {`${item.name} <${item.email}>`}
                 </Option>
               ))}
             </Select>
@@ -290,10 +346,11 @@ function MeetingForm(Props: Init) {
           <Form.Item name="descript" label="Descript">
             <TextArea
               allowClear
-              onChange={handleDescript}
               placeholder="Descript"
               autoSize={{ minRows: 3, maxRows: 5 }}
-              readOnly={!type}
+              onChange={e => {
+                changeData.description = e.target.value
+              }}
             />
           </Form.Item>
           <Form.Item name="button" {...tailLayout}>
@@ -310,11 +367,6 @@ function MeetingForm(Props: Init) {
       </Modal>
     </>
   )
-}
-
-MeetingForm.defaultProps = {
-  visible: true,
-  type: "Edit",
 }
 
 export default MeetingForm
