@@ -17,26 +17,64 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
   layout: "vertical",
 }
-
+const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
 export default function login() {
-  const info = { email: "", password: "" }
+  const loginInfo = { email: "", password: "" }
+  const data = {
+    grant_type: "password",
+    username: "",
+    password: "",
+    client_id: "frontend.client",
+    client_secret: "0AH#wjlzaU#&&P*XkY74",
+  }
   const onFinish = values => {
     console.log("Success:", values)
   }
-
   const onFinishFailed = errorInfo => {
     console.log("Failed:", errorInfo)
   }
   function emailChanged(e: React.ChangeEvent<HTMLInputElement>) {
-    info.email = e.target.value
-    console.log(info)
+    loginInfo.email = e.target.value
+    console.log(JSON.stringify(loginInfo))
   }
   function passwordChanged(e: React.ChangeEvent<HTMLInputElement>) {
-    info.password = e.target.value
-    console.log(info)
+    loginInfo.password = e.target.value
+    console.log(JSON.stringify(loginInfo))
   }
-  const authenticate = () => {}
+  function updateData() {
+    data.username = loginInfo.email
+    data.password = loginInfo.password
 
+    console.log(data)
+    console.log(JSON.stringify(data))
+  }
+  function authenticate() {
+    let formData = new FormData()
+    formData.append("grant_type", "password")
+    formData.append("username", data.username)
+    formData.append("password", data.password)
+    formData.append("client_id", "frontend.client")
+    formData.append("client_secret", "0AH#wjlzaU#&&P*XkY74")
+
+    fetch(loginURL, {
+      method: "POST",
+      body: formData,
+      headers: new Headers({
+        "Content-Type": "application/x-www-form-urlencoded",
+      }),
+    })
+      .then(res => {
+        return res.json()
+      })
+      .then(data => {
+        console.log(data)
+        console.log("data")
+      })
+      .catch(e => {
+        console.log(e.error_description)
+        console.log("faild")
+      })
+  }
   return (
     <div className="app">
       <Form
