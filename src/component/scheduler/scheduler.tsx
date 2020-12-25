@@ -22,6 +22,7 @@ import ManagerEdit from "../ManagerEdit/ManagerEdit"
 let state: any = {}
 let gstc: any = {}
 let previousDate: any
+let previousEndWeekDate: any
 let previousDateEndOfMonth: any
 let lastItemId = -1
 
@@ -102,7 +103,7 @@ function Scheduler(props) {
         "Content-Type": "application/json",
         Authorization:
           "Bearer " +
-          "eyJhbGciOiJSUzI1NiIsImtpZCI6IkMyNjhEMUIwNkY2MkI0Qjc3MzY1QkY1RDkyNDgyNjYzIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2MDg4OTc1MTcsImV4cCI6MTYwODkwMTExNywiaXNzIjoiaHR0cHM6Ly9zdy12aXJ0dWFsbWVldGluZ2Fzc2l0YW50LWF1dGguYXp1cmV3ZWJzaXRlcy5uZXQiLCJhdWQiOiJodHRwczovL3N3LXZpcnR1YWxtZWV0aW5nYXNzaXRhbnQtYXV0aC5henVyZXdlYnNpdGVzLm5ldC9yZXNvdXJjZXMiLCJjbGllbnRfaWQiOiJmcm9udGVuZC5jbGllbnQiLCJzdWIiOiIyMSIsImF1dGhfdGltZSI6MTYwODg5NzUxNywiaWRwIjoibG9jYWwiLCJqdGkiOiJEMEY1N0VCQzIxMUE0NjYyRTlCQkE3OTYyRjNERkRBRSIsImlhdCI6MTYwODg5NzUxNywic2NvcGUiOlsibWVldGluZy1hcGlzIl0sImFtciI6WyJwd2QiXX0.oNiitreJOMTd-EtTxcjNkDCEdfEV-XRMsnCUtTRmHAR72S6ZwHwaMqR7_RaDEsh3AuxsbG-IB4F1M9qg5nZfW0OdiLmlHNkGt8D9FB-oMTAdtSJuANeIhBPKlrMA4JMArlVeYlaeQT3Dr0bfbhkuE0V6K9RAOPcMDTkLu2j7QWiXUKnEYKQ3vj3AfHZiRLaHCv4hMi4RXXl9B0mvwr_5go9HXHzr3ZPhSg1OTKGyxLhx4eOD0glyoqjJMc58-6B-qVF3TKboN0aDUTsXE_w5I0UPjc66z8CfnSvNNnwGy9QfJfp98-2LPzm3uuWhvj5eGlNsIQl8IK7ou7T14yTMig",
+          "eyJhbGciOiJSUzI1NiIsImtpZCI6IkMyNjhEMUIwNkY2MkI0Qjc3MzY1QkY1RDkyNDgyNjYzIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2MDg5MDIxMDgsImV4cCI6MTYwODkwNTcwOCwiaXNzIjoiaHR0cHM6Ly9zdy12aXJ0dWFsbWVldGluZ2Fzc2l0YW50LWF1dGguYXp1cmV3ZWJzaXRlcy5uZXQiLCJhdWQiOiJodHRwczovL3N3LXZpcnR1YWxtZWV0aW5nYXNzaXRhbnQtYXV0aC5henVyZXdlYnNpdGVzLm5ldC9yZXNvdXJjZXMiLCJjbGllbnRfaWQiOiJmcm9udGVuZC5jbGllbnQiLCJzdWIiOiIyMSIsImF1dGhfdGltZSI6MTYwODkwMjEwOCwiaWRwIjoibG9jYWwiLCJqdGkiOiI4OUNDRDFBMUMxMTY5RkJFNjFCMkZGRThFODExNjA1RSIsImlhdCI6MTYwODkwMjEwOCwic2NvcGUiOlsibWVldGluZy1hcGlzIl0sImFtciI6WyJwd2QiXX0.SnQ1BHnfxIqkCP1saD5xhbv8USTjLbB_VF-vwpMFaQujfeoxrIIIlD8fOt-Dd7XW_qiWKwkn3Br2nvlvEI1cXjNEK0zmL6BhxW2DnU40hQ4Blwk5jpRMVpNTpCzBMh-mLIrC1UoIbG3Ch4bllxj1gM4VdtQ-8TVhUbZx0D5EjztLr1XTxYkJPN3yrT_lwEW2tIuo4JChSBU2VnfZLczfwdvfUb15mjsTOIZDKXY2_gX7aI1u49bYjFZYZRop4-OZ-ehE2CvfXdpu0pAToawcL6hLjLxifPDPdLHWdFGv1Feekkr1F9YfTaD---ltuu3WP2xjuTcJd4PbmbeK5ledbg",
       },
     })
       .then(response => {
@@ -225,6 +226,7 @@ function Scheduler(props) {
   }
 
   // 當點選小日曆時要根據點選的日期來改變表格
+  // have bug
   if (gstc && state.id !== undefined) {
     if (downButtonStr === "day") {
       if (previousDate > props.currentDate.val.valueOf()) {
@@ -235,10 +237,21 @@ function Scheduler(props) {
         state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
       }
     } else if (downButtonStr === "week") {
-      console.log(props.currentDate.val.day())
+      if (props.currentDate.val.valueOf() >= previousEndWeekDate) {
+        console.log("0000000000000000")
+        state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("week").valueOf())
+        state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("week").valueOf())
+      } else {
+        console.log("111111111111111")
+        state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("week").valueOf())
+        state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("week").valueOf())
+      }
     }
 
     previousDate = props.currentDate.val.valueOf()
+    previousEndWeekDate = props.currentDate.val.endOf("week").valueOf()
+    console.log(props.currentDate.val.startOf("week"))
+    console.log(props.currentDate.val.endOf("week"))
   }
 
   function changeZoomLevel(zoom: number) {
