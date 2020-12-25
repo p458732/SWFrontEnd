@@ -3,6 +3,7 @@ import ReactDOM from "react-dom"
 import moment from "moment"
 import { Layout } from "antd"
 import SideBarCalendar from "../component/sideBar/calendar"
+import DepartmentCheckBox from "../component/sideBar/departmentCheckBox"
 import Scheduler from "../component/scheduler/scheduler"
 import Schedulerr from "../component/scheduler/scheduler2"
 
@@ -27,6 +28,7 @@ export default function Home() {
         }}
       >
         <SideBarCalendar currentDate={state} />
+        <DepartmentCheckBox />
       </Sider>
       <Content>
         <Scheduler currentDate={state} />
