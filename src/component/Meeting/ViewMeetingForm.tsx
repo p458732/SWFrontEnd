@@ -70,7 +70,10 @@ function ViewMeetingForm(Props: Init) {
 
   useEffect(() => {
     if (visible) getEmployeeInfo()
-    else form.resetFields()
+    else {
+      form.resetFields()
+      console.log("reset")
+    }
   }, [visible])
 
   useEffect(() => {
@@ -84,6 +87,8 @@ function ViewMeetingForm(Props: Init) {
         .join("\n"),
     })
   }, [member])
+
+  useEffect(() => form.resetFields(), [meetingData])
 
   const fromDate = moment(meetingData.fromDate) //
   const toDate = moment(meetingData.toDate) //

@@ -135,6 +135,8 @@ function MeetingForm(Props: Init) {
       .catch(error => console.log("error", error))
   }
 
+  useEffect(() => form.resetFields(), [meetingData])
+
   useEffect(() => {
     if (visible) {
       changeData = meetingData
