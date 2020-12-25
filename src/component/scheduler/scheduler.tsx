@@ -97,6 +97,13 @@ function Scheduler(props) {
   function getMeeting() {
     fetch(meetingURL, {
       method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization:
+          "Bearer " +
+          "eyJhbGciOiJSUzI1NiIsImtpZCI6IkMyNjhEMUIwNkY2MkI0Qjc3MzY1QkY1RDkyNDgyNjYzIiwidHlwIjoiYXQrand0In0.eyJuYmYiOjE2MDg4OTc1MTcsImV4cCI6MTYwODkwMTExNywiaXNzIjoiaHR0cHM6Ly9zdy12aXJ0dWFsbWVldGluZ2Fzc2l0YW50LWF1dGguYXp1cmV3ZWJzaXRlcy5uZXQiLCJhdWQiOiJodHRwczovL3N3LXZpcnR1YWxtZWV0aW5nYXNzaXRhbnQtYXV0aC5henVyZXdlYnNpdGVzLm5ldC9yZXNvdXJjZXMiLCJjbGllbnRfaWQiOiJmcm9udGVuZC5jbGllbnQiLCJzdWIiOiIyMSIsImF1dGhfdGltZSI6MTYwODg5NzUxNywiaWRwIjoibG9jYWwiLCJqdGkiOiJEMEY1N0VCQzIxMUE0NjYyRTlCQkE3OTYyRjNERkRBRSIsImlhdCI6MTYwODg5NzUxNywic2NvcGUiOlsibWVldGluZy1hcGlzIl0sImFtciI6WyJwd2QiXX0.oNiitreJOMTd-EtTxcjNkDCEdfEV-XRMsnCUtTRmHAR72S6ZwHwaMqR7_RaDEsh3AuxsbG-IB4F1M9qg5nZfW0OdiLmlHNkGt8D9FB-oMTAdtSJuANeIhBPKlrMA4JMArlVeYlaeQT3Dr0bfbhkuE0V6K9RAOPcMDTkLu2j7QWiXUKnEYKQ3vj3AfHZiRLaHCv4hMi4RXXl9B0mvwr_5go9HXHzr3ZPhSg1OTKGyxLhx4eOD0glyoqjJMc58-6B-qVF3TKboN0aDUTsXE_w5I0UPjc66z8CfnSvNNnwGy9QfJfp98-2LPzm3uuWhvj5eGlNsIQl8IK7ou7T14yTMig",
+      },
     })
       .then(response => {
         return response.json()
@@ -210,9 +217,7 @@ function Scheduler(props) {
         },
       },
     }
-
     state = GSTC.api.stateFromConfig(config)
-
     gstc = GSTC({
       element,
       state,
@@ -221,20 +226,24 @@ function Scheduler(props) {
 
   // 當點選小日曆時要根據點選的日期來改變表格
   if (gstc && state.id !== undefined) {
-    if (previousDate > props.currentDate.val.valueOf()) {
-      state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
-      state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
-    } else {
-      state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
-      state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
+    if (downButtonStr === "day") {
+      if (previousDate > props.currentDate.val.valueOf()) {
+        state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
+        state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
+      } else {
+        state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
+        state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
+      }
+    } else if (downButtonStr === "week") {
+      console.log(props.currentDate.val.day())
     }
-    previousDate = props.currentDate.val.valueOf()
 
-    console.log("dsss" + props.currentDate.val)
+    previousDate = props.currentDate.val.valueOf()
   }
 
   function changeZoomLevel(zoom: number) {
     state.update("config.chart.time.zoom", zoom)
+
     //  state.update("config.chart.time.from", props.currentDate.val.startOf("month").valueOf())
     // state.update("config.chart.time.to", props.currentDate.val.endOf("month").valueOf())
   }
