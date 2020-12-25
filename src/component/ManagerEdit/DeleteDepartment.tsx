@@ -13,7 +13,7 @@ import "antd/dist/antd.css"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
 
 import { Form, Input, Button, Select, Space, Row, Modal, Tag } from "antd"
-import { SelectValue } from "antd/lib/tree-select"
+import { Member, Department, header } from "../utils/interface"
 
 const { Option } = Select
 
@@ -35,18 +35,6 @@ const SelectLayout = {
   wrapperCol: { offset: 0, span: 16 },
 }
 
-interface Member {
-  name: string
-  id: string
-  email: string
-  departmentName: string
-}
-
-interface Department {
-  name: string
-  attendees: Array<any>
-}
-
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
@@ -54,13 +42,16 @@ interface Init {
 let Employee: Member[] = []
 function DeleteDepartment(Props: Init) {
   const { visible, setVisible } = Props
-  const [Department, setDepartment] = useState<Department>()
+  const [department, setDepartment] = useState<Department>()
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
   const [form] = Form.useForm()
 
   async function getEmployeeInfo() {
     const data: Array<Member> = []
-    await fetch("https://hw.seabao.ml/api/user")
+    await fetch("https://hw.seabao.ml/api/user", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -74,7 +65,10 @@ function DeleteDepartment(Props: Init) {
 
   function getDepartment() {
     const data: Array<Department> = []
-    fetch("https://hw.seabao.ml/api/department")
+    fetch("https://hw.seabao.ml/api/department", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -88,13 +82,13 @@ function DeleteDepartment(Props: Init) {
 
   useEffect(() => {
     getEmployeeInfo().then(() => {
-      const judgeData = Employee.filter(element => Department?.attendees.some(judge => element.id === judge))
+      const judgeData = Employee.filter(element => department?.attendees.some(judge => element.id === judge))
       console.log(judgeData)
       form.setFieldsValue({
         member: judgeData.map(element => `${element.name} <${element.email}>`).join("\n"),
       })
     })
-  }, [Department])
+  }, [department])
 
   useEffect(() => {
     if (visible) {
@@ -121,8 +115,9 @@ function DeleteDepartment(Props: Init) {
       icon: <ExclamationCircleOutlined />,
       content: "你確定要刪除此部門嗎?",
       onOk() {
-        return fetch(`https://hw.seabao.ml/api/department?departmentName=${Department?.name}`, {
+        return fetch(`https://hw.seabao.ml/api/department?departmentName=${department?.name}`, {
           method: "DELETE",
+          headers: header,
         })
           .then(res => {
             console.log("success", res)

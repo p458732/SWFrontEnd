@@ -9,11 +9,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import Icon from "antd/lib/icon"
-import { FormInstance } from "antd/lib/form"
-import { EnvironmentOutlined, FontSizeOutlined, ExclamationCircleOutlined } from "@ant-design/icons"
+import { ExclamationCircleOutlined } from "@ant-design/icons"
 
 import { Form, Input, Button, Select, Space, Row, Col, Modal } from "antd"
+import { Member, Department, header } from "../utils/interface"
 
 const { Option } = Select
 
@@ -31,16 +30,6 @@ const SelectLayout = {
 const layout = {
   labelCol: { span: 6, offset: 0 },
   wrapperCol: { span: 16 },
-}
-interface Department {
-  name: string
-  attendees: Array<any>
-}
-interface Member {
-  name: string
-  id: string
-  email: string
-  departmentName: string
 }
 
 const initEmployee: Member = { name: "", id: "-1", email: "", departmentName: "" }
@@ -75,7 +64,10 @@ function EmployeeEdit(Props: Init) {
 
   function getEmployeeInfo() {
     const data: Array<Member> = []
-    fetch("https://hw.seabao.ml/api/user")
+    fetch("https://hw.seabao.ml/api/user", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -89,7 +81,10 @@ function EmployeeEdit(Props: Init) {
 
   function getDepartment() {
     const data: Array<Department> = []
-    fetch("https://hw.seabao.ml/api/department")
+    fetch("https://hw.seabao.ml/api/department", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -133,9 +128,7 @@ function EmployeeEdit(Props: Init) {
         return fetch("https://hw.seabao.ml/api/user", {
           method: "PATCH",
           body: JSON.stringify(changeEmployeeData), // data can be `string` or {object}!
-          headers: new Headers({
-            "Content-Type": "application/json",
-          }),
+          headers: header,
         })
           .then(res => {
             console.log("success", res)

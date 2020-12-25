@@ -14,6 +14,8 @@ import { ExclamationCircleOutlined } from "@ant-design/icons"
 
 import { Form, Input, Button, Select, Space, Row, Modal } from "antd"
 
+import { Member, header } from "../utils/interface"
+
 const { Option } = Select
 
 const { confirm } = Modal
@@ -30,13 +32,6 @@ const SelectLayout = {
 const layout = {
   labelCol: { span: 6, offset: 0 },
   wrapperCol: { span: 16 },
-}
-
-interface Member {
-  name: string
-  id: string
-  email: string
-  departmentName: string
 }
 
 const initEmployee: Member = { name: "", id: "-1", email: "", departmentName: "" }
@@ -57,7 +52,10 @@ function EmployeeDelete(Props: Init) {
 
   function getEmployeeInfo() {
     const data: Array<Member> = []
-    fetch("https://hw.seabao.ml/api/user")
+    fetch("https://hw.seabao.ml/api/user", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -95,6 +93,7 @@ function EmployeeDelete(Props: Init) {
       onOk() {
         return fetch(`https://hw.seabao.ml/api/user?userId=${parseInt(Employee.id, 10)}`, {
           method: "DELETE",
+          headers: header,
         })
           .then(res => {
             console.log("success", res)
