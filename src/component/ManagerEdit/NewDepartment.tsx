@@ -13,7 +13,7 @@ import "antd/dist/antd.css"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
 
 import { Form, Input, Button, Select, Space, Row, Modal, Tag } from "antd"
-import { SelectValue } from "antd/lib/tree-select"
+import { Member, Department, header } from "../utils/interface"
 
 const { Option } = Select
 
@@ -26,18 +26,6 @@ const tailLayout = {
 const layout = {
   labelCol: { span: 6, offset: 0 },
   wrapperCol: { span: 16 },
-}
-
-interface Member {
-  name: string
-  id: string
-  email: string
-  departmentName: string
-}
-
-interface Department {
-  name: string
-  attendees: Array<any>
 }
 
 interface Init {
@@ -54,7 +42,10 @@ function NewDepartment(Props: Init) {
 
   function getEmployeeInfo() {
     const data: Array<Member> = []
-    fetch("https://hw.seabao.ml/api/user")
+    fetch("https://hw.seabao.ml/api/user", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -68,7 +59,10 @@ function NewDepartment(Props: Init) {
 
   function getDepartment() {
     const data: Array<Department> = []
-    fetch("https://hw.seabao.ml/api/department")
+    fetch("https://hw.seabao.ml/api/department", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -125,9 +119,7 @@ function NewDepartment(Props: Init) {
         return fetch("https://hw.seabao.ml/api/department", {
           method: "POST",
           body: JSON.stringify({ name: changeData.name, ids: num }), // data can be `string` or {object}!
-          headers: new Headers({
-            "Content-Type": "application/json",
-          }),
+          headers: header,
         })
           .then(res => {
             console.log("success", res)

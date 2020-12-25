@@ -10,26 +10,9 @@
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
 import "./Edit.css"
-import { FormInstance } from "antd/lib/form"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
-import {
-  Form,
-  Input,
-  Button,
-  Radio,
-  Select,
-  Cascader,
-  DatePicker,
-  InputNumber,
-  TreeSelect,
-  Switch,
-  Space,
-  Row,
-  Col,
-  Modal,
-} from "antd"
-import { promises } from "fs"
-import { Room, User } from "../utils/interface"
+import { Form, Input, Button, Select, InputNumber, Space, Row, Modal } from "antd"
+import { Member, Department, header, Room, User } from "../utils/interface"
 
 const { Option } = Select
 
@@ -75,7 +58,10 @@ function RoomEdit(props: Props) {
 
   useEffect(() => {
     if (!visible) return
-    fetch("https://hw.seabao.ml/api/room")
+    fetch("https://hw.seabao.ml/api/room", {
+      method: "GET",
+      headers: header,
+    })
       .then(data => data.json())
       .then(res => {
         setRoomList(res)
@@ -107,17 +93,17 @@ function RoomEdit(props: Props) {
       choose = fetch("https://hw.seabao.ml/api/room", {
         method: "POST", // or 'PUT'
         body: JSON.stringify({ name: changeData.name, capacity: changeData.capacity }), // data can be `string` or {object}!
-        headers: new Headers({
-          "Content-Type": "application/json",
-        }),
+        headers: header,
       })
     } else if (type === "Delete") {
       choose = fetch(`https://hw.seabao.ml/api/room?roomName=${changeData.name}`, {
         method: "DELETE",
+        headers: header,
       })
     } else {
       choose = fetch(`https://hw.seabao.ml/api/room/${changeData.id}?capacity=${changeData.capacity}`, {
         method: "PATCH",
+        headers: header,
       })
     }
     return choose

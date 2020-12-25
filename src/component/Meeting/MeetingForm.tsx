@@ -29,7 +29,7 @@ import {
 } from "antd"
 
 import moment from "moment"
-import { Room, Member, Department, Meeting } from "../utils/interface"
+import { Room, Member, Department, Meeting, header } from "../utils/interface"
 
 const { TextArea } = Input
 
@@ -89,7 +89,10 @@ function MeetingForm(Props: Init) {
   }
 
   function getRoomInfo() {
-    fetch("https://hw.seabao.ml/api/room")
+    fetch("https://hw.seabao.ml/api/room", {
+      method: "GET",
+      headers: header,
+    })
       .then(data => data.json())
       .then(res => {
         setRoomList(res)
@@ -100,7 +103,10 @@ function MeetingForm(Props: Init) {
 
   function getEmployeeInfo() {
     const data: Array<Member> = []
-    fetch("https://hw.seabao.ml/api/user")
+    fetch("https://hw.seabao.ml/api/user", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -114,7 +120,10 @@ function MeetingForm(Props: Init) {
 
   function getDepartment() {
     const data: Array<Department> = []
-    fetch("https://hw.seabao.ml/api/department")
+    fetch("https://hw.seabao.ml/api/department", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -125,6 +134,8 @@ function MeetingForm(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
+
+  useEffect(() => form.resetFields(), [meetingData])
 
   useEffect(() => {
     if (visible) {
@@ -176,9 +187,7 @@ function MeetingForm(Props: Init) {
         return fetch("https://hw.seabao.ml/api/meeting", {
           method: "PATCH",
           body: JSON.stringify(changeData), // data can be `string` or {object}!
-          headers: new Headers({
-            "Content-Type": "application/json",
-          }),
+          headers: header,
         })
           .catch(() => {
             showErrorMessage("新增失敗!")

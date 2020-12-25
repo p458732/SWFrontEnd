@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
 import GSTC from "gantt-schedule-timeline-calendar"
-import { Meeting,Room } from "../utils/interface"
+import { Meeting, Room, header } from "../utils/interface"
 import RoomEdit from "../ManagerEdit/roomEdit"
 
 import ManagerEdit from "../ManagerEdit/ManagerEdit"
@@ -62,6 +62,7 @@ function generateNewItems(meeting: any, gstc: any) {
 function getMeeting(state: any, gstc: any) {
   fetch(meetingURL, {
     method: "GET",
+    headers: header,
   })
     .then(response => {
       return response.json()
@@ -78,9 +79,7 @@ function postMeeting(state: any, gstc: any, data?: Meeting) {
   fetch(meetingURL, {
     method: "POST",
     body: JSON.stringify(data),
-    headers: new Headers({
-      "Content-Type": "application/json",
-    }),
+    headers: header,
   })
     .then(response => {
       return response.status

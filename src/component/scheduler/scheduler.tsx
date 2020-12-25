@@ -13,7 +13,7 @@ import "./App.css"
 import RoomEdit from "../ManagerEdit/roomEdit"
 import NewMeetingForm from "../Meeting/NewMeetingForm"
 import ViewMeetingForm from "../Meeting/ViewMeetingForm"
-import { Room, Meeting } from "../utils/interface"
+import { Room, Meeting, header } from "../utils/interface"
 import { Row, Col, Menu, Dropdown, Button } from "antd"
 import { PlusOutlined, EditFilled, DeliveredProcedureOutlined, UserOutlined, DownOutlined } from "@ant-design/icons"
 import ManagerEdit from "../ManagerEdit/ManagerEdit"
@@ -22,6 +22,7 @@ import ManagerEdit from "../ManagerEdit/ManagerEdit"
 let state: any = {}
 let gstc: any = {}
 let previousDate: any
+let previousEndWeekDate: any
 let previousDateEndOfMonth: any
 let lastItemId = -1
 
@@ -97,6 +98,7 @@ function Scheduler(props) {
   function getMeeting() {
     fetch(meetingURL, {
       method: "GET",
+      headers: header,
     })
       .then(response => {
         return response.json()
@@ -210,9 +212,7 @@ function Scheduler(props) {
         },
       },
     }
-
     state = GSTC.api.stateFromConfig(config)
-
     gstc = GSTC({
       element,
       state,
@@ -220,21 +220,37 @@ function Scheduler(props) {
   }
 
   // 當點選小日曆時要根據點選的日期來改變表格
+  // have bug
   if (gstc && state.id !== undefined) {
-    if (previousDate > props.currentDate.val.valueOf()) {
-      state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
-      state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
-    } else {
-      state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
-      state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
+    if (downButtonStr === "day") {
+      if (previousDate > props.currentDate.val.valueOf()) {
+        state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
+        state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
+      } else {
+        state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("day").valueOf())
+        state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("day").valueOf())
+      }
+    } else if (downButtonStr === "week") {
+      if (props.currentDate.val.valueOf() >= previousEndWeekDate) {
+        console.log("0000000000000000")
+        state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("week").valueOf())
+        state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("week").valueOf())
+      } else {
+        console.log("111111111111111")
+        state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("week").valueOf())
+        state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("week").valueOf())
+      }
     }
-    previousDate = props.currentDate.val.valueOf()
 
-    console.log("dsss" + props.currentDate.val)
+    previousDate = props.currentDate.val.valueOf()
+    previousEndWeekDate = props.currentDate.val.endOf("week").valueOf()
+    console.log(props.currentDate.val.startOf("week"))
+    console.log(props.currentDate.val.endOf("week"))
   }
 
   function changeZoomLevel(zoom: number) {
     state.update("config.chart.time.zoom", zoom)
+
     //  state.update("config.chart.time.from", props.currentDate.val.startOf("month").valueOf())
     // state.update("config.chart.time.to", props.currentDate.val.endOf("month").valueOf())
   }

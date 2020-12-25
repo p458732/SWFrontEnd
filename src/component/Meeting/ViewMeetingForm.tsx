@@ -12,7 +12,7 @@ import "antd/dist/antd.css"
 import { Form, Input, Button, Switch, Row, Col, Modal, Tag } from "antd"
 
 import moment from "moment"
-import { Meeting, Member } from "../utils/interface"
+import { Meeting, Member, header } from "../utils/interface"
 
 const { TextArea } = Input
 
@@ -39,16 +39,6 @@ interface Init {
   visible: boolean
   meetingData: Meeting
 }
-const InitMeeting: Meeting = {
-  title: "",
-  description: "",
-  location: "",
-  repeatType: 0,
-  toDate: "",
-  fromDate: "",
-  attendees: [],
-  departments: [""],
-}
 function ViewMeetingForm(Props: Init) {
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const { visible, setVisible, meetingData } = Props
@@ -63,7 +53,10 @@ function ViewMeetingForm(Props: Init) {
 
   function getEmployeeInfo() {
     const data: Array<Member> = []
-    fetch("https://hw.seabao.ml/api/user")
+    fetch("https://hw.seabao.ml/api/user", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -77,7 +70,10 @@ function ViewMeetingForm(Props: Init) {
 
   useEffect(() => {
     if (visible) getEmployeeInfo()
-    else form.resetFields()
+    else {
+      form.resetFields()
+      console.log("reset")
+    }
   }, [visible])
 
   useEffect(() => {
@@ -91,6 +87,8 @@ function ViewMeetingForm(Props: Init) {
         .join("\n"),
     })
   }, [member])
+
+  useEffect(() => form.resetFields(), [meetingData])
 
   const fromDate = moment(meetingData.fromDate) //
   const toDate = moment(meetingData.toDate) //

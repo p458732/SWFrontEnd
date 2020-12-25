@@ -13,7 +13,7 @@ import "antd/dist/antd.css"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
 import { Form, Input, Button, Select, DatePicker, Switch, Space, Row, Col, Modal, Tag } from "antd"
 import moment from "moment"
-import { Room, Meeting, Member } from "../utils/interface"
+import { Room, Meeting, Member, header } from "../utils/interface"
 
 const { TextArea } = Input
 
@@ -77,7 +77,10 @@ function NewMeetingForm(Props: Init) {
   }
 
   function getRoomInfo() {
-    fetch("https://hw.seabao.ml/api/room")
+    fetch("https://hw.seabao.ml/api/room", {
+      method: "GET",
+      headers: header,
+    })
       .then(data => data.json())
       .then(res => {
         setRoomList(res)
@@ -88,7 +91,10 @@ function NewMeetingForm(Props: Init) {
 
   function getEmployeeInfo() {
     const data: Array<Member> = []
-    fetch("https://hw.seabao.ml/api/user")
+    fetch("https://hw.seabao.ml/api/user", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -102,7 +108,10 @@ function NewMeetingForm(Props: Init) {
 
   function getDepartment() {
     const data: Array<Department> = []
-    fetch("https://hw.seabao.ml/api/department")
+    fetch("https://hw.seabao.ml/api/department", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -139,9 +148,7 @@ function NewMeetingForm(Props: Init) {
         return fetch("https://hw.seabao.ml/api/meeting", {
           method: "POST",
           body: JSON.stringify(changeData), // data can be `string` or {object}!
-          headers: new Headers({
-            "Content-Type": "application/json",
-          }),
+          headers: header,
         })
           .catch(() => {
             showErrorMessage("新增失敗!")

@@ -12,7 +12,8 @@ import "antd/dist/antd.css"
 
 import { ExclamationCircleOutlined } from "@ant-design/icons"
 
-import { Form, Button, Select, Space, Row, Modal, Tag } from "antd"
+import { Form, Select, Modal, Tag, Row, Col, Space, Button } from "antd"
+import { Member, Department, header } from "../utils/interface"
 
 const { Option } = Select
 
@@ -32,18 +33,6 @@ const SelectLayout = {
   wrapperCol: { offset: 0, span: 16 },
 }
 
-interface Member {
-  name: string
-  id: string
-  email: string
-  departmentName: string
-}
-
-interface Department {
-  name: string
-  attendees: Array<any>
-}
-
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
@@ -53,13 +42,16 @@ let changeData: Department = InitDepartment
 function EditDepartment(Props: Init) {
   const { visible, setVisible } = Props
   const [member, setMember] = useState<Member[]>([])
-  const [Department, setDepartment] = useState<Department>(InitDepartment)
+  const [department, setDepartment] = useState<Department>(InitDepartment)
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
   const [form] = Form.useForm()
 
   async function getEmployeeInfo() {
     const data: Array<Member> = []
-    await fetch("https://hw.seabao.ml/api/user")
+    await fetch("https://hw.seabao.ml/api/user", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -72,20 +64,23 @@ function EditDepartment(Props: Init) {
   }
 
   useEffect(() => {
-    changeData.name = Department.name
+    changeData.name = department.name
     getEmployeeInfo().then(() => {
-      const judgeData = member.filter(element => Department?.attendees.some(judge => element.id === judge))
+      const judgeData = member.filter(element => department?.attendees.some(judge => element.id === judge))
       console.log(judgeData)
       changeData.attendees = judgeData.map(element => `${element.email}`)
       form.setFieldsValue({
         member: judgeData.map(element => `${element.email}`),
       })
     })
-  }, [Department])
+  }, [department])
 
   function getDepartment() {
     const data: Array<Department> = []
-    fetch("https://hw.seabao.ml/api/department")
+    fetch("https://hw.seabao.ml/api/department", {
+      method: "GET",
+      headers: header,
+    })
       .then(res => res.json())
       .then(response => {
         response.forEach((employee: any) => {
@@ -141,9 +136,7 @@ function EditDepartment(Props: Init) {
         return fetch("https://hw.seabao.ml/api/department", {
           method: "POST",
           body: JSON.stringify({ name: changeData.name, ids: num }), // data can be `string` or {object}!
-          headers: new Headers({
-            "Content-Type": "application/json",
-          }),
+          headers: header,
         })
           .then(res => {
             console.log("success", res)
@@ -161,8 +154,8 @@ function EditDepartment(Props: Init) {
 
   const onFinish = (values: any) => {
     if (
-      changeData.attendees.length === Department.attendees.length &&
-      changeData.attendees.every(element => Department.attendees.some(judge => judge.email === element.email))
+      changeData.attendees.length === department.attendees.length &&
+      changeData.attendees.every(element => department.attendees.some(judge => judge.email === element.email))
     )
       showErrorMessage("未變更資料")
     else showPromiseConfirm()

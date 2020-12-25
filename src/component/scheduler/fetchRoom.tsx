@@ -1,5 +1,5 @@
 import GSTC from "gantt-schedule-timeline-calendar"
-import { Room } from "../utils/interface"
+import { Room, header } from "../utils/interface"
 
 const roomURL = "https://hw.seabao.ml/api/room"
 
@@ -20,6 +20,7 @@ function generateNewRows(room: Array<Room>) {
 function getRoom(state: any) {
   fetch(roomURL, {
     method: "GET",
+    headers: header,
   })
     .then(response => {
       return response.json()
