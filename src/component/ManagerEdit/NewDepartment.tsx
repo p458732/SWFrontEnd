@@ -31,12 +31,14 @@ const layout = {
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
+  setrefresh: React.Dispatch<React.SetStateAction<boolean>>
+  refresh: boolean
 }
 const InitDepartment: Department = { name: "", attendees: [] }
 let DepartmentData: Array<Department> = []
 let changeData: Department = InitDepartment
 function NewDepartment(Props: Init) {
-  const { visible, setVisible } = Props
+  const { visible, setVisible, refresh, setrefresh } = Props
   const [member, setMember] = useState<Member[]>([])
   const [form] = Form.useForm()
 
@@ -125,6 +127,7 @@ function NewDepartment(Props: Init) {
             console.log("success", res)
             form.resetFields()
             setVisible(false)
+            setrefresh(!refresh)
             // 放changeData
           })
           .catch(() => {

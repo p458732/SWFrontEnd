@@ -72,13 +72,15 @@ interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
   meetingData: Meeting
+  setrefresh: React.Dispatch<React.SetStateAction<boolean>>
+  refresh: boolean
 }
 let changeData: Meeting = InitMeeting
 function MeetingForm(Props: Init) {
   const [member, setMember] = useState<Member[]>([])
   const [roomList, setRoomList] = useState<Array<Room>>([])
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
-  const { visible, setVisible, meetingData } = Props
+  const { visible, setVisible, meetingData, refresh, setrefresh } = Props
   const [form] = Form.useForm()
 
   function showErrorMessage(message: string) {
@@ -196,6 +198,7 @@ function MeetingForm(Props: Init) {
             console.log("success", res)
             form.resetFields()
             setVisible(false)
+            setrefresh(!refresh)
             // 放changeData
           })
       },

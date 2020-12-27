@@ -39,10 +39,12 @@ const initEmployee: Member = { name: "", id: "-1", email: "", departmentName: ""
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
+  setrefresh: React.Dispatch<React.SetStateAction<boolean>>
+  refresh: boolean
 }
 
 function EmployeeDelete(Props: Init) {
-  const { visible, setVisible } = Props
+  const { visible, setVisible, refresh, setrefresh } = Props
   const [Employee, setEmployee] = React.useState(initEmployee)
   const [member, setMember] = useState<Member[]>([])
   const [form] = Form.useForm()

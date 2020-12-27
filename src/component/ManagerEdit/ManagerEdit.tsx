@@ -9,7 +9,13 @@ import DeleteDepartment from "./DeleteDepartment"
 import EditDepartment from "./EditDepartment"
 
 let lock = false
-export default function ManagerEdit() {
+interface Init {
+  setrefresh: React.Dispatch<React.SetStateAction<boolean>>
+  refresh: boolean
+}
+export default function ManagerEdit(Props: Init) {
+  const { refresh, setrefresh } = Props
+  const [visible, setVisible] = useState(false)
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
   const [editNewFormVisible, setNewEditFormVsible] = useState(false)
   const [editDeleteFormVisible, setDeleteEditFormVsible] = useState(false)
@@ -38,21 +44,27 @@ export default function ManagerEdit() {
       <h4 style={{ padding: "5px" }}>RoomEdit</h4>
       <Button
         onClick={() => {
-          if (!lock) setSaveEditFormVsible(true)
+          if (lock) return
+          setVisible(false)
+          setSaveEditFormVsible(true)
         }}
       >
         Edit
       </Button>
       <Button
         onClick={() => {
-          if (!lock) setNewEditFormVsible(true)
+          if (lock) return
+          setVisible(false)
+          setNewEditFormVsible(true)
         }}
       >
         New
       </Button>
       <Button
         onClick={() => {
-          if (!lock) setDeleteEditFormVsible(true)
+          if (lock) return
+          setVisible(false)
+          setDeleteEditFormVsible(true)
         }}
       >
         Delete
@@ -60,14 +72,18 @@ export default function ManagerEdit() {
       <h4 style={{ padding: "5px" }}>EmployeeEdit</h4>
       <Button
         onClick={() => {
-          if (!lock) setEmployeeEditVisible(true)
+          if (lock) return
+          setVisible(false)
+          setEmployeeEditVisible(true)
         }}
       >
         Edit
       </Button>
       <Button
         onClick={() => {
-          if (!lock) setEmployeeDeleteVisible(true)
+          if (lock) return
+          setVisible(false)
+          setEmployeeDeleteVisible(true)
         }}
       >
         Delete
@@ -75,21 +91,27 @@ export default function ManagerEdit() {
       <h4 style={{ padding: "5px" }}>DepartmentEdit</h4>
       <Button
         onClick={() => {
-          if (!lock) setEditDepartmentVisible(true)
+          if (lock) return
+          setVisible(false)
+          setEditDepartmentVisible(true)
         }}
       >
         Edit
       </Button>
       <Button
         onClick={() => {
-          if (!lock) setNewDepartmentVisible(true)
+          if (lock) return
+          setVisible(false)
+          setNewDepartmentVisible(true)
         }}
       >
         New
       </Button>
       <Button
         onClick={() => {
-          if (!lock) setDeleteDepartmentVisible(true)
+          if (lock) return
+          setVisible(false)
+          setDeleteDepartmentVisible(true)
         }}
       >
         Delete
@@ -98,18 +120,69 @@ export default function ManagerEdit() {
   )
   return (
     <>
-      <Popover content={content} placement="bottomLeft">
-        <Button icon={<EditFilled />} style={{ width: 80 }} />
+      <Popover
+        content={content}
+        placement="bottomLeft"
+        trigger="hover"
+        visible={visible}
+        onVisibleChange={(vis: boolean) => {
+          setVisible(vis)
+        }}
+      >
+        <Button icon={<EditFilled style={{ fontSize: "28px" }} />} style={{ width: 60, height: 60 }} />
       </Popover>
 
-      <RoomEdit type="Save" setvisible={setSaveEditFormVsible} visible={editSaveFormVisible} />
-      <RoomEdit type="New" setvisible={setNewEditFormVsible} visible={editNewFormVisible} />
-      <RoomEdit type="Delete" setvisible={setDeleteEditFormVsible} visible={editDeleteFormVisible} />
-      <EmployeeEdit setVisible={setEmployeeEditVisible} visible={editEmployeeEditVisible} />
-      <EmployeeDelete setVisible={setEmployeeDeleteVisible} visible={editEmployeeDeleteVisible} />
-      <NewDepartment setVisible={setNewDepartmentVisible} visible={editNewDepartmentVisible} />
-      <DeleteDepartment setVisible={setDeleteDepartmentVisible} visible={editDeleteDepartmentVisible} />
-      <EditDepartment setVisible={setEditDepartmentVisible} visible={editEditDepartmentVisible} />
+      <RoomEdit
+        type="Save"
+        setvisible={setSaveEditFormVsible}
+        visible={editSaveFormVisible}
+        refresh={refresh}
+        setrefresh={setrefresh}
+      />
+      <RoomEdit
+        type="New"
+        setvisible={setNewEditFormVsible}
+        visible={editNewFormVisible}
+        refresh={refresh}
+        setrefresh={setrefresh}
+      />
+      <RoomEdit
+        type="Delete"
+        setvisible={setDeleteEditFormVsible}
+        visible={editDeleteFormVisible}
+        refresh={refresh}
+        setrefresh={setrefresh}
+      />
+      <EmployeeEdit
+        setVisible={setEmployeeEditVisible}
+        visible={editEmployeeEditVisible}
+        refresh={refresh}
+        setrefresh={setrefresh}
+      />
+      <EmployeeDelete
+        setVisible={setEmployeeDeleteVisible}
+        visible={editEmployeeDeleteVisible}
+        refresh={refresh}
+        setrefresh={setrefresh}
+      />
+      <NewDepartment
+        setVisible={setNewDepartmentVisible}
+        visible={editNewDepartmentVisible}
+        refresh={refresh}
+        setrefresh={setrefresh}
+      />
+      <DeleteDepartment
+        setVisible={setDeleteDepartmentVisible}
+        visible={editDeleteDepartmentVisible}
+        refresh={refresh}
+        setrefresh={setrefresh}
+      />
+      <EditDepartment
+        setVisible={setEditDepartmentVisible}
+        visible={editEditDepartmentVisible}
+        refresh={refresh}
+        setrefresh={setrefresh}
+      />
     </>
   )
 }

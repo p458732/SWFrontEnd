@@ -29,7 +29,9 @@ const { confirm } = Modal
 interface Props {
   type: string
   setvisible: React.Dispatch<React.SetStateAction<boolean>>
-  visible?: boolean
+  visible: boolean
+  setrefresh: React.Dispatch<React.SetStateAction<boolean>>
+  refresh: boolean
 }
 
 const initRoom: Room = {
@@ -40,7 +42,7 @@ const initRoom: Room = {
 
 function RoomEdit(props: Props) {
   const changeData: Room = { name: "", capacity: 0, id: -1 }
-  const { type, visible } = props
+  const { type, visible, refresh, setrefresh } = props
   const [roomList, setRoomList] = useState<Array<Room>>([])
   const [form] = Form.useForm()
   const [selectedRoom, setSelectRoom] = useState<Room>(initRoom)
@@ -122,6 +124,7 @@ function RoomEdit(props: Props) {
             setIsVisible(false)
             setSelectRoom(initRoom)
             form.resetFields()
+            setrefresh(!refresh)
           })
           .catch(() => {
             showErrorMessage("變更失敗!")
@@ -234,10 +237,6 @@ function RoomEdit(props: Props) {
       </Form>
     </Modal>
   )
-}
-
-RoomEdit.defaultProps = {
-  visible: true,
 }
 
 export default RoomEdit

@@ -38,10 +38,12 @@ const SelectLayout = {
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
+  setrefresh: React.Dispatch<React.SetStateAction<boolean>>
+  refresh: boolean
 }
 let Employee: Member[] = []
 function DeleteDepartment(Props: Init) {
-  const { visible, setVisible } = Props
+  const { visible, setVisible, refresh, setrefresh } = Props
   const [department, setDepartment] = useState<Department>()
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
   const [form] = Form.useForm()
@@ -123,6 +125,7 @@ function DeleteDepartment(Props: Init) {
             console.log("success", res)
             form.resetFields()
             setVisible(false)
+            setrefresh(!refresh)
             // 放changeData
           })
           .catch(() => {

@@ -37,13 +37,15 @@ const initEmployee: Member = { name: "", id: "-1", email: "", departmentName: ""
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
+  setrefresh: React.Dispatch<React.SetStateAction<boolean>>
+  refresh: boolean
 }
 
 let changeEmployeeData: Member = initEmployee
 let changePassWord = ""
 const DepartmentData: Array<Department> = []
 function EmployeeEdit(Props: Init) {
-  const { visible, setVisible } = Props
+  const { visible, setVisible, refresh, setrefresh } = Props
   const [Employee, setEmployee] = React.useState(initEmployee)
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
   const [disablePassWord, setDisablepassWord] = useState(true)
@@ -134,6 +136,7 @@ function EmployeeEdit(Props: Init) {
             console.log("success", res)
             form.resetFields()
             setVisible(false)
+            setrefresh(!refresh)
             // 放changeData
           })
           .catch(() => {

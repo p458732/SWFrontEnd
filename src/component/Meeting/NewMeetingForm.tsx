@@ -58,12 +58,14 @@ const InitMeeting: Meeting = {
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
-  meetingValue?: Meeting
+  meetingValue: Meeting
+  setrefresh: React.Dispatch<React.SetStateAction<boolean>>
+  refresh: boolean
 }
 const Allday: number = 0
 let changeData = InitMeeting
 function NewMeetingForm(Props: Init) {
-  const { visible, setVisible } = Props
+  const { visible, setVisible, refresh, setrefresh } = Props
   const [member, setMember] = useState<Member[]>([])
   const [roomList, setRoomList] = useState<Array<Room>>([])
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
@@ -157,6 +159,7 @@ function NewMeetingForm(Props: Init) {
             console.log("success", res)
             form.resetFields()
             setVisible(false)
+            setrefresh(!refresh)
             // 放changeData
           })
       },
@@ -191,9 +194,8 @@ function NewMeetingForm(Props: Init) {
 
   function onChangeDate(dates: any, dateStrings: any) {
     if (dates === null || dateStrings === null) return
-    changeData.fromDate = String(dates[0].format())
-    changeData.toDate = String(dates[1].format())
-    console.log("From: ", changeData.fromDate, ", to: ", changeData.toDate)
+    changeData.fromDate = dates[0].toISOString()
+    changeData.toDate = dates[1].toISOString()
   }
 
   return (

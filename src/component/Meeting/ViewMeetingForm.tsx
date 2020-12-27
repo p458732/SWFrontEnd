@@ -92,6 +92,7 @@ function ViewMeetingForm(Props: Init) {
 
   const fromDate = moment(meetingData.fromDate) //
   const toDate = moment(meetingData.toDate) //
+  console.log(fromDate, toDate)
 
   function judgeAllday() {
     if (fromDate.isSame(toDate, "day") && toDate.diff(fromDate, "hour") >= 23) return true
