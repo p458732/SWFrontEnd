@@ -14,7 +14,7 @@ function generateNewRows(room: Array<Room>) {
       expanded: false,
     }
   }
-  console.log(rows)
+
   return rows
 }
 function getRoom(state: any) {

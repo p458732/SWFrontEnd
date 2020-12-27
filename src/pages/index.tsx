@@ -11,6 +11,10 @@ const { Sider, Content } = Layout
 
 export default function Home() {
   const [currentDate, setCurrentDate] = useState(moment())
+  const [currentChooseDepartment, setCurrentChooseDepartment] = useState([])
+  const [departmentDisable, setDepartmentDisable] = useState(true)
+  const department = { val: currentChooseDepartment, setVal: setCurrentChooseDepartment }
+  const disable = { val: departmentDisable, setVal: setDepartmentDisable }
   const state = { val: currentDate, setVal: setCurrentDate }
   return (
     <Layout hasSider="true">
@@ -28,10 +32,10 @@ export default function Home() {
         }}
       >
         <SideBarCalendar currentDate={state} />
-        <DepartmentCheckBox />
+        <DepartmentCheckBox currentDepartment={department} departmentDisabled={disable} />
       </Sider>
       <Content>
-        <Scheduler currentDate={state} />
+        <Scheduler currentDate={state} currentDepartment={department} departmentDisabled={disable} />
       </Content>
     </Layout>
   )
