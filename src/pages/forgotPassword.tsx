@@ -5,7 +5,7 @@ import { FormInstance } from "antd/lib/form"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
 import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Tooltip, Cascader, Select, AutoComplete } from "antd"
 import "./login.css"
-import { User } from "../../component/utils/interface"
+import { User } from "../component/utils/interface"
 
 import { QuestionCircleOutlined } from "@ant-design/icons"
 const { Header, Footer, Sider, Content } = Layout
