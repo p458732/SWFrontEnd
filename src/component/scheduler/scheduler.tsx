@@ -7,15 +7,22 @@ import moment from "moment"
 import { Plugin as TimelinePointer } from "gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js"
 import { Plugin as Selection } from "gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js"
 import getRoom from "./fetchRoom"
-
+import getUser from "./fetchUser"
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
 import RoomEdit from "../ManagerEdit/roomEdit"
 import NewMeetingForm from "../Meeting/NewMeetingForm"
 import ViewMeetingForm from "../Meeting/ViewMeetingForm"
-import { Room, Meeting, header } from "../utils/interface"
+import { Room, Meeting, header, User } from "../utils/interface"
 import { Row, Col, Menu, Dropdown, Button } from "antd"
-import { PlusOutlined, EditFilled, DeliveredProcedureOutlined, UserOutlined, DownOutlined } from "@ant-design/icons"
+import {
+  PlusOutlined,
+  EditFilled,
+  DeliveredProcedureOutlined,
+  UserOutlined,
+  DownOutlined,
+  HomeFilled,
+} from "@ant-design/icons"
 import ManagerEdit from "../ManagerEdit/ManagerEdit"
 
 // helper functions
@@ -27,6 +34,9 @@ let previousDateEndOfMonth: any
 let lastItemId = -1
 
 function Scheduler(props) {
+  let testList = []
+  let itemNum = 0
+  let userData: Array<User> = []
   // getNowDate
   const date = GSTC.api.date
 
@@ -45,6 +55,7 @@ function Scheduler(props) {
     },
   ]
   const [roomList, setroomList] = useState<Array<Room>>(fakedata)
+  const [userList, setUserList] = useState()
   const [meetingList, setmeetingList] = useState(0)
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false) // 決定是否要開啟編輯meeting表單
   const [newMeetingFormVisible, setNewMeetingFormVisible] = useState(false) // 決定是否要開啟建立meeting表單
@@ -52,6 +63,8 @@ function Scheduler(props) {
   const [currentSelectMeeting, setCurrentSelectMeeting] = useState({})
   const meetingURL = "https://hw.seabao.ml/api/meeting" // 資料來源
   const [downButtonStr, setDownButtonStr] = useState("day")
+  const [viewMode, setViewMode] = useState("room")
+
   const hours = [
     {
       zoomTo: 14, // we want to display this format for all zoom levels until 100
@@ -96,6 +109,7 @@ function Scheduler(props) {
     setNewMeetingFormVisible(true)
   }
   function getMeeting() {
+    console.log(userList)
     fetch(meetingURL, {
       method: "GET",
       headers: header,
@@ -194,6 +208,14 @@ function Scheduler(props) {
             id: "3",
             label: "",
           },
+          {
+            id: "3",
+            label: "",
+          },
+          {
+            id: "3",
+            label: "",
+          },
         ],
       },
       chart: {
@@ -232,20 +254,16 @@ function Scheduler(props) {
       }
     } else if (downButtonStr === "week") {
       if (props.currentDate.val.valueOf() >= previousEndWeekDate) {
-        console.log("0000000000000000")
         state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("week").valueOf())
         state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("week").valueOf())
       } else {
-        console.log("111111111111111")
         state.update("config.chart.time.from", GSTC.api.date(props.currentDate.val).startOf("week").valueOf())
         state.update("config.chart.time.to", GSTC.api.date(props.currentDate.val).endOf("week").valueOf())
       }
     }
 
     previousDate = props.currentDate.val.valueOf()
-    previousEndWeekDate = props.currentDate.val.endOf("week").valueOf()
-    console.log(props.currentDate.val.startOf("week"))
-    console.log(props.currentDate.val.endOf("week"))
+    // previousEndWeekDate = props.currentDate.val.endOf("week").valueOf() WTF?
   }
 
   function changeZoomLevel(zoom: number) {
@@ -257,8 +275,6 @@ function Scheduler(props) {
 
   // 處理Meeting 可以點選視窗 以及內容---------------------------------------------------------------
   function onItemClick(item) {
-    console.log("iteMMASDADASDASDASDAS", item)
-
     // item.fromDate = moment(item.time.start).format()
     // item.toDate = moment(item.time.end).format()
     setCurrentSelectMeeting(item.meetingJSON)
@@ -282,23 +298,50 @@ function Scheduler(props) {
       // }
     }
     // meeting[i].title
-
+    console.log(meeting)
     const items = {}
-    for (let i = 0, len = meeting.length; i < len; i += 1) {
-      console.log(meeting[i])
-      const rowId = GSTC.api.GSTCID(meeting[i].location)
-      const id = GSTC.api.GSTCID(String(meeting[i].meetingID))
-      const startDayjs = GSTC.api.date(meeting[i].fromDate)
-      items[id] = {
-        id,
-        label: itemLabelContent,
-        title: meeting[i].title,
-        meetingJSON: meeting[i],
-        time: {
-          start: startDayjs.valueOf(),
-          end: GSTC.api.date(meeting[i].toDate).valueOf(),
-        },
-        rowId,
+    if (viewMode === "room") {
+      for (let i = 0, len = meeting.length; i < len; i += 1) {
+        const rowId = GSTC.api.GSTCID(meeting[i].location)
+        const id = GSTC.api.GSTCID(String(meeting[i].meetingID))
+        const startDayjs = GSTC.api.date(meeting[i].fromDate)
+        items[id] = {
+          id,
+          label: itemLabelContent,
+          title: meeting[i].title,
+          meetingJSON: meeting[i],
+          time: {
+            start: startDayjs.valueOf(),
+            end: GSTC.api.date(meeting[i].toDate).valueOf(),
+          },
+          rowId,
+        }
+      }
+    } else if (viewMode === "user") {
+      for (let i = 0, len = meeting.length; i < len; i += 1) {
+        for (let k = 0; k < meeting[i].attendees.length; k += 1) {
+          console.log("meeting[i].departments[0]" + meeting[i].departments)
+          console.log("props.currentDepartment.val[i]" + props.currentDepartment.val)
+          for (let j = 0; j < props.currentDepartment.val.length; j += 1) {
+            if (meeting[i].departments[0] === props.currentDepartment.val[j]) {
+              const rowId = GSTC.api.GSTCID(userList.get(meeting[i].attendees[k]))
+              const id = GSTC.api.GSTCID(String(++itemNum))
+              const startDayjs = GSTC.api.date(meeting[i].fromDate)
+              items[id] = {
+                id,
+                label: itemLabelContent,
+                title: meeting[i].title,
+                meetingJSON: meeting[i],
+                time: {
+                  start: startDayjs.valueOf(),
+                  end: GSTC.api.date(meeting[i].toDate).valueOf(),
+                },
+                rowId,
+              }
+              break
+            }
+          }
+        }
       }
     }
     return items
@@ -307,16 +350,33 @@ function Scheduler(props) {
   // ----------------------------------處理Meeting 可以點選視窗 以及內容END---------------------------------------------------------------
   const callback = useCallback(element => {
     if (element) {
-      console.log(props.currentDate.val)
       initializeGSTC(element)
       getRoom(state)
+
       getMeeting()
 
       previousDate = props.currentDate.val.valueOf()
     }
   }, [])
   // 下拉式選單內的文字
+  useEffect(() => {
+    // 使用瀏覽器 API 更新文件標題
+    getMeeting()
+    console.log(props.currentDepartment.val)
+  }, [userList])
 
+  useEffect(() => {
+    // 使用瀏覽器 API 更新文件標題
+    getMeeting()
+  }, [props.currentDepartment.val])
+
+  function ModeIcon() {
+    if (viewMode === "room") {
+      return <UserOutlined style={{ fontSize: "48px" }} />
+    } else {
+      return <HomeFilled style={{ fontSize: "48px" }} />
+    }
+  }
   return (
     <div className="Scheduler">
       <div className="toolbox">
@@ -331,7 +391,25 @@ function Scheduler(props) {
             <DeliveredProcedureOutlined style={{ fontSize: "48px" }} />
           </Col>
           <Col span={3}>
-            <UserOutlined style={{ fontSize: "48px" }} />
+            <Button
+              onClick={() => {
+                if (viewMode === "room") {
+                  console.log("tetetteetf" + props.departmentDisabled.val)
+                  props.departmentDisabled.setVal(false)
+                  getUser(state, setUserList)
+
+                  setViewMode("user")
+                } else {
+                  props.departmentDisabled.setVal(true)
+                  console.log("sdfsdfsdfsdf" + props.departmentDisabled.val)
+                  getRoom(state)
+                  setUserList([])
+                  setViewMode("room")
+                }
+              }}
+              icon={<ModeIcon />}
+              style={{ width: 60, height: 60 }}
+            />
           </Col>
           <Col span={3}>
             <Dropdown

@@ -17,12 +17,10 @@ const testMeetingData: Meeting = {
 
 let lastItemId = -1
 function onItemClick(item) {
-  console.log(item)
   alert("Item " + GSTC.api.sourceID(item.id) + " clicked!")
 }
 
 function itemLabelContent({ item, vido }) {
-  console.log(item)
   return vido.html`<div class="my-item-content" style="cursor:pointer;" onclick=${() =>
     onItemClick(
       item
@@ -42,7 +40,6 @@ function generateNewItems(meeting: any, gstc: any) {
   // meeting[i].title
   const items = {}
   for (let i = 0, len = meeting.length; i < len; i += 1) {
-    console.log(meeting[i])
     const rowId = GSTC.api.GSTCID(meeting[i].location)
     const id = GSTC.api.GSTCID(String((lastItemId += 1)))
     const startDayjs = GSTC.api.date(meeting[i].fromDate)
