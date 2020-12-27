@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
 import { FormInstance } from "antd/lib/form"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
-import { Form, Input, Button, Checkbox, Layout, Row, Col, Image } from "antd"
+import { Form, Input, Button, Checkbox, Layout, Row, Col, Image ,Alert} from "antd"
 import "./login.css"
-import { User } from "../../component/utils/interface"
+import { User } from "../component/utils/interface"
 import { PresetColorTypes } from "antd/lib/_util/colors"
 
 const { Header, Footer, Sider, Content } = Layout
@@ -18,6 +18,7 @@ const tailLayout = {
   layout: "vertical",
 }
 const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
+
 export default function login() {
   const loginInfo = { email: "", password: "" }
   const data = {
@@ -49,29 +50,46 @@ export default function login() {
     console.log(JSON.stringify(data))
   }
   function authenticate() {
+    updateData()
     let formData = new FormData()
-    formData.append("grant_type", "password")
-    formData.append("username", data.username)
-    formData.append("password", data.password)
-    formData.append("client_id", "frontend.client")
-    formData.append("client_secret", "0AH#wjlzaU#&&P*XkY74")
+    
+    const request = {
+      'grant_type': 'password',
+      'username': data.username,
+      'password': data.password,
+      "client_id": 'frontend.client',
+      'client_secret': '0AH#wjlzaU#&&P*XkY74'
+    };
 
+    var body = [];
+
+    for (var property in request) {
+      var encodeKey = encodeURIComponent(property);
+      var encodeValue = encodeURIComponent(request[property])
+      body.push(encodeKey + '=' + encodeValue);
+    }
+    body = body.join('&');
     fetch(loginURL, {
-      method: "POST",
-      body: formData,
-      headers: new Headers({
-        "Content-Type": "application/x-www-form-urlencoded",
-      }),
+      body: body,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     })
       .then(res => {
         return res.json()
       })
       .then(data => {
-        console.log(data)
-        console.log("data")
+        if (data.error) {
+          alert("帳號或密碼錯誤")
+          return
+        }
+        //登入
+
       })
       .catch(e => {
         console.log(e.error_description)
+        alert(e.error_description)
         console.log("faild")
       })
   }
