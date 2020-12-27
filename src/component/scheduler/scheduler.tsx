@@ -55,6 +55,7 @@ function Scheduler(props) {
     },
   ]
   const [roomList, setroomList] = useState<Array<Room>>(fakedata)
+  const [refresh, setRefresh] = useState<boolean>(false)
   const [userList, setUserList] = useState()
   const [meetingList, setmeetingList] = useState(0)
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false) // 決定是否要開啟編輯meeting表單
@@ -364,6 +365,12 @@ function Scheduler(props) {
     getMeeting()
     console.log(props.currentDepartment.val)
   }, [userList])
+  useEffect(() => {
+    // 使用瀏覽器 API 更新文件標題
+    getMeeting()
+    getRoom(state)
+    props.refresh.setVal(!props.refresh.val)
+  }, [refresh])
 
   useEffect(() => {
     // 使用瀏覽器 API 更新文件標題
@@ -382,7 +389,7 @@ function Scheduler(props) {
       <div className="toolbox">
         <Row>
           <Col span={3}>
-            <ManagerEdit />
+            <ManagerEdit refresh={refresh} setrefresh={setRefresh} />
           </Col>
           <Col span={3} offset={9}>
             <Button
@@ -441,18 +448,16 @@ function Scheduler(props) {
         </Row>
       </div>
       <div className="gstc-w Schedulerer" ref={callback} />
-      <NewMeetingForm setVisible={setNewMeetingFormVisible} visible={newMeetingFormVisible} />
+      <NewMeetingForm
+        setVisible={setNewMeetingFormVisible}
+        visible={newMeetingFormVisible}
+        refresh={refresh}
+        setrefresh={setRefresh}
+      />
       <ViewMeetingForm
         setVisible={setViewMeetingFormVisible}
         visible={viewMeetingFormVisible}
         meetingData={currentSelectMeeting}
-      />
-      <RoomEdit
-        type="Save"
-        roomList={roomList}
-        setRoomList={setroomList}
-        setvisible={setSaveEditFormVsible}
-        visible={editSaveFormVisible}
       />
     </div>
   )

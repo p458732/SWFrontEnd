@@ -1,6 +1,6 @@
 import "antd/dist/antd.css"
 
-import React, { useState, useContext, useCallback } from "react"
+import React, { useState, useContext, useCallback, useEffect } from "react"
 import { Checkbox } from "antd"
 import { header, Department } from "../utils/interface"
 
@@ -18,6 +18,7 @@ function DepartmentCheckBox(props) {
         return response.json()
       })
       .then((departmentData: Array<Department>) => {
+        temp = []
         departmentData.forEach(element => {
           temp.push({ label: element.name, value: element.name })
           defaultOption.push(element.name)
@@ -33,6 +34,11 @@ function DepartmentCheckBox(props) {
       getDepartment()
     }
   }, [])
+  useEffect(() => {
+    // 使用瀏覽器 API 更新文件標題
+    getDepartment()
+  }, [props.refresh.val])
+
   function onChange(checkedValues) {
     props.currentDepartment.setVal(checkedValues)
   }

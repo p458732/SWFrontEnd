@@ -58,7 +58,6 @@ const InitMeeting: Meeting = {
 interface Init {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>
   visible: boolean
-  meetingValue: Meeting
   setrefresh: React.Dispatch<React.SetStateAction<boolean>>
   refresh: boolean
 }
