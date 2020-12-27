@@ -385,7 +385,13 @@ function Scheduler(props) {
             <ManagerEdit />
           </Col>
           <Col span={3} offset={9}>
-            <PlusOutlined onClick={() => getMeeting()} style={{ fontSize: "48px" }} />{" "}
+            <Button
+              onClick={() => {
+                setNewMeetingFormVisible(true)
+              }}
+              icon={<PlusOutlined style={{ fontSize: "48px" }} />}
+              style={{ width: 60, height: 60 }}
+            />
           </Col>
           <Col span={3}>
             <DeliveredProcedureOutlined style={{ fontSize: "48px" }} />
