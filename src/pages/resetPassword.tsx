@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
 import "antd/dist/antd.css"
 import { FormInstance } from "antd/lib/form"
-import { ExclamationCircleOutlined } from "@ant-design/icons"
+import { ExclamationCircleOutlined, QuestionCircleOutlined } from "@ant-design/icons"
 import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Tooltip, Cascader, Select } from "antd"
 import "./login.css"
 import { User } from "../component/utils/interface"
 
-import { QuestionCircleOutlined } from "@ant-design/icons"
 const { Header, Footer, Sider, Content } = Layout
 const { Option } = Select
 const formItemLayout = {
