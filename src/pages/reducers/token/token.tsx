@@ -1,4 +1,4 @@
-import { tokenActionTypes, SETTOKEN } from "../../action/token/token"
+import { tokenActionTypes, SETTOKEN} from "../../action/token/token"
 
 const reducer = (state = 0, action: tokenActionTypes): number => {
   switch (action.type) {

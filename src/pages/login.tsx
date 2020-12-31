@@ -9,7 +9,7 @@ import { Link } from "react-router-dom"
 import { PresetColorTypes } from "antd/lib/_util/colors"
 import { useSelector, useDispatch } from "react-redux"
 import { storeTypes } from "./reducers/configureStore"
-import { setToken } from "./action/token/token"
+import { setToken ,setEmail} from "./action/token/token"
 
 const { Header, Footer, Sider, Content } = Layout
 
@@ -28,6 +28,9 @@ export default function Login() {
   const dispatch = useDispatch()
   const handleToken = (tokenStr: string): void => {
     dispatch(setToken(tokenStr))
+  }
+  const handleEmail = (emailStr: string): void => {
+    dispatch(setEmail(emailStr))
   }
   const loginInfo = { email: "", password: "" }
   const data = {
@@ -95,6 +98,7 @@ export default function Login() {
           return
         } else {
           handleToken(data.access_token)
+          handleEmail(request.username)
         }
         //登入
       })
