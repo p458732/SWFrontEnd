@@ -58,6 +58,7 @@ export default function Login() {
     console.log(data)
     console.log(JSON.stringify(data))
   }
+
   function authenticate() {
     updateData()
     let formData = new FormData()
@@ -96,6 +97,9 @@ export default function Login() {
           handleToken(data.access_token)
         }
         //登入
+      })
+      .then(() => {
+        window.location.href = "/#/mainPage"
       })
       .catch(e => {
         console.log(e.error_description)
@@ -156,11 +160,9 @@ export default function Login() {
           </Button>
           <Col span={5}>
             <Form.Item {...tailLayout}>
-              <Link to="/mainPage">
-                <Button onClick={authenticate} type="primary" htmlType="button">
-                  Login
-                </Button>
-              </Link>
+              <Button onClick={authenticate} type="primary" htmlType="button">
+                Login
+              </Button>
             </Form.Item>
           </Col>
         </Row>
