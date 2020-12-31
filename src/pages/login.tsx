@@ -5,6 +5,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons"
 import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Alert } from "antd"
 import "./login.css"
 import { User } from "../component/utils/interface"
+import { Link } from "react-router-dom"
 import { PresetColorTypes } from "antd/lib/_util/colors"
 import { useSelector, useDispatch } from "react-redux"
 import { storeTypes } from "./reducers/configureStore"
@@ -155,9 +156,11 @@ export default function Login() {
           </Button>
           <Col span={5}>
             <Form.Item {...tailLayout}>
-              <Button onClick={authenticate} type="primary" htmlType="button">
-                Login
-              </Button>
+              <Link to="/mainPage">
+                <Button onClick={authenticate} type="primary" htmlType="button">
+                  Login
+                </Button>
+              </Link>
             </Form.Item>
           </Col>
         </Row>

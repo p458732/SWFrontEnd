@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import moment from "moment"
 import { Layout } from "antd"
+import { Redirect } from "react-router-dom"
 import SideBarCalendar from "../component/sideBar/calendar"
 import DepartmentCheckBox from "../component/sideBar/departmentCheckBox"
 import Scheduler from "../component/scheduler/scheduler"
@@ -11,6 +12,8 @@ import { useSelector, useDispatch } from "react-redux"
 const { Sider, Content } = Layout
 
 export default function Main() {
+  const token = useSelector((state: storeTypes) => state.tokenReducer)
+  console.log(token)
   const [currentDate, setCurrentDate] = useState(moment())
   const [currentChooseDepartment, setCurrentChooseDepartment] = useState([])
   const [refreshDepartment, setrefreshDepartment] = useState(false)
@@ -20,7 +23,9 @@ export default function Main() {
   const state = { val: currentDate, setVal: setCurrentDate }
   const refresh = { val: refreshDepartment, setVal: setrefreshDepartment }
 
-  return (
+  return token === 0 ? (
+    <Redirect to={{ pathname: "/login" }} />
+  ) : (
     <Layout hasSider="true">
       <Sider
         breakpoint="lg"
@@ -44,3 +49,5 @@ export default function Main() {
     </Layout>
   )
 }
+
+/*  */
