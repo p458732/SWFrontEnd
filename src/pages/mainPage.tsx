@@ -6,6 +6,7 @@ import SideBarCalendar from "../component/sideBar/calendar"
 import DepartmentCheckBox from "../component/sideBar/departmentCheckBox"
 import Scheduler from "../component/scheduler/scheduler"
 import Schedulerr from "../component/scheduler/scheduler2"
+import { useSelector, useDispatch } from "react-redux"
 
 const { Sider, Content } = Layout
 
@@ -18,6 +19,7 @@ export default function Main() {
   const disable = { val: departmentDisable, setVal: setDepartmentDisable }
   const state = { val: currentDate, setVal: setCurrentDate }
   const refresh = { val: refreshDepartment, setVal: setrefreshDepartment }
+
   return (
     <Layout hasSider="true">
       <Sider

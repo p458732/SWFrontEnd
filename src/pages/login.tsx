@@ -6,6 +6,9 @@ import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Alert } from "a
 import "./login.css"
 import { User } from "../component/utils/interface"
 import { PresetColorTypes } from "antd/lib/_util/colors"
+import { useSelector, useDispatch } from "react-redux"
+import { storeTypes } from "./reducers/configureStore"
+import { setToken } from "./action/token/token"
 
 const { Header, Footer, Sider, Content } = Layout
 
@@ -20,6 +23,11 @@ const tailLayout = {
 const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
 
 export default function Login() {
+  const token = useSelector((state: storeTypes) => state.tokenReducer)
+  const dispatch = useDispatch()
+  const handleToken = (tokenStr: string): void => {
+    dispatch(setToken(tokenStr))
+  }
   const loginInfo = { email: "", password: "" }
   const data = {
     grant_type: "password",
@@ -83,6 +91,8 @@ export default function Login() {
         if (data.error) {
           alert("帳號或密碼錯誤")
           return
+        } else {
+          handleToken(data.access_token)
         }
         //登入
       })

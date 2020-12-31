@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/button-has-type */ /* eslint-disable prettier/prettier */
 /* eslint-disable import/extensions */
+import { useSelector, useDispatch } from "react-redux"
 import React, { useCallback, useEffect, useState, useContext } from "react"
 import GSTC from "gantt-schedule-timeline-calendar"
 import moment from "moment"
@@ -66,6 +67,7 @@ function Scheduler(props) {
   const meetingURL = "https://hw.seabao.ml/api/meeting" // 資料來源
   const [downButtonStr, setDownButtonStr] = useState("day")
   const [viewMode, setViewMode] = useState("room")
+  const token = useSelector((state: storeTypes) => state.tokenReducer)
 
   const hours = [
     {
@@ -114,7 +116,11 @@ function Scheduler(props) {
     console.log(userList)
     fetch(meetingURL, {
       method: "GET",
-      headers: header,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
     })
       .then(response => {
         return response.json()
@@ -353,6 +359,7 @@ function Scheduler(props) {
   const callback = useCallback(element => {
     if (element) {
       initializeGSTC(element)
+
       getRoom(state)
 
       getMeeting()
