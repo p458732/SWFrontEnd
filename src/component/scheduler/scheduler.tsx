@@ -24,6 +24,7 @@ import {
   HomeFilled,
 } from "@ant-design/icons"
 import ManagerEdit from "../ManagerEdit/ManagerEdit"
+import GoogleCalendar from "../GoogleCalendar/GoogleCalendar"
 
 // helper functions
 let state: any = {}
@@ -401,7 +402,7 @@ function Scheduler(props) {
             />
           </Col>
           <Col span={3}>
-            <DeliveredProcedureOutlined style={{ fontSize: "48px" }} />
+            <GoogleCalendar MeetingData={[]} />
           </Col>
           <Col span={3}>
             <Button

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
 import { FormInstance } from "antd/lib/form"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
-import { Form, Input, Button, Checkbox, Layout, Row, Col, Image ,Alert} from "antd"
+import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Alert } from "antd"
 import "./login.css"
 import { User } from "../component/utils/interface"
 import { PresetColorTypes } from "antd/lib/_util/colors"
@@ -19,7 +19,7 @@ const tailLayout = {
 }
 const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
 
-export default function login() {
+export default function Login() {
   const loginInfo = { email: "", password: "" }
   const data = {
     grant_type: "password",
@@ -52,29 +52,29 @@ export default function login() {
   function authenticate() {
     updateData()
     let formData = new FormData()
-    
-    const request = {
-      'grant_type': 'password',
-      'username': data.username,
-      'password': data.password,
-      "client_id": 'frontend.client',
-      'client_secret': '0AH#wjlzaU#&&P*XkY74'
-    };
 
-    var body = [];
+    const request = {
+      grant_type: "password",
+      username: data.username,
+      password: data.password,
+      client_id: "frontend.client",
+      client_secret: "0AH#wjlzaU#&&P*XkY74",
+    }
+
+    var body = []
 
     for (var property in request) {
-      var encodeKey = encodeURIComponent(property);
+      var encodeKey = encodeURIComponent(property)
       var encodeValue = encodeURIComponent(request[property])
-      body.push(encodeKey + '=' + encodeValue);
+      body.push(encodeKey + "=" + encodeValue)
     }
-    body = body.join('&');
+    body = body.join("&")
     fetch(loginURL, {
       body: body,
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
     })
       .then(res => {
         return res.json()
@@ -85,7 +85,6 @@ export default function login() {
           return
         }
         //登入
-
       })
       .catch(e => {
         console.log(e.error_description)

@@ -33,6 +33,7 @@
     "moment": "^2.29.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-router-dom": "^5.2.0",
     "react-sidebar": "^3.0.2",
     "shallow-compare": "^1.2.2",
     "type-fest": "^0.20.2"

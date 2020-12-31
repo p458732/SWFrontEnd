@@ -43,7 +43,7 @@ const tailFormItemLayout = {
   },
 }
 
-const RegistrationForm = () => {
+const Registration = () => {
   const [form] = Form.useForm()
 
   const onFinish = values => {
@@ -99,4 +99,4 @@ const RegistrationForm = () => {
   )
 }
 
-export default RegistrationForm
+export default Registration
