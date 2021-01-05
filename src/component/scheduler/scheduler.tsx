@@ -68,6 +68,7 @@ function Scheduler(props) {
   const [downButtonStr, setDownButtonStr] = useState("day")
   const [viewMode, setViewMode] = useState("room")
   const [userMeeting, setUserMeeting] = useState<Array<Meeting>>([])
+  const [userId, setUserId] = useState<number>(-1)
   const token = useSelector((state: storeTypes) => state.tokenReducer)
   const userEmail = useSelector((state: storeTypes) => state.emailReducer)
   console.log(token)
@@ -116,11 +117,19 @@ function Scheduler(props) {
     setNewMeetingFormVisible(true)
   }
   function searchUserMeeting(meeting: any) {
-    console.log(meeting)
+    let temp: Array<Meeting> = []
+    meeting.forEach(meet => {
+      meet.attendees.forEach(attendee => {
+        if (attendee === userId) {
+          temp.push(meet)
+        }
+      })
+    })
+    setUserMeeting(temp)
   }
   function getMeeting() {
     console.log(userList)
-    console.log(getUserId(userEmail, token))
+
     fetch(meetingURL, {
       method: "GET",
       headers: {
@@ -136,11 +145,13 @@ function Scheduler(props) {
         state.update("config.chart.items", () => {
           return generateNewItems(meeting)
         })
+
         searchUserMeeting(meeting)
         // state.update("config.chart.grid.cell.onCreate", () => {
         //   return [onCellCreate]
         // })
       })
+      .then(() => {})
   }
   function onCellCreate({ time, row, vido }) {
     return vido.html`<div class="my-grid-cell" @click=${() =>
@@ -369,7 +380,7 @@ function Scheduler(props) {
       initializeGSTC(element)
 
       getRoom(state)
-
+      getUserId(userEmail, token, setUserId)
       getMeeting()
 
       previousDate = props.currentDate.val.valueOf()
@@ -417,12 +428,7 @@ function Scheduler(props) {
             />
           </Col>
           <Col span={3}>
-            <GoogleCalendar
-              MeetingData={[]}
-              onClick={() => {
-                console.log("etstat56465")
-              }}
-            />
+            <GoogleCalendar MeetingData={userMeeting} />
           </Col>
           <Col span={3}>
             <Button

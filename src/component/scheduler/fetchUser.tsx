@@ -41,7 +41,7 @@ function getUser(state: any, setuserList: any, token: any) {
       setuserList(map)
     })
 }
-export function getUserId(email: any, token: any) {
+export function getUserId(email: any, token: any, setUserId: any): number {
   fetch(userURL, {
     method: "GET",
     headers: {
@@ -54,13 +54,13 @@ export function getUserId(email: any, token: any) {
       return response.json()
     })
     .then((userData: Array<User>) => {
-      let id = 0
       userData.forEach(element => {
         if (element.email === email) {
-          id = element.uid
+          console.log("matchhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+          setUserId(element.id)
         }
       })
-      return 45
     })
+  return 456
 }
 export default getUser

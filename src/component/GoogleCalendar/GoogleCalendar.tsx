@@ -34,6 +34,7 @@ interface Init {
 
 export default function GoogleCalendar(Props: Init) {
   const { MeetingData } = Props
+
   function handleClientLoad() {
     gapi.load("client:auth2", () => {
       gapi.auth2.init({ client_id: CLIENT_ID })
