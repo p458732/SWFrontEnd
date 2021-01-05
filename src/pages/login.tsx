@@ -9,7 +9,7 @@ import { Link } from "react-router-dom"
 import { PresetColorTypes } from "antd/lib/_util/colors"
 import { useSelector, useDispatch } from "react-redux"
 import { storeTypes } from "./reducers/configureStore"
-import { setToken ,setEmail} from "./action/token/token"
+import { setToken, setEmail } from "./action/token/token"
 
 const { Header, Footer, Sider, Content } = Layout
 
@@ -22,7 +22,7 @@ const tailLayout = {
   layout: "vertical",
 }
 const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
-
+const userInfoURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/userinfo"
 export default function Login() {
   const token = useSelector((state: storeTypes) => state.tokenReducer)
   const dispatch = useDispatch()
@@ -61,7 +61,25 @@ export default function Login() {
     console.log(data)
     console.log(JSON.stringify(data))
   }
+  function getUserRole() {
+    const Token = useSelector((state: storeTypes) => state.tokenReducer)
 
+    fetch(userInfoURL, {
+      method: "GET",
+      headers: {
+        Token: "Bearer" + Token,
+      },
+    })
+      .then(res => {
+        return res.json()
+      })
+      .then(info => {
+        console.log(info.role)
+      })
+      .catch(e => {
+        console.log("getUserRole error")
+      })
+  }
   function authenticate() {
     updateData()
     let formData = new FormData()
@@ -164,7 +182,7 @@ export default function Login() {
           </Button>
           <Col span={5}>
             <Form.Item {...tailLayout}>
-              <Button onClick={authenticate} type="primary" htmlType="button">
+              <Button onClick={getUserRole} type="primary" htmlType="button">
                 Login
               </Button>
             </Form.Item>
