@@ -152,12 +152,4 @@ function Login() {
   )
 }
 
-const loginWrapper = () => {
-  return (
-    <Provider store={store}>
-      <Login />
-    </Provider>
-  )
-}
-
-export default loginWrapper
+export default Login

@@ -8,10 +8,9 @@ import DepartmentCheckBox from "../component/sideBar/departmentCheckBox"
 import Scheduler from "../component/scheduler/scheduler"
 import Schedulerr from "../component/scheduler/scheduler2"
 import { useSelector, useDispatch } from "react-redux"
-
 const { Sider, Content } = Layout
 
-export default function Main() {
+function Main() {
   const token = useSelector((state: storeTypes) => state.tokenReducer)
 
   const email = useSelector((state: storeTypes) => state.emailReducer)
@@ -63,4 +62,5 @@ export default function Main() {
   )
 }
 
+export default Main
 /*  */
