@@ -24,7 +24,12 @@ const tailLayout = {
 const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
 const userInfoURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/userinfo"
 export default function Login() {
-  const token = useSelector((state: storeTypes) => state.tokenReducer)
+  const token = {
+    access_token: "",
+    expires_in: "",
+    token_type: "",
+    scope: "",
+  }
   const dispatch = useDispatch()
   const handleToken = (tokenStr: string): void => {
     dispatch(setToken(tokenStr))
@@ -62,12 +67,10 @@ export default function Login() {
     console.log(JSON.stringify(data))
   }
   function getUserRole() {
-    const Token = useSelector((state: storeTypes) => state.tokenReducer)
-
     fetch(userInfoURL, {
       method: "GET",
       headers: {
-        Token: "Bearer" + Token,
+        Authorization: "Bearer" + token,
       },
     })
       .then(res => {
@@ -182,7 +185,7 @@ export default function Login() {
           </Button>
           <Col span={5}>
             <Form.Item {...tailLayout}>
-              <Button onClick={getUserRole} type="primary" htmlType="button">
+              <Button onClick={authenticate} type="primary" htmlType="button">
                 Login
               </Button>
             </Form.Item>
