@@ -7,12 +7,13 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 /* eslint-disable react/prefer-stateless-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { useSelector } from "react-redux"
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
 import { Form, Input, Button, Switch, Row, Col, Modal, Tag } from "antd"
 
 import moment from "moment"
-import { Meeting, Member, header } from "../utils/interface"
+import { Meeting, Member } from "../utils/interface"
 
 const { TextArea } = Input
 
@@ -43,6 +44,12 @@ function ViewMeetingForm(Props: Init) {
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const { visible, setVisible, meetingData } = Props
   const [member, setMember] = useState<Member[]>([])
+  const token = useSelector((state: any) => state.tokenReducer)
+  const header: Headers = new Headers({
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  })
   const [form] = Form.useForm()
 
   const handleCancel = () => {

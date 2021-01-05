@@ -104,6 +104,7 @@ export default function GoogleCalendar(Props: Init) {
       <script src="https://apis.google.com/js/api.js" />
       <Button
         onClick={() => {
+          console.log("Google Calendar MeetingData:", MeetingData)
           gapi.auth.authorize(authParams, myCallback)
         }}
         icon={<DeliveredProcedureOutlined style={{ fontSize: "48px" }} />}

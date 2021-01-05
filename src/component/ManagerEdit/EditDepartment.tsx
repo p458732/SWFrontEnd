@@ -7,13 +7,14 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 /* eslint-disable react/prefer-stateless-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { useSelector } from "react-redux"
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
 
 import { ExclamationCircleOutlined } from "@ant-design/icons"
 
 import { Form, Select, Modal, Tag, Row, Col, Space, Button } from "antd"
-import { Member, Department, header } from "../utils/interface"
+import { Member, Department } from "../utils/interface"
 
 const { Option } = Select
 
@@ -46,6 +47,12 @@ function EditDepartment(Props: Init) {
   const [member, setMember] = useState<Member[]>([])
   const [department, setDepartment] = useState<Department>(InitDepartment)
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
+  const token = useSelector((state: any) => state.tokenReducer)
+  const header: Headers = new Headers({
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  })
   const [form] = Form.useForm()
 
   async function getEmployeeInfo() {

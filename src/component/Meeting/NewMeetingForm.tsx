@@ -8,12 +8,13 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 /* eslint-disable react/prefer-stateless-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { useSelector } from "react-redux"
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
 import { ExclamationCircleOutlined } from "@ant-design/icons"
 import { Form, Input, Button, Select, DatePicker, Switch, Space, Row, Col, Modal, Tag } from "antd"
 import moment from "moment"
-import { Room, Meeting, Member, header } from "../utils/interface"
+import { Room, Meeting, Member } from "../utils/interface"
 
 const { TextArea } = Input
 
@@ -68,6 +69,12 @@ function NewMeetingForm(Props: Init) {
   const [member, setMember] = useState<Member[]>([])
   const [roomList, setRoomList] = useState<Array<Room>>([])
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
+  const token = useSelector((state: any) => state.tokenReducer)
+  const header: Headers = new Headers({
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  })
   const [form] = Form.useForm()
 
   function showErrorMessage(message: string) {
