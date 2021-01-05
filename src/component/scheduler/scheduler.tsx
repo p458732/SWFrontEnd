@@ -14,6 +14,7 @@ import "./App.css"
 import RoomEdit from "../ManagerEdit/roomEdit"
 import NewMeetingForm from "../Meeting/NewMeetingForm"
 import ViewMeetingForm from "../Meeting/ViewMeetingForm"
+import MeetingForm from "../Meeting/MeetingForm"
 import { Room, Meeting, header, User } from "../utils/interface"
 import { Row, Col, Menu, Dropdown, Button } from "antd"
 import {
@@ -41,7 +42,7 @@ function Scheduler(props) {
   let userData: Array<User> = []
   // getNowDate
   const date = GSTC.api.date
-
+  const userInfoURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/userinfo"
   const fakedata = [
     {
       name: "TR200",
@@ -71,8 +72,7 @@ function Scheduler(props) {
   const [userId, setUserId] = useState<number>(-1)
   const token = useSelector((state: storeTypes) => state.tokenReducer)
   const userEmail = useSelector((state: storeTypes) => state.emailReducer)
-  console.log(token)
-  console.log(userEmail)
+
   const hours = [
     {
       zoomTo: 14, // we want to display this format for all zoom levels until 100
@@ -305,7 +305,8 @@ function Scheduler(props) {
     // item.fromDate = moment(item.time.start).format()
     // item.toDate = moment(item.time.end).format()
     setCurrentSelectMeeting(item.meetingJSON)
-    setViewMeetingFormVisible(true)
+    setSaveEditFormVsible(true)
+    //setViewMeetingFormVisible(true)
   }
 
   function itemLabelContent({ item, vido }) {
@@ -347,8 +348,6 @@ function Scheduler(props) {
     } else if (viewMode === "user") {
       for (let i = 0, len = meeting.length; i < len; i += 1) {
         for (let k = 0; k < meeting[i].attendees.length; k += 1) {
-          console.log("meeting[i].departments[0]" + meeting[i].departments)
-          console.log("props.currentDepartment.val[i]" + props.currentDepartment.val)
           for (let j = 0; j < props.currentDepartment.val.length; j += 1) {
             if (meeting[i].departments[0] === props.currentDepartment.val[j]) {
               const rowId = GSTC.api.GSTCID(userList.get(meeting[i].attendees[k]))
@@ -380,9 +379,10 @@ function Scheduler(props) {
       initializeGSTC(element)
 
       getRoom(state)
+
       getUserId(userEmail, token, setUserId)
       getMeeting()
-
+      getUserRole()
       previousDate = props.currentDate.val.valueOf()
     }
   }, [])
@@ -390,7 +390,6 @@ function Scheduler(props) {
   useEffect(() => {
     // 使用瀏覽器 API 更新文件標題
     getMeeting()
-    console.log(props.currentDepartment.val)
   }, [userList])
   useEffect(() => {
     // 使用瀏覽器 API 更新文件標題
@@ -410,6 +409,24 @@ function Scheduler(props) {
     } else {
       return <HomeFilled style={{ fontSize: "48px" }} />
     }
+  }
+  function getUserRole() {
+    fetch(userInfoURL, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer" + token,
+      },
+    })
+      .then(res => {
+        return res.json()
+      })
+      .then(info => {
+        console.log("info.rolesfsfdsfsdfsddsdsfdsfdsdsfsdfsdfsdfsdfsdfdsfdsfsf")
+        console.log(info)
+      })
+      .catch(e => {
+        console.log("getUserRole error")
+      })
   }
   return (
     <div className="Scheduler">
@@ -434,14 +451,13 @@ function Scheduler(props) {
             <Button
               onClick={() => {
                 if (viewMode === "room") {
-                  console.log("tetetteetf" + props.departmentDisabled.val)
                   props.departmentDisabled.setVal(false)
                   getUser(state, setUserList, token)
 
                   setViewMode("user")
                 } else {
                   props.departmentDisabled.setVal(true)
-                  console.log("sdfsdfsdfsdf" + props.departmentDisabled.val)
+
                   getRoom(state)
                   setUserList([])
                   setViewMode("room")
@@ -484,6 +500,11 @@ function Scheduler(props) {
       <ViewMeetingForm
         setVisible={setViewMeetingFormVisible}
         visible={viewMeetingFormVisible}
+        meetingData={currentSelectMeeting}
+      />
+      <MeetingForm
+        setVisible={setSaveEditFormVsible}
+        visible={editSaveFormVisible}
         meetingData={currentSelectMeeting}
       />
     </div>

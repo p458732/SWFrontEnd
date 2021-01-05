@@ -13,7 +13,7 @@ const { Sider, Content } = Layout
 
 export default function Main() {
   const token = useSelector((state: storeTypes) => state.tokenReducer)
-  console.log(token)
+
   const email = useSelector((state: storeTypes) => state.emailReducer)
   console.log("email = " + email)
   const [currentDate, setCurrentDate] = useState(moment())
