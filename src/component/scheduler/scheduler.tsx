@@ -8,7 +8,7 @@ import moment from "moment"
 import { Plugin as TimelinePointer } from "gantt-schedule-timeline-calendar/dist/plugins/timeline-pointer.esm.min.js"
 import { Plugin as Selection } from "gantt-schedule-timeline-calendar/dist/plugins/selection.esm.min.js"
 import getRoom from "./fetchRoom"
-import getUser from "./fetchUser"
+import { getUser, getUserId } from "./fetchUser"
 import "gantt-schedule-timeline-calendar/dist/style.css"
 import "./App.css"
 import RoomEdit from "../ManagerEdit/roomEdit"
@@ -67,8 +67,11 @@ function Scheduler(props) {
   const meetingURL = "https://hw.seabao.ml/api/meeting" // 資料來源
   const [downButtonStr, setDownButtonStr] = useState("day")
   const [viewMode, setViewMode] = useState("room")
+  const [userMeeting, setUserMeeting] = useState<Array<Meeting>>([])
   const token = useSelector((state: storeTypes) => state.tokenReducer)
-
+  const userEmail = useSelector((state: storeTypes) => state.emailReducer)
+  console.log(token)
+  console.log(userEmail)
   const hours = [
     {
       zoomTo: 14, // we want to display this format for all zoom levels until 100
@@ -112,8 +115,12 @@ function Scheduler(props) {
   function onCellClick(row, time) {
     setNewMeetingFormVisible(true)
   }
+  function searchUserMeeting(meeting: any) {
+    console.log(meeting)
+  }
   function getMeeting() {
     console.log(userList)
+    console.log(getUserId(userEmail, token))
     fetch(meetingURL, {
       method: "GET",
       headers: {
@@ -129,6 +136,7 @@ function Scheduler(props) {
         state.update("config.chart.items", () => {
           return generateNewItems(meeting)
         })
+        searchUserMeeting(meeting)
         // state.update("config.chart.grid.cell.onCreate", () => {
         //   return [onCellCreate]
         // })
@@ -306,7 +314,7 @@ function Scheduler(props) {
       // }
     }
     // meeting[i].title
-    console.log(meeting)
+
     const items = {}
     if (viewMode === "room") {
       for (let i = 0, len = meeting.length; i < len; i += 1) {
@@ -376,7 +384,7 @@ function Scheduler(props) {
   useEffect(() => {
     // 使用瀏覽器 API 更新文件標題
     getMeeting()
-    getRoom(state)
+    getRoom(state, token)
     props.refresh.setVal(!props.refresh.val)
   }, [refresh])
 
@@ -409,7 +417,12 @@ function Scheduler(props) {
             />
           </Col>
           <Col span={3}>
-            <GoogleCalendar MeetingData={[]} />
+            <GoogleCalendar
+              MeetingData={[]}
+              onClick={() => {
+                console.log("etstat56465")
+              }}
+            />
           </Col>
           <Col span={3}>
             <Button
@@ -417,7 +430,7 @@ function Scheduler(props) {
                 if (viewMode === "room") {
                   console.log("tetetteetf" + props.departmentDisabled.val)
                   props.departmentDisabled.setVal(false)
-                  getUser(state, setUserList)
+                  getUser(state, setUserList, token)
 
                   setViewMode("user")
                 } else {

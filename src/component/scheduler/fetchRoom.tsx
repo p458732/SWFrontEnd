@@ -1,4 +1,5 @@
 import GSTC from "gantt-schedule-timeline-calendar"
+import { useSelector, useDispatch } from "react-redux"
 import { Room, header } from "../utils/interface"
 
 const roomURL = "https://hw.seabao.ml/api/room"
@@ -17,10 +18,14 @@ function generateNewRows(room: Array<Room>) {
 
   return rows
 }
-function getRoom(state: any) {
+function getRoom(state: any, token: any) {
   fetch(roomURL, {
     method: "GET",
-    headers: header,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
   })
     .then(response => {
       return response.json()

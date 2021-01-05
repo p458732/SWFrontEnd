@@ -12,7 +12,11 @@ function DepartmentCheckBox(props) {
   function getDepartment() {
     fetch("https://hw.seabao.ml/api/department", {
       method: "GET",
-      headers: header,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + props.token,
+      },
     })
       .then(response => {
         return response.json()

@@ -1,4 +1,5 @@
 import GSTC from "gantt-schedule-timeline-calendar"
+import { useSelector, useDispatch } from "react-redux"
 import { User, header } from "../utils/interface"
 
 const userURL = "https://hw.seabao.ml/api/user"
@@ -16,10 +17,14 @@ function generateNewRows(user: Array<User>) {
 
   return rows
 }
-function getUser(state: any, setuserList: any) {
+function getUser(state: any, setuserList: any, token: any) {
   fetch(userURL, {
     method: "GET",
-    headers: header,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
   })
     .then(response => {
       return response.json()
@@ -36,5 +41,26 @@ function getUser(state: any, setuserList: any) {
       setuserList(map)
     })
 }
-
+export function getUserId(email: any, token: any) {
+  fetch(userURL, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+  })
+    .then(response => {
+      return response.json()
+    })
+    .then((userData: Array<User>) => {
+      let id = 0
+      userData.forEach(element => {
+        if (element.email === email) {
+          id = element.uid
+        }
+      })
+      return 45
+    })
+}
 export default getUser
