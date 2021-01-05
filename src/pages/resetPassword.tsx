@@ -40,31 +40,16 @@ const tailFormItemLayout = {
   },
 }
 
-const RegistrationForm = () => {
+function ResetPassword() {
   const [form] = Form.useForm()
 
   const onFinish = values => {
     console.log("Received values of form: ", values)
   }
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="86">+86</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  )
-  const [autoCompleteResult, setAutoCompleteResult] = useState([])
-
-  const websiteOptions = autoCompleteResult.map(website => ({
-    label: website,
-    value: website,
-  }))
+  function ResetPassword() {
+    fetch
+  }
   return (
     <Form
       {...formItemLayout}
@@ -88,7 +73,7 @@ const RegistrationForm = () => {
         ]}
         hasFeedback
       >
-        <Input.Password />
+        <Input />
       </Form.Item>
 
       <Form.Item
@@ -122,4 +107,4 @@ const RegistrationForm = () => {
     </Form>
   )
 }
-export default RegistrationForm
+export default ResetPassword

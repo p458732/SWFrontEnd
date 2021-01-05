@@ -49,24 +49,24 @@ const generateOption = (members: string[]) => {
   })
 }
 
-const RegistrationForm = () => {
+function Registration() {
   const [form] = Form.useForm()
   const [member, setMember] = useState<string[]>([])
   const registrationInfor = {
-    name: '',
-    email: '',
-    departmentName:'',
-    password: '',
+    name: "",
+    email: "",
+    departmentName: "",
+    password: "",
   }
   const getDepartmentList = () => {
-    var departmentList = [];
+    var departmentList = []
     fetch(getDepartmentURL, {
-      method: 'GET',
+      method: "GET",
       headers: header,
     })
-    .then(res => {
-      return res.json()
-    })
+      .then(res => {
+        return res.json()
+      })
       .then(List => {
         setMember(List.map((l: Department) => l.name))
       })
@@ -75,7 +75,7 @@ const RegistrationForm = () => {
       })
   }
   useEffect(() => {
-    getDepartmentList();
+    getDepartmentList()
   }, [])
 
   const onFinish = values => {
@@ -94,35 +94,33 @@ const RegistrationForm = () => {
     </Form.Item>
   )
   function nameChanged(e: React.ChangeEvent<HTMLInputElement>) {
-    registrationInfor.name = e.target.value;
+    registrationInfor.name = e.target.value
   }
   function emailChanged(e: React.ChangeEvent<HTMLInputElement>) {
-    registrationInfor.email = e.target.value;
+    registrationInfor.email = e.target.value
   }
-  function passwordChanged(password:string) {
-    registrationInfor.password = password;
+  function passwordChanged(password: string) {
+    registrationInfor.password = password
   }
-  function departmentNameChanged(value , option) {
-    registrationInfor.departmentName = value;
+  function departmentNameChanged(value, option) {
+    registrationInfor.departmentName = value
   }
   function sendRegisterRequest() {
     fetch(registrationURL, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(registrationInfor),
       headers: header,
+    }).then(res => {
+      if (res.status === 500) {
+        alert("信箱已存在")
+      }
+      if (res.status === 400) {
+        alert("未知錯誤")
+      }
+      if (res.status === 200) {
+        //返回登入畫面
+      }
     })
-      .then(res => {
-        if (res.status === 500) {
-          alert("信箱已存在")
-        }
-        if (res.status === 400) {
-          alert("未知錯誤")
-        }
-        if (res.status === 200) {
-          //返回登入畫面
-        }
-      })
-      
   }
   return (
     <Form
@@ -147,7 +145,7 @@ const RegistrationForm = () => {
           },
         ]}
       >
-        <Input onChange={ nameChanged}/>
+        <Input onChange={nameChanged} />
       </Form.Item>
       <Form.Item
         name="email"
@@ -163,7 +161,7 @@ const RegistrationForm = () => {
           },
         ]}
       >
-        <Input onChange={ emailChanged}/>
+        <Input onChange={emailChanged} />
       </Form.Item>
 
       <Form.Item
@@ -193,7 +191,7 @@ const RegistrationForm = () => {
           ({ getFieldValue }) => ({
             validator(rule, value) {
               if (!value || getFieldValue("password") === value) {
-                passwordChanged(value);
+                passwordChanged(value)
                 return Promise.resolve()
               }
               return Promise.reject("The two passwords that you entered do not match!")
@@ -202,24 +200,23 @@ const RegistrationForm = () => {
         ]}
       >
         <Input.Password />
-        
       </Form.Item>
       <Form.Item {...tailFormItemLayout}>
-      <Select
-        showSearch
-        style={{ width: 200 }}
-        placeholder="Select your department"
-        optionFilterProp="children"
+        <Select
+          showSearch
+          style={{ width: 200 }}
+          placeholder="Select your department"
+          optionFilterProp="children"
           filterOption={(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
           onChange={departmentNameChanged}
-      >
-        {generateOption(member)}
-      </Select>
-        <Button type="primary" htmlType="submit" onClick={ sendRegisterRequest}>
+        >
+          {generateOption(member)}
+        </Select>
+        <Button type="primary" htmlType="submit" onClick={sendRegisterRequest}>
           Register
         </Button>
       </Form.Item>
     </Form>
   )
 }
-export default RegistrationForm
+export default Registration

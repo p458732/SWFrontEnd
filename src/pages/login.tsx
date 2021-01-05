@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import { FormInstance } from "antd/lib/form"
-import { ExclamationCircleOutlined } from "@ant-design/icons"
 import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Alert } from "antd"
 import "./login.css"
-import { User } from "../component/utils/interface"
-import { Link } from "react-router-dom"
-import { PresetColorTypes } from "antd/lib/_util/colors"
-import { useSelector, useDispatch } from "react-redux"
-import { storeTypes } from "./reducers/configureStore"
+import { Link, BrowserRouter as router, Route, Switch } from "react-router-dom"
+import { useSelector, useDispatch, Provider } from "react-redux"
 import { setToken, setEmail } from "./action/token/token"
-
-const { Header, Footer, Sider, Content } = Layout
+import store from "./reducers/configureStore"
 
 const layout = {
   labelCol: { span: 2 },
@@ -22,14 +16,8 @@ const tailLayout = {
   layout: "vertical",
 }
 const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
-const userInfoURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/userinfo"
-export default function Login() {
-  const token = {
-    access_token: "",
-    expires_in: "",
-    token_type: "",
-    scope: "",
-  }
+
+function Login() {
   const dispatch = useDispatch()
   const handleToken = (tokenStr: string): void => {
     dispatch(setToken(tokenStr))
@@ -45,47 +33,22 @@ export default function Login() {
     client_id: "frontend.client",
     client_secret: "0AH#wjlzaU#&&P*XkY74",
   }
-  const onFinish = values => {
-    console.log("Success:", values)
-  }
-  const onFinishFailed = errorInfo => {
-    console.log("Failed:", errorInfo)
-  }
-  function emailChanged(e: React.ChangeEvent<HTMLInputElement>) {
+
+  const emailChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     loginInfo.email = e.target.value
     console.log(JSON.stringify(loginInfo))
   }
-  function passwordChanged(e: React.ChangeEvent<HTMLInputElement>) {
+  const passwordChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     loginInfo.password = e.target.value
     console.log(JSON.stringify(loginInfo))
   }
-  function updateData() {
+  const updateData = () => {
     data.username = loginInfo.email
     data.password = loginInfo.password
-
-    console.log(data)
     console.log(JSON.stringify(data))
   }
-  function getUserRole() {
-    fetch(userInfoURL, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer" + token,
-      },
-    })
-      .then(res => {
-        return res.json()
-      })
-      .then(info => {
-        console.log(info.role)
-      })
-      .catch(e => {
-        console.log("getUserRole error")
-      })
-  }
-  function authenticate() {
+  const authenticate = () => {
     updateData()
-    let formData = new FormData()
 
     const request = {
       grant_type: "password",
@@ -96,7 +59,6 @@ export default function Login() {
     }
 
     var body = []
-
     for (var property in request) {
       var encodeKey = encodeURIComponent(property)
       var encodeValue = encodeURIComponent(request[property])
@@ -134,13 +96,7 @@ export default function Login() {
   }
   return (
     <div className="app">
-      <Form
-        {...layout}
-        name="basic"
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-      >
+      <Form {...layout} name="basic" initialValues={{ remember: true }}>
         <Row style={{ justifyContent: "center" }}>
           <Col style={{ justifyContent: "center" }}>
             <Image
@@ -156,7 +112,7 @@ export default function Login() {
             className="email"
             label={<label style={{ fontWeight: "bolder" }}>Email</label>}
             name="Email"
-            rules={[{ required: true, message: "Please input your Email!" }]}
+            rules={[{ message: "Please input your Email!" }]}
           >
             <Input onChange={emailChanged} />
           </Form.Item>
@@ -166,7 +122,7 @@ export default function Login() {
             className="password"
             label={<label style={{ fontWeight: "bolder" }}>Password</label>}
             name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[{ message: "Please input your password!" }]}
           >
             <Input.Password onChange={passwordChanged} />
           </Form.Item>
@@ -195,3 +151,13 @@ export default function Login() {
     </div>
   )
 }
+
+const loginWrapper = () => {
+  return (
+    <Provider store={store}>
+      <Login />
+    </Provider>
+  )
+}
+
+export default loginWrapper

@@ -43,25 +43,12 @@ const tailFormItemLayout = {
   },
 }
 
-const Registration = () => {
+function forgotPassword() {
   const [form] = Form.useForm()
 
   const onFinish = values => {
     console.log("Received values of form: ", values)
   }
-
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="86">+86</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  )
 
   return (
     <Form
@@ -99,4 +86,4 @@ const Registration = () => {
   )
 }
 
-export default Registration
+export default forgotPassword
