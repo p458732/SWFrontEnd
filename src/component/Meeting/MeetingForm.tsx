@@ -144,7 +144,9 @@ function MeetingForm(Props: Init) {
       .catch(error => console.log("error", error))
   }
 
-  useEffect(() => form.resetFields(), [meetingData])
+  useEffect(() => {
+    form.resetFields()
+  }, [meetingData])
 
   useEffect(() => {
     if (visible) {
@@ -155,18 +157,19 @@ function MeetingForm(Props: Init) {
       getEmployeeInfo()
     } else {
       changeData = InitMeeting
+      setMember([])
     }
   }, [visible])
 
   useEffect(() => {
     if (member.length === 0) return
-    meetingData.attendees = meetingData.attendees?.map(element => {
+    const attendees = meetingData.attendees?.map(element => {
       const User = member.find(user => user.id === element)
       if (User !== undefined) return User.email
       return ""
     })
     form.setFieldsValue({
-      member: meetingData.attendees,
+      member: attendees,
     })
   }, [member])
 
