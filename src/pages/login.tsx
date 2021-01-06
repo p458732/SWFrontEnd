@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
 import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Alert } from "antd"
 import "./login.css"
-import { Link, BrowserRouter as router, Route, Switch } from "react-router-dom"
+import { Link, HashRouter as router, Route, Switch } from "react-router-dom"
 import { useSelector, useDispatch, Provider } from "react-redux"
 import { setToken, setEmail } from "./action/token/token"
 import { setRole } from "./action/role/role"
@@ -156,17 +156,16 @@ function Login() {
           </Form.Item>
         </Row>
         <Row>
-          <Col span={3} offset={7}>
-            <Form.Item {...tailLayout} name="remember" valuePropName="checked">
-              <Checkbox>Remember me</Checkbox>
-            </Form.Item>
-          </Col>
-          <Button type="link" style={{ color: "#3030FF", fontWeight: "bolder" }}>
-            New Account
-          </Button>
-          <Button type="link" style={{ color: "#3030FF", fontWeight: "bolder" }}>
-            Forgot Password
-          </Button>
+          <Link to="/registration">
+            <Button type="link" style={{ color: "#3030FF", fontWeight: "bolder" }}>
+              New Account
+            </Button>
+          </Link>
+          <Link to="/forgotPassword">
+            <Button type="link" style={{ color: "#3030FF", fontWeight: "bolder" }}>
+              Forgot Password
+            </Button>
+          </Link>
           <Col span={5}>
             <Form.Item {...tailLayout}>
               <Button onClick={authenticate} type="primary" htmlType="button">

@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react"
-import ReactDOM from "react-dom"
 import "antd/dist/antd.css"
-import { FormInstance } from "antd/lib/form"
-import { ExclamationCircleOutlined } from "@ant-design/icons"
 import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Tooltip, Cascader, Select } from "antd"
 import "./login.css"
-import { header, Department } from "../component/utils/interface"
-import { QuestionCircleOutlined } from "@ant-design/icons"
-const { Header, Footer, Sider, Content } = Layout
+import { Department } from "../component/utils/interface"
+import { HashRouter as Router, Route, Switch, Redirect } from "react-router-dom"
 const { Option } = Select
 const formItemLayout = {
   labelCol: {
@@ -58,16 +54,21 @@ function Registration() {
     departmentName: "",
     password: "",
   }
+  let passwordConfirm = false
   const getDepartmentList = () => {
     var departmentList = []
     fetch(getDepartmentURL, {
       method: "GET",
-      headers: header,
+      headers: {
+        "Content-Type": "application/json-patch+json",
+      },
     })
       .then(res => {
+        console.log(res)
         return res.json()
       })
       .then(List => {
+        console.log(List)
         setMember(List.map((l: Department) => l.name))
       })
       .catch(err => {
@@ -78,21 +79,12 @@ function Registration() {
     getDepartmentList()
   }, [])
 
-  const onFinish = values => {
+  const onFinish = async values => {
     console.log("Received values of form: ", values)
+    registrationInfor.name = values.name
+    registrationInfor.email = values.email
+    registrationInfor.password = values.password
   }
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 500,
-        }}
-      >
-        <Option value="86">+86</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  )
   function nameChanged(e: React.ChangeEvent<HTMLInputElement>) {
     registrationInfor.name = e.target.value
   }
@@ -105,118 +97,139 @@ function Registration() {
   function departmentNameChanged(value, option) {
     registrationInfor.departmentName = value
   }
+
   function sendRegisterRequest() {
-    fetch(registrationURL, {
-      method: "POST",
-      body: JSON.stringify(registrationInfor),
-      headers: header,
-    }).then(res => {
-      if (res.status === 500) {
-        alert("信箱已存在")
-      }
-      if (res.status === 400) {
-        alert("未知錯誤")
-      }
-      if (res.status === 200) {
-        //返回登入畫面
-      }
-    })
+    if (!passwordConfirm) {
+      return
+    } else {
+      console.log("send request")
+      fetch(registrationURL, {
+        method: "POST",
+        body: JSON.stringify(registrationInfor),
+        headers: {
+          "Content-Type": "application/json-patch+json",
+        },
+      }).then(res => {
+        if (res.status === 500) {
+          alert("信箱已存在")
+        }
+        if (res.status === 400) {
+          alert("請確認輸入內容")
+        }
+        if (res.status === 200) {
+          alert("註冊成功")
+          window.location.href = "/"
+        }
+      })
+    }
   }
   return (
-    <Form
-      {...formItemLayout}
-      form={form}
-      name="register"
-      onFinish={onFinish}
-      initialValues={{
-        residence: ["zhejiang", "hangzhou", "xihu"],
-        prefix: "86",
-      }}
-      scrollToFirstError
-    >
-      <Form.Item
-        name="name"
-        label={<span>Name&nbsp;</span>}
-        rules={[
-          {
-            required: true,
-            message: "Please input your name!",
-            whitespace: true,
-          },
-        ]}
+    <div>
+      <Form
+        {...formItemLayout}
+        form={form}
+        name="register"
+        onFinish={onFinish}
+        initialValues={{
+          residence: ["zhejiang", "hangzhou", "xihu"],
+          prefix: "86",
+        }}
+        scrollToFirstError
       >
-        <Input onChange={nameChanged} />
-      </Form.Item>
-      <Form.Item
-        name="email"
-        label="email"
-        rules={[
-          {
-            type: "email",
-            message: "The input is not valid Email!",
-          },
-          {
-            required: true,
-            message: "Please input your Email!",
-          },
-        ]}
-      >
-        <Input onChange={emailChanged} />
-      </Form.Item>
-
-      <Form.Item
-        name="password"
-        label="Password"
-        rules={[
-          {
-            required: true,
-            message: "Please input your password!",
-          },
-        ]}
-        hasFeedback
-      >
-        <Input.Password />
-      </Form.Item>
-
-      <Form.Item
-        name="confirm"
-        label="Confirm Password"
-        dependencies={["password"]}
-        hasFeedback
-        rules={[
-          {
-            required: true,
-            message: "Please confirm your password!",
-          },
-          ({ getFieldValue }) => ({
-            validator(rule, value) {
-              if (!value || getFieldValue("password") === value) {
-                passwordChanged(value)
-                return Promise.resolve()
-              }
-              return Promise.reject("The two passwords that you entered do not match!")
+        <Form.Item
+          name="name"
+          label={<span>Name&nbsp;</span>}
+          rules={[
+            {
+              required: true,
+              message: "Please input your name!",
+              whitespace: true,
             },
-          }),
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
-      <Form.Item {...tailFormItemLayout}>
-        <Select
-          showSearch
-          style={{ width: 200 }}
-          placeholder="Select your department"
-          optionFilterProp="children"
-          filterOption={(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-          onChange={departmentNameChanged}
+          ]}
         >
-          {generateOption(member)}
-        </Select>
-        <Button type="primary" htmlType="submit" onClick={sendRegisterRequest}>
-          Register
-        </Button>
-      </Form.Item>
-    </Form>
+          <Input onChange={nameChanged} />
+        </Form.Item>
+        <Form.Item
+          name="email"
+          label="email"
+          rules={[
+            {
+              type: "email",
+              message: "The input is not valid Email!",
+            },
+            {
+              required: true,
+              message: "Please input your Email!",
+            },
+          ]}
+        >
+          <Input onChange={emailChanged} />
+        </Form.Item>
+
+        <Form.Item
+          name="password"
+          label="Password"
+          rules={[
+            {
+              required: true,
+              message: "Please input your password!",
+            },
+          ]}
+          hasFeedback
+        >
+          <Input.Password />
+        </Form.Item>
+
+        <Form.Item
+          name="confirm"
+          label="Confirm Password"
+          dependencies={["password"]}
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message: "Please confirm your password!",
+            },
+            ({ getFieldValue }) => ({
+              validator(rule, value) {
+                if (!value || getFieldValue("password") === value) {
+                  passwordConfirm = true
+                  passwordChanged(value)
+                  return Promise.resolve()
+                }
+                passwordConfirm = false
+                return Promise.reject("The two passwords that you entered do not match!")
+              },
+            }),
+          ]}
+        >
+          <Input.Password />
+        </Form.Item>
+        <Form.Item {...tailFormItemLayout}>
+          <Select
+            showSearch
+            style={{ width: 200 }}
+            placeholder="Select your department"
+            optionFilterProp="children"
+            filterOption={(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+            onChange={departmentNameChanged}
+          >
+            {generateOption(member)}
+          </Select>
+          <Button type="primary" htmlType="submit" onClick={sendRegisterRequest}>
+            Register
+          </Button>
+        </Form.Item>
+      </Form>
+      <Button
+        type="primary"
+        onClick={() => {
+          window.location.href = "/"
+        }}
+      >
+        back to login
+      </Button>
+    </div>
   )
 }
 export default Registration

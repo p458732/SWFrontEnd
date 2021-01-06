@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react"
-import ReactDOM from "react-dom"
+import { Renderer } from "react-dom"
 import "antd/dist/antd.css"
-import { FormInstance } from "antd/lib/form"
-import { ExclamationCircleOutlined, QuestionCircleOutlined } from "@ant-design/icons"
 import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Tooltip, Cascader, Select } from "antd"
 import "./login.css"
-import { User } from "../component/utils/interface"
-
-const { Header, Footer, Sider, Content } = Layout
+import { HashRouter as Router, useLocation, Route, useHistory } from "react-router-dom"
 const { Option } = Select
 const formItemLayout = {
   labelCol: {
@@ -39,72 +35,109 @@ const tailFormItemLayout = {
     },
   },
 }
-
+const resetPasswordURL = "https://hw.seabao.ml/api/otp?otp="
 function ResetPassword() {
+  const searchParams = new URLSearchParams(useLocation().search)
+  const newPassword = {
+    newPassword: "",
+  }
+  let passwordConfirm = false
   const [form] = Form.useForm()
-
   const onFinish = values => {
     console.log("Received values of form: ", values)
   }
-
-  function ResetPassword() {
-    fetch
+  function passwordChanged(password: string) {
+    newPassword.newPassword = password
+    passwordConfirm = true
+  }
+  const resetRequest = () => {
+    if (!passwordConfirm) {
+      return
+    } else {
+      const fetchURL = resetPasswordURL + searchParams.get("otp")
+      console.log(fetchURL)
+      fetch(fetchURL, {
+        method: "POST",
+        body: JSON.stringify(newPassword),
+        headers: {
+          "Content-Type": "application/json-patch+json",
+        },
+      }).then(res => {
+        if (res.status === 200) {
+          alert("已重設密碼")
+          window.location.href = "/"
+        } else {
+          alert("錯誤")
+        }
+        return res.json()
+      })
+    }
   }
   return (
-    <Form
-      {...formItemLayout}
-      form={form}
-      name="register"
-      onFinish={onFinish}
-      initialValues={{
-        residence: ["zhejiang", "hangzhou", "xihu"],
-        prefix: "86",
-      }}
-      scrollToFirstError
-    >
-      <Form.Item
-        name="password"
-        label="Password"
-        rules={[
-          {
-            required: true,
-            message: "Please input your password!",
-          },
-        ]}
-        hasFeedback
+    <div>
+      <Form
+        {...formItemLayout}
+        form={form}
+        name="register"
+        onFinish={onFinish}
+        initialValues={{
+          prefix: "86",
+        }}
+        scrollToFirstError
       >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        name="confirm"
-        label="Confirm Password"
-        dependencies={["password"]}
-        hasFeedback
-        rules={[
-          {
-            required: true,
-            message: "Please confirm your password!",
-          },
-          ({ getFieldValue }) => ({
-            validator(rule, value) {
-              if (!value || getFieldValue("password") === value) {
-                return Promise.resolve()
-              }
-
-              return Promise.reject("The two passwords that you entered do not match!")
+        <Form.Item
+          name="password"
+          label="Password"
+          rules={[
+            {
+              required: true,
+              message: "Please input your password!",
             },
-          }),
-        ]}
+          ]}
+          hasFeedback
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          name="confirm"
+          label="Confirm Password"
+          dependencies={["password"]}
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message: "Please confirm your password!",
+            },
+            ({ getFieldValue }) => ({
+              validator(rule, value) {
+                if (!value || getFieldValue("password") === value) {
+                  passwordChanged(value)
+                  return Promise.resolve()
+                }
+
+                return Promise.reject("The two passwords that you entered do not match!")
+              },
+            }),
+          ]}
+        >
+          <Input.Password />
+        </Form.Item>
+        <Form.Item {...tailFormItemLayout}>
+          <Button type="primary" htmlType="submit" onClick={resetRequest}>
+            Register
+          </Button>
+        </Form.Item>
+      </Form>
+      <Button
+        type="primary"
+        onClick={() => {
+          window.location.href = "/"
+        }}
       >
-        <Input.Password />
-      </Form.Item>
-      <Form.Item {...tailFormItemLayout}>
-        <Button type="primary" htmlType="submit">
-          Register
-        </Button>
-      </Form.Item>
-    </Form>
+        back to login
+      </Button>
+    </div>
   )
 }
 export default ResetPassword
