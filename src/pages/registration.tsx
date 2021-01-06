@@ -216,19 +216,23 @@ function Registration() {
           >
             {generateOption(member)}
           </Select>
-          <Button type="primary" htmlType="submit" onClick={sendRegisterRequest}>
-            Register
-          </Button>
+          <Col span={5} offset={20}>
+            <Button type="primary" htmlType="submit" onClick={sendRegisterRequest}>
+              Register
+            </Button>
+          </Col>
         </Form.Item>
       </Form>
-      <Button
-        type="primary"
-        onClick={() => {
-          window.location.href = "/"
-        }}
-      >
-        back to login
-      </Button>
+      <Col span={5} offset={21}>
+        <Button
+          type="primary"
+          onClick={() => {
+            window.location.href = "/"
+          }}
+        >
+          back to login
+        </Button>
+      </Col>
     </div>
   )
 }

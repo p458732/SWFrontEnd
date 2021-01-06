@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Alert } from "antd"
+import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Alert, Space } from "antd"
 import "./login.css"
 import { Link, HashRouter as router, Route, Switch } from "react-router-dom"
 import { useSelector, useDispatch, Provider } from "react-redux"
@@ -122,17 +122,14 @@ function Login() {
         console.log("faild")
       })
   }
+  // ;<img src={require("./img/background.jpg")} alt="Background" />
   return (
     <div className="app">
       <Form {...layout} name="basic" initialValues={{ remember: true }}>
         <Row style={{ justifyContent: "center" }}>
           <Col style={{ justifyContent: "center" }}>
-            <Image
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWMxLRsNXgKhis8w186C_Kex9ReeD6BB4wzw&usqp=CAU"
-              width={250}
-              height={250}
-            />
-            <h1 style={{ fontWeight: "bolder" }}> SeaBao Back-End God </h1>
+            <Image src={require("../img/logo.png")} width={250} height={250} />
+            <h1 style={{ fontWeight: "bolder" }}> Virtual Meeting Assitant </h1>
           </Col>
         </Row>
         <Row className="email">
@@ -155,25 +152,27 @@ function Login() {
             <Input.Password onChange={passwordChanged} />
           </Form.Item>
         </Row>
-        <Row>
-          <Link to="/registration">
-            <Button type="link" style={{ color: "#3030FF", fontWeight: "bolder" }}>
-              New Account
-            </Button>
-          </Link>
-          <Link to="/forgotPassword">
-            <Button type="link" style={{ color: "#3030FF", fontWeight: "bolder" }}>
-              Forgot Password
-            </Button>
-          </Link>
-          <Col span={5}>
+        <Col span={5} offset={9}>
+          <Space direction="horizontal">
+            <Link to="/registration">
+              <Button type="link" style={{ color: "#3030FF", fontWeight: "bolder" }}>
+                New Account
+              </Button>
+            </Link>
+
+            <Link to="/forgotPassword">
+              <Button type="link" style={{ color: "#3030FF", fontWeight: "bolder" }}>
+                Forgot Password
+              </Button>
+            </Link>
+
             <Form.Item {...tailLayout}>
               <Button onClick={authenticate} type="primary" htmlType="button">
                 Login
               </Button>
             </Form.Item>
-          </Col>
-        </Row>
+          </Space>
+        </Col>
       </Form>
     </div>
   )

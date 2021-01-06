@@ -125,18 +125,20 @@ function ResetPassword() {
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>
           <Button type="primary" htmlType="submit" onClick={resetRequest}>
-            Register
+            Reset
           </Button>
         </Form.Item>
       </Form>
-      <Button
-        type="primary"
-        onClick={() => {
-          window.location.href = "/"
-        }}
-      >
-        back to login
-      </Button>
+      <Col span={5} offset={21}>
+        <Button
+          type="primary"
+          onClick={() => {
+            window.location.href = "/"
+          }}
+        >
+          back to login
+        </Button>
+      </Col>
     </div>
   )
 }
