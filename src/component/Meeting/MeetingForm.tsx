@@ -41,7 +41,7 @@ const { Option } = Select
 const { confirm } = Modal
 
 const tailLayout = {
-  wrapperCol: { offset: 16, span: 16 },
+  wrapperCol: { offset: 12, span: 16 },
 }
 
 const SelectLayout = {
@@ -194,7 +194,7 @@ function MeetingForm(Props: Init) {
     confirm({
       title: "確認",
       icon: <ExclamationCircleOutlined />,
-      content: "你確定要新增此會議嗎?",
+      content: "你確定要變更此會議嗎?",
       onOk() {
         return fetch("https://hw.seabao.ml/api/meeting", {
           method: "PATCH",
@@ -202,7 +202,39 @@ function MeetingForm(Props: Init) {
           headers: header,
         })
           .catch(() => {
-            showErrorMessage("新增失敗!")
+            showErrorMessage("變更失敗!")
+          })
+          .then(res => {
+            console.log("success", res)
+            form.resetFields()
+            setVisible(false)
+            setrefresh(!refresh)
+            // 放changeData
+          })
+      },
+      onCancel() {},
+    })
+  }
+
+  function showPromiseDelete() {
+    const num: number[] = []
+    member.forEach(item => {
+      if (changeData.attendees.some(email => email === item.email)) num.push(Number(item.id))
+    })
+    changeData.attendees = num
+    delete changeData.creatorUid
+    console.log(changeData)
+    confirm({
+      title: "確認",
+      icon: <ExclamationCircleOutlined />,
+      content: "你確定要刪除此會議嗎?",
+      onOk() {
+        return fetch(`https://hw.seabao.ml/api/meeting?meetingUid=${meetingData.meetingID}`, {
+          method: "DELETE",
+          headers: header,
+        })
+          .catch(() => {
+            showErrorMessage("刪除失敗!")
           })
           .then(res => {
             console.log("success", res)
@@ -379,6 +411,9 @@ function MeetingForm(Props: Init) {
             <Space size="middle">
               <Button onClick={handleCancel} type="default">
                 Cancel
+              </Button>
+              <Button type="primary" onClick={showPromiseDelete} danger>
+                Delete
               </Button>
               <Button type="primary" htmlType="submit">
                 Save
