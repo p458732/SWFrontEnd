@@ -69,6 +69,7 @@ export default function GoogleCalendar(Props: Init) {
 
     batch.then(() => {
       console.log("all jobs now dynamically done!!!")
+      alert("已匯出至Google Calendar")
     })
   }
 

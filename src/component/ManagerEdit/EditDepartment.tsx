@@ -140,7 +140,7 @@ function EditDepartment(Props: Init) {
     confirm({
       title: "確認",
       icon: <ExclamationCircleOutlined />,
-      content: "你確定要新增此部門嗎?",
+      content: "你確定要變更此部門嗎?",
       onOk() {
         return fetch("https://hw.seabao.ml/api/department", {
           method: "POST",
@@ -240,7 +240,7 @@ function EditDepartment(Props: Init) {
                 Cancel
               </Button>
               <Button type="primary" htmlType="submit">
-                New
+                Save
               </Button>
             </Space>
           </Form.Item>

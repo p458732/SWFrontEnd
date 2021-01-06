@@ -154,6 +154,37 @@ function EmployeeEdit(Props: Init) {
     })
   }
 
+  function showpassWordPromiseConfirm() {
+    confirm({
+      title: "確認",
+      icon: <ExclamationCircleOutlined />,
+      content: "你確定要變更此成員密碼嗎?",
+      onOk() {
+        return fetch("https://hw.seabao.ml/api/user/password", {
+          method: "PATCH",
+          body: JSON.stringify({ id: Employee.id, newPassword: changePassWord }), // data can be `string` or {object}!
+          headers: header,
+        })
+          .then(res => {
+            console.log("success", res)
+            if (
+              Employee.email === changeEmployeeData.email &&
+              Employee.departmentName === changeEmployeeData.departmentName
+            ) {
+              form.resetFields()
+              setVisible(false)
+              setrefresh(!refresh)
+            }
+            // 放changeData
+          })
+          .catch(() => {
+            showErrorMessage("變更失敗!")
+          })
+      },
+      onCancel() {},
+    })
+  }
+
   const onFinish = (values: any) => {
     console.log(Employee)
     console.log(changeEmployeeData)
@@ -165,7 +196,9 @@ function EmployeeEdit(Props: Init) {
     )
       showErrorMessage("成員資料未變更")
     else {
-      showPromiseConfirm()
+      if (Employee.email !== changeEmployeeData.email || Employee.departmentName !== changeEmployeeData.departmentName)
+        showPromiseConfirm()
+      if (changePassWord !== "") showpassWordPromiseConfirm()
     }
   }
 
