@@ -17,7 +17,7 @@ function generateNewRows(user: Array<User>) {
 
   return rows
 }
-function getUser(state: any, setuserList: any, token: any) {
+export function getUser(state: any, setuserList: any, token: any) {
   fetch(userURL, {
     method: "GET",
     headers: {
@@ -63,4 +63,3 @@ export function getUserId(email: any, token: any, setUserId: any): number {
     })
   return 456
 }
-export default getUser

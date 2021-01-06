@@ -14,7 +14,8 @@ function Main() {
   const token = useSelector((state: storeTypes) => state.tokenReducer)
 
   const email = useSelector((state: storeTypes) => state.emailReducer)
-  console.log("email = " + email)
+  const role = useSelector((state: storeTypes) => state.roleReducer)
+  console.log(" role = " + role)
   const [currentDate, setCurrentDate] = useState(moment())
   const [currentChooseDepartment, setCurrentChooseDepartment] = useState([])
   const [refreshDepartment, setrefreshDepartment] = useState(false)
@@ -56,6 +57,7 @@ function Main() {
           departmentDisabled={disable}
           refresh={refresh}
           token={token}
+          role={role}
         />
       </Content>
     </Layout>

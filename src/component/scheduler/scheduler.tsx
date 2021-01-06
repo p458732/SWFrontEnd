@@ -70,6 +70,7 @@ function Scheduler(props) {
   const [viewMode, setViewMode] = useState("room")
   const [userMeeting, setUserMeeting] = useState<Array<Meeting>>([])
   const [userId, setUserId] = useState<number>(-1)
+  const [userInfo, setUserInfo] = useState(0)
   const token = useSelector((state: storeTypes) => state.tokenReducer)
   const userEmail = useSelector((state: storeTypes) => state.emailReducer)
 
@@ -305,8 +306,13 @@ function Scheduler(props) {
     // item.fromDate = moment(item.time.start).format()
     // item.toDate = moment(item.time.end).format()
     setCurrentSelectMeeting(item.meetingJSON)
-    setSaveEditFormVsible(true)
-    //setViewMeetingFormVisible(true)
+    console.log(userInfo)
+    console.log(userInfo.role)
+    console.log(item.meetingJSON)
+    let creatorFlag = false
+
+    if (userInfo.role === "Manager" || item.meetingJSON.creatorUid === userId) setSaveEditFormVsible(true)
+    else setViewMeetingFormVisible(true)
   }
 
   function itemLabelContent({ item, vido }) {
@@ -377,12 +383,12 @@ function Scheduler(props) {
   const callback = useCallback(element => {
     if (element) {
       initializeGSTC(element)
-
-      getRoom(state)
+      getUserRole()
+      getRoom(state, token)
 
       getUserId(userEmail, token, setUserId)
       getMeeting()
-      getUserRole()
+
       previousDate = props.currentDate.val.valueOf()
     }
   }, [])
@@ -402,7 +408,7 @@ function Scheduler(props) {
     // 使用瀏覽器 API 更新文件標題
     getMeeting()
   }, [props.currentDepartment.val])
-
+  console.log(props.role)
   function ModeIcon() {
     if (viewMode === "room") {
       return <UserOutlined style={{ fontSize: "48px" }} />
@@ -421,14 +427,14 @@ function Scheduler(props) {
         return res.json()
       })
       .then(info => {
-        console.log("info.rolesfsfdsfsdfsddsdsfdsfdsdsfsdfsdfsdfsdfsdfdsfdsfsf")
-        console.log(info)
+        console.log("TSETSESER" + info)
+        setUserInfo(info)
       })
       .catch(e => {
         console.log("getUserRole error")
       })
   }
-  return (
+  return props.role === "Manager" ? (
     <div className="Scheduler">
       <div className="toolbox">
         <Row>
@@ -458,7 +464,7 @@ function Scheduler(props) {
                 } else {
                   props.departmentDisabled.setVal(true)
 
-                  getRoom(state)
+                  getRoom(state, token)
                   setUserList([])
                   setViewMode("room")
                 }
@@ -506,6 +512,88 @@ function Scheduler(props) {
         setVisible={setSaveEditFormVsible}
         visible={editSaveFormVisible}
         meetingData={currentSelectMeeting}
+        refresh={refresh}
+        setrefresh={setRefresh}
+      />
+    </div>
+  ) : (
+    <div className="Scheduler">
+      <div className="toolbox">
+        <Row>
+          <Col span={3} />
+          <Col span={3} offset={9}>
+            <Button
+              onClick={() => {
+                setNewMeetingFormVisible(true)
+              }}
+              icon={<PlusOutlined style={{ fontSize: "48px" }} />}
+              style={{ width: 60, height: 60 }}
+            />
+          </Col>
+          <Col span={3}>
+            <GoogleCalendar MeetingData={userMeeting} />
+          </Col>
+          <Col span={3}>
+            <Button
+              onClick={() => {
+                if (viewMode === "room") {
+                  props.departmentDisabled.setVal(false)
+                  getUser(state, setUserList, token)
+
+                  setViewMode("user")
+                } else {
+                  props.departmentDisabled.setVal(true)
+
+                  getRoom(state, token)
+                  setUserList([])
+                  setViewMode("room")
+                }
+              }}
+              icon={<ModeIcon />}
+              style={{ width: 60, height: 60 }}
+            />
+          </Col>
+          <Col span={3}>
+            <Dropdown
+              overlay={
+                <Menu
+                  onClick={e => {
+                    setDownButtonStr(e.key)
+                    if (e.key === "week") changeZoomLevel(19)
+                    else changeZoomLevel(14)
+                  }}
+                >
+                  <Menu.Item key="day">day</Menu.Item>
+                  <Menu.Item key="week">week</Menu.Item>
+                </Menu>
+              }
+            >
+              <Button>
+                {downButtonStr}
+                <DownOutlined />
+              </Button>
+            </Dropdown>
+          </Col>
+        </Row>
+      </div>
+      <div className="gstc-w Schedulerer" ref={callback} />
+      <NewMeetingForm
+        setVisible={setNewMeetingFormVisible}
+        visible={newMeetingFormVisible}
+        refresh={refresh}
+        setrefresh={setRefresh}
+      />
+      <ViewMeetingForm
+        setVisible={setViewMeetingFormVisible}
+        visible={viewMeetingFormVisible}
+        meetingData={currentSelectMeeting}
+      />
+      <MeetingForm
+        setVisible={setSaveEditFormVsible}
+        visible={editSaveFormVisible}
+        meetingData={currentSelectMeeting}
+        refresh={refresh}
+        setrefresh={setRefresh}
       />
     </div>
   )

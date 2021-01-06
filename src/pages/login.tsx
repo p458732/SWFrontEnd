@@ -5,6 +5,7 @@ import "./login.css"
 import { Link, BrowserRouter as router, Route, Switch } from "react-router-dom"
 import { useSelector, useDispatch, Provider } from "react-redux"
 import { setToken, setEmail } from "./action/token/token"
+import { setRole } from "./action/role/role"
 import store from "./reducers/configureStore"
 
 const layout = {
@@ -16,7 +17,7 @@ const tailLayout = {
   layout: "vertical",
 }
 const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
-
+const userInfoURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/userinfo"
 function Login() {
   const dispatch = useDispatch()
   const handleToken = (tokenStr: string): void => {
@@ -24,6 +25,9 @@ function Login() {
   }
   const handleEmail = (emailStr: string): void => {
     dispatch(setEmail(emailStr))
+  }
+  const handleRole = (roleStr: string): void => {
+    dispatch(setRole(roleStr))
   }
   const loginInfo = { email: "", password: "" }
   const data = {
@@ -46,6 +50,26 @@ function Login() {
     data.username = loginInfo.email
     data.password = loginInfo.password
     console.log(JSON.stringify(data))
+  }
+  function getUserRole(token: string) {
+    fetch(userInfoURL, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
+      .then(res => {
+        return res.json()
+      })
+      .then(info => {
+        console.log("AFDFDSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSLK:ALFS")
+        console.log(info)
+
+        handleRole(info.role)
+      })
+      .catch(e => {
+        console.log("getUserRole error")
+      })
   }
   const authenticate = () => {
     updateData()
@@ -82,10 +106,14 @@ function Login() {
         } else {
           handleToken(data.access_token)
           handleEmail(request.username)
+
+          return data.access_token
         }
         //登入
       })
-      .then(() => {
+      .then(token => {
+        getUserRole(token)
+        //
         window.location.href = "/#/mainPage"
       })
       .catch(e => {
