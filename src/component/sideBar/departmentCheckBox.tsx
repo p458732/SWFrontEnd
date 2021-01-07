@@ -1,27 +1,34 @@
+/* eslint-disable react/destructuring-assignment */
 import "antd/dist/antd.css"
 
-import React, { useState, useContext, useCallback, useEffect } from "react"
+import React, { useState, useCallback, useEffect } from "react"
 import { Checkbox } from "antd"
-import { header, Department } from "../utils/interface"
+import { Department } from "../utils/interface"
 
-function DepartmentCheckBox(props) {
-  let temp = []
-  let defaultOption = []
-  const [options, setOptions] = useState([])
+function DepartmentCheckBox(props: any) {
+  let temp: any[] = [1]
+  const defaultOption: any[] = []
+  const [options, setOptions] = useState([{ label: "0", value: "0" }])
 
+  //------------------------------------------------------------------------------------------------------------
+  /** @brief 
+      to fetch the Department data from database, and then change the department's check box
+  * @param param_in  None
+  * @return None */
   function getDepartment() {
     fetch("https://hw.seabao.ml/api/department", {
       method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: "Bearer " + props.token,
+        Authorization: `Bearer ${props.token}`,
       },
     })
       .then(response => {
         return response.json()
       })
       .then((departmentData: Array<Department>) => {
+        // set the check box
         temp = []
         departmentData.forEach(element => {
           temp.push({ label: element.name, value: element.name })
@@ -33,17 +40,27 @@ function DepartmentCheckBox(props) {
       })
   }
 
+  // we need to initialze the checkbox
   const callback = useCallback(element => {
     if (element) {
       getDepartment()
     }
   }, [])
+  //------------------------------------------------------------------------------------------------------------
+  /** @brief 
+     when the following variable changed, we need to render our web again
+     1. props.refresh.val -> when user close the form
+  */
   useEffect(() => {
-    // 使用瀏覽器 API 更新文件標題
     getDepartment()
   }, [props.refresh.val])
 
-  function onChange(checkedValues) {
+  //------------------------------------------------------------------------------------------------------------
+  /** @brief 
+      change the check box's value
+  * @param param_in  None
+  * @return None */
+  function onChange(checkedValues: any) {
     props.currentDepartment.setVal(checkedValues)
   }
 

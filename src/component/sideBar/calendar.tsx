@@ -1,19 +1,18 @@
-import { Calendar, Select, Radio, Col, Row, Typography } from "antd"
+import { Calendar, Select, Radio, Col, Row } from "antd"
 import "antd/dist/antd.css"
-import React, { useState, useContext } from "react"
-import moment from "moment"
+import React from "react"
 
-function onPanelChange(value: any, mode: any) {
-  console.log(222222222222)
-}
-
-function SidebarCalendar(props) {
+function SidebarCalendar(props: any) {
   // 取得時間
 
   // eslint-disable-next-line prettier/prettier
-  function onSelect(value) {
+  //------------------------------------------------------------------------------------------------------------
+  /** @brief 
+      change the current date value
+  * @param param_in  None
+  * @return None */
+  function onSelect(value: any) {
     props.currentDate.setVal(value)
-    console.log(props.currentDate.val)
   }
   return (
     <div className="site-calendar-customize-header-wrapper">
@@ -34,7 +33,7 @@ function SidebarCalendar(props) {
 
           for (let index = start; index < end; index += 1) {
             monthOptions.push(
-              <Select.Option className="month-item" key={`${index}`}>
+              <Select.Option className="month-item" value={`${index}`} key={`${index}`}>
                 {months[index]}
               </Select.Option>
             )
@@ -53,7 +52,6 @@ function SidebarCalendar(props) {
 
           return (
             <div style={{ padding: 8 }}>
-              <Typography.Title level={4}>Custom header</Typography.Title>
               <Row gutter={8}>
                 <Col>
                   <Radio.Group size="small" onChange={e => onTypeChange(e.target.value)} value={type}>
@@ -66,7 +64,7 @@ function SidebarCalendar(props) {
                     size="small"
                     dropdownMatchSelectWidth={false}
                     className="my-year-select"
-                    onChange={newYear => {
+                    onChange={(newYear: any) => {
                       const now = value.clone().year(newYear)
                       onChange(now)
                     }}
@@ -93,7 +91,6 @@ function SidebarCalendar(props) {
             </div>
           )
         }}
-        onPanelChange={onPanelChange}
         onSelect={value => {
           onSelect(value)
         }}

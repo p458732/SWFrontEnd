@@ -1,12 +1,10 @@
 import React, { useState } from "react"
-import ReactDOM from "react-dom"
 import moment from "moment"
 import { Layout } from "antd"
 import { Redirect } from "react-router-dom"
 import SideBarCalendar from "../component/sideBar/calendar"
 import DepartmentCheckBox from "../component/sideBar/departmentCheckBox"
 import Scheduler from "../component/scheduler/scheduler"
-import Schedulerr from "../component/scheduler/scheduler2"
 import { useSelector, useDispatch } from "react-redux"
 const { Sider, Content } = Layout
 
