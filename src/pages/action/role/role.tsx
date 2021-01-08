@@ -1,3 +1,10 @@
+/** @file role.tsx
+  * @brief used to provide an interface of Rudux
+   
+  * @author Hong Eric
+  * @date 2021-01-08
+  * */
+
 export const SETROLE = "SETROLE"
 interface SetROLEI {
   type: typeof SETROLE
@@ -13,4 +20,5 @@ export const setRole = (n: string): SetROLEI => ({
   },
 })
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export type roleActionTypes = SetROLEI

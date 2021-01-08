@@ -2,6 +2,13 @@ import { Calendar, Select, Radio, Col, Row } from "antd"
 import "antd/dist/antd.css"
 import React from "react"
 
+/** @file calendar.tsx
+  * @brief implement the SidebarCalendar
+   
+  * @author Hong Eric
+  * @date 2021-01-08
+  * */
+
 function SidebarCalendar(props: any) {
   // 取得時間
 
@@ -26,6 +33,7 @@ function SidebarCalendar(props: any) {
           const current = value.clone()
           const localeData = value.localeData()
           const months = []
+          // set Calendar
           for (let i = 0; i < 12; i += 1) {
             current.month(i)
             months.push(localeData.monthsShort(current))
