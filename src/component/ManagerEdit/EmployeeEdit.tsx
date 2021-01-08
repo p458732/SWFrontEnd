@@ -46,20 +46,29 @@ let changeEmployeeData: Member = initEmployee
 let changePassWord = ""
 const DepartmentData: Array<Department> = []
 function EmployeeEdit(Props: Init) {
+  // 設定是否要顯示表單與是否更新主畫面日曆
   const { visible, setVisible, refresh, setrefresh } = Props
+  // 設定使用者所選擇的成員
   const [Employee, setEmployee] = React.useState(initEmployee)
+  // 設定所有部門資訊
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
+  // 設定password框是否可以輸入
   const [disablePassWord, setDisablepassWord] = useState(true)
+  // 設定所有使用者資訊
   const [member, setMember] = useState<Member[]>([])
+  // 控制輸入框是必須輸入
   const [require, setRequire] = useState(false)
+  // 使用者token
   const token = useSelector((state: any) => state.tokenReducer)
+  // 與後端連線所需的設定
   const header: Headers = new Headers({
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   })
+  // 控制表單
   const [form] = Form.useForm()
-
+  // 選擇成員後自動帶入成員資訊至表單
   useEffect(() => {
     changeEmployeeData = {
       name: Employee.name,
@@ -70,7 +79,7 @@ function EmployeeEdit(Props: Init) {
     changePassWord = ""
     form.setFieldsValue({ email: Employee.email, department: Employee.departmentName })
   }, [Employee])
-
+  // 抓取所有使用者
   function getEmployeeInfo() {
     const data: Array<Member> = []
     fetch("https://hw.seabao.ml/api/user", {
@@ -87,7 +96,7 @@ function EmployeeEdit(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 抓取所有部門
   function getDepartment() {
     const data: Array<Department> = []
     fetch("https://hw.seabao.ml/api/department", {
@@ -104,7 +113,7 @@ function EmployeeEdit(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 當顯示表單時抓取成員與部門資訊並且進行表單初始設定
   useEffect(() => {
     if (visible) {
       getEmployeeInfo()
@@ -114,20 +123,20 @@ function EmployeeEdit(Props: Init) {
     setDisablepassWord(true)
     setRequire(false)
   }, [visible])
-
+  // 顯示錯誤框
   function showErrorMessage(message: string) {
     Modal.error({
       title: "Error",
       content: message,
     })
   }
-
+  // 關閉表單與初始化表單
   const handleCancel = () => {
     console.log("Clicked cancel button")
     form.resetFields()
     setVisible(false)
   }
-
+  // 跳出確認框與確認後跟後端更新資料
   function showPromiseConfirm() {
     confirm({
       title: "確認",
@@ -153,7 +162,7 @@ function EmployeeEdit(Props: Init) {
       onCancel() {},
     })
   }
-
+  // 跳出確認改變密碼確認框與按下確認框後跟後端更新所選擇用戶的密碼
   function showpassWordPromiseConfirm() {
     confirm({
       title: "確認",
@@ -184,7 +193,8 @@ function EmployeeEdit(Props: Init) {
       onCancel() {},
     })
   }
-
+  // 判斷是否需要呼叫成員資料變更框與密碼變更框
+  // 如都沒變更跳出錯誤框
   const onFinish = (values: any) => {
     console.log(Employee)
     console.log(changeEmployeeData)
@@ -202,20 +212,10 @@ function EmployeeEdit(Props: Init) {
     }
   }
 
-  const onFinishFailed = () => {
-    console.log("error")
-  }
-
   return (
     <>
       <Modal visible={visible} onCancel={handleCancel} footer={false}>
-        <Form
-          {...layout}
-          form={form}
-          name="control-hooks-EmployeeEdit"
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
+        <Form {...layout} form={form} name="control-hooks-EmployeeEdit" onFinish={onFinish}>
           <Form.Item name="title">
             <Row justify="start">
               <h1>編輯成員</h1>

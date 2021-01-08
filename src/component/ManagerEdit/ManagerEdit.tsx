@@ -14,8 +14,11 @@ interface Init {
   refresh: boolean
 }
 export default function ManagerEdit(Props: Init) {
+  // 告知主畫面進行日曆刷新動作
   const { refresh, setrefresh } = Props
+  // 是否顯示編輯選項框
   const [visible, setVisible] = useState(false)
+  // 以下為控制需要顯示的相對應表單
   const [editSaveFormVisible, setSaveEditFormVsible] = useState(false)
   const [editNewFormVisible, setNewEditFormVsible] = useState(false)
   const [editDeleteFormVisible, setDeleteEditFormVsible] = useState(false)
@@ -24,6 +27,7 @@ export default function ManagerEdit(Props: Init) {
   const [editNewDepartmentVisible, setNewDepartmentVisible] = useState(false)
   const [editDeleteDepartmentVisible, setDeleteDepartmentVisible] = useState(false)
   const [editEditDepartmentVisible, setEditDepartmentVisible] = useState(false)
+  // 避免重複表單開啟
   useEffect(() => {
     if (
       !editSaveFormVisible &&
@@ -38,7 +42,7 @@ export default function ManagerEdit(Props: Init) {
       lock = false
     else lock = true
   })
-
+  // 編輯框所顯示的內容
   const content = (
     <div>
       <h4 style={{ padding: "5px" }}>RoomEdit</h4>

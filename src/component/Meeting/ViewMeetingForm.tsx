@@ -41,23 +41,27 @@ interface Init {
   meetingData: Meeting
 }
 function ViewMeetingForm(Props: Init) {
-  const [confirmLoading, setConfirmLoading] = React.useState(false)
+  // 設定是否要顯示表單與會議資料
   const { visible, setVisible, meetingData } = Props
+  // 設定所有成員資訊
   const [member, setMember] = useState<Member[]>([])
+  // 使用者token
   const token = useSelector((state: any) => state.tokenReducer)
+  // 後端連線所需的設定
   const header: Headers = new Headers({
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   })
+  // 表單控制
   const [form] = Form.useForm()
-
+  // 關閉表單與表單初始化
   const handleCancel = () => {
     console.log("Clicked cancel button")
     form.resetFields()
     setVisible(false)
   }
-
+  // 抓取所有成員資訊
   function getEmployeeInfo() {
     const data: Array<Member> = []
     fetch("https://hw.seabao.ml/api/user", {
@@ -74,7 +78,8 @@ function ViewMeetingForm(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 顯示表單時抓取成員資訊
+  // 關閉表單時初始化表單
   useEffect(() => {
     if (visible) getEmployeeInfo()
     else {
@@ -82,7 +87,7 @@ function ViewMeetingForm(Props: Init) {
       console.log("reset")
     }
   }, [visible])
-
+  // 設定表單成員列表顯示項
   useEffect(() => {
     form.setFieldsValue({
       member: meetingData.attendees
@@ -94,21 +99,16 @@ function ViewMeetingForm(Props: Init) {
         .join("\n"),
     })
   }, [member])
-
+  // 當會議變更時更新表單
   useEffect(() => form.resetFields(), [meetingData])
-
+  // 轉化會議日期型態以利顯示
   const fromDate = moment(meetingData.fromDate) //
   const toDate = moment(meetingData.toDate) //
   console.log(fromDate, toDate)
 
-  function judgeAllday() {
-    if (fromDate.isSame(toDate, "day") && toDate.diff(fromDate, "hour") >= 23) return true
-    return false
-  }
-
   return (
     <>
-      <Modal visible={visible} confirmLoading={confirmLoading} onCancel={handleCancel} footer={false}>
+      <Modal visible={visible} onCancel={handleCancel} footer={false}>
         <Form
           {...layout}
           form={form}
@@ -116,7 +116,6 @@ function ViewMeetingForm(Props: Init) {
           initialValues={{
             descript: meetingData.description,
             meetingRoom: meetingData.location,
-            allDay: judgeAllday(),
             // todo
             // repeat: meetingData.repeatType,
             // todo
@@ -134,11 +133,6 @@ function ViewMeetingForm(Props: Init) {
             <Input readOnly />
           </Form.Item>
           <Row>
-            {/* {<Col span={8} offset={3}>
-              <Form.Item name="allDay" label="All Day" {...SwitchLayout} valuePropName="checked">
-                <Switch disabled />
-              </Form.Item>
-            </Col>} */}
             <Col span={8} offset={3}>
               <Form.Item name="repeat" label="Repeat" {...SwitchLayout} valuePropName="checked">
                 <Switch disabled />
@@ -167,10 +161,6 @@ function ViewMeetingForm(Props: Init) {
       </Modal>
     </>
   )
-}
-
-ViewMeetingForm.defaultProps = {
-  visible: true,
 }
 
 export default ViewMeetingForm

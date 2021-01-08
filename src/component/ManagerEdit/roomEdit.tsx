@@ -43,28 +43,33 @@ const initRoom: Room = {
 
 function RoomEdit(props: Props) {
   const changeData: Room = { name: "", capacity: 0, id: -1 }
+  // 設定表單屬性、是否要顯示表單與是否更新主畫面日曆
   const { type, visible, refresh, setrefresh } = props
+  // 設定房間列表資訊
   const [roomList, setRoomList] = useState<Array<Room>>([])
+  // 控制表單
   const [form] = Form.useForm()
+  // 設定使用者所選取到的房間
   const [selectedRoom, setSelectRoom] = useState<Room>(initRoom)
+  // 使用者token
   const token = useSelector((state: any) => state.tokenReducer)
+  // 與後端連線所需的設定
   const header: Headers = new Headers({
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   })
+  // 當選取房間後自動帶入房間資訊至表單
   useEffect(
     function updateFrom() {
       form.setFieldsValue({ roomName: selectedRoom.name, Capacity: selectedRoom.capacity })
       changeData.name = selectedRoom.name
       changeData.capacity = selectedRoom.capacity
       changeData.id = selectedRoom.id
-      console.log("selectedRoom", selectedRoom)
-      console.log("changeData", changeData)
     },
     [selectedRoom]
   )
-
+  // 顯示表單時抓取所有房間資訊
   useEffect(() => {
     if (!visible) return
     fetch("https://hw.seabao.ml/api/room", {
@@ -79,23 +84,24 @@ function RoomEdit(props: Props) {
       .catch(error => console.log("error", error))
   }, [visible])
 
-  // const [roomList, setRoomList] = useState<Array<Room>>(fakedata)
+  // 抓取到所有房間資訊後更新表單房間列表選項
   useEffect(
     function showChangedRoomlist() {
       form.setFieldsValue({ select: selectedRoom.name })
     },
     [roomList]
   )
+  // 控制表單是否顯示
   const isVisible = props.visible
   const setIsVisible = props.setvisible
-
+  // 跳出錯誤框
   function showErrorMessage(message: string) {
     Modal.error({
       title: "Error",
       content: message,
     })
   }
-
+  // 判斷表單類型後控制與後端更新的方式
   function Choose(): Promise<Response> {
     let choose: Promise<Response>
     if (type === "New") {
@@ -117,7 +123,7 @@ function RoomEdit(props: Props) {
     }
     return choose
   }
-
+  // 跳出確認框與確認後跟後端更新變更資料
   function showPromiseConfirm() {
     const judgecontent = type === "New" ? "新增" : "變更"
     const Content = `確定要${judgecontent}此房間嗎?`
@@ -140,7 +146,7 @@ function RoomEdit(props: Props) {
       onCancel() {},
     })
   }
-
+  // 判斷是否輸入正確或是有無變更
   const onFinish = (values: any) => {
     if (changeData.name === "") showErrorMessage("尚未輸入房間名稱!")
     else if (changeData.capacity === 0) showErrorMessage("尚未輸入房間可容量人數!")
@@ -156,13 +162,13 @@ function RoomEdit(props: Props) {
       showPromiseConfirm()
     } else showErrorMessage("尚未變更!")
   }
-
+  // 關閉表單、初始化表單與selectRoom
   const onCancel = () => {
     setIsVisible(false)
     setSelectRoom(initRoom)
     form.resetFields()
   }
-
+  // 使用者選擇房間後自動帶入房間資訊至表單
   const onSelectRoom = (value: string) => {
     console.log(selectedRoom)
     if (value === undefined) form.resetFields()
@@ -173,17 +179,17 @@ function RoomEdit(props: Props) {
       }
     })
   }
-
+  // 設定表單所抓取到變更房間的資訊
   function changeRoomName(e: React.ChangeEvent<HTMLInputElement>) {
     changeData.name = e.target.value
     console.log(changeData)
   }
-
+  // 設定表單所抓取到變更房間人數容量的資訊
   function changeRoomCapacity(value: number | string | undefined) {
     if (value !== undefined) changeData.capacity = Number(value)
     console.log(changeData)
   }
-
+  // 設定房間容量只能1~1000
   function limitDecimals(value: number | string | undefined) {
     if (value !== undefined) return String(value).replace(/^(0+)|[^\d]+/g, "")
     return ""

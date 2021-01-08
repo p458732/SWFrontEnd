@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import { Button } from "antd"
@@ -18,6 +19,7 @@ interface Event {
   }
 }
 
+// API的金鑰與CLIENT ID
 const CLIENT_ID = "1065980057742-m7ga9esujdi7bo6v9llc02p785kp4sca.apps.googleusercontent.com"
 const API_KEY = "AIzaSyCfPa82e7-60AxvTPsX8wBclVmSTl_NIhs"
 
@@ -35,12 +37,14 @@ interface Init {
 export default function GoogleCalendar(Props: Init) {
   const { MeetingData } = Props
 
+  // 初始連線
   function handleClientLoad() {
     gapi.load("client:auth2", () => {
       gapi.auth2.init({ client_id: CLIENT_ID })
     })
   }
 
+  // 將MeetingData 轉換成google calendar API 所能接受的JSON格式並匯出至google calendar
   function execute() {
     const events: Event[] = MeetingData.map(event => {
       return {
@@ -73,6 +77,7 @@ export default function GoogleCalendar(Props: Init) {
     })
   }
 
+  // 連線至我們設定的API
   function loadClient() {
     gapi.client.setApiKey(API_KEY)
     return gapi.client.load("https://content.googleapis.com/discovery/v1/apis/calendar/v3/rest").then(
@@ -86,6 +91,7 @@ export default function GoogleCalendar(Props: Init) {
     )
   }
 
+  // 處理驗證是否成功
   function myCallback(authResult: any) {
     if (authResult && authResult.access_token) {
       gapi.auth.setToken(authResult)
@@ -96,6 +102,8 @@ export default function GoogleCalendar(Props: Init) {
       // Authorization failed or user declined
     }
   }
+
+  // 初始連線設定
   useEffect(() => {
     handleClientLoad()
   }, [])

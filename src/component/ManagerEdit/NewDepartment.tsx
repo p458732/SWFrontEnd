@@ -39,16 +39,21 @@ const InitDepartment: Department = { name: "", attendees: [] }
 let DepartmentData: Array<Department> = []
 let changeData: Department = InitDepartment
 function NewDepartment(Props: Init) {
+  // 設定是否要顯示表單與是否更新主畫面日曆
   const { visible, setVisible, refresh, setrefresh } = Props
+  // 設定所有使用者資料
   const [member, setMember] = useState<Member[]>([])
+  // 使用者token
   const token = useSelector((state: any) => state.tokenReducer)
+  // 與後端連線所需的設定
   const header: Headers = new Headers({
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   })
+  // 控制表單
   const [form] = Form.useForm()
-
+  // 抓取所有成員資訊
   function getEmployeeInfo() {
     const data: Array<Member> = []
     fetch("https://hw.seabao.ml/api/user", {
@@ -65,7 +70,7 @@ function NewDepartment(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 抓取所有部門資訊
   function getDepartment() {
     const data: Array<Department> = []
     fetch("https://hw.seabao.ml/api/department", {
@@ -82,7 +87,7 @@ function NewDepartment(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 當顯示表單時抓取成員與部門資料
   useEffect(() => {
     if (visible) {
       getEmployeeInfo()
@@ -91,20 +96,20 @@ function NewDepartment(Props: Init) {
       changeData = InitDepartment
     }
   }, [visible])
-
+  // 顯示錯誤框
   function showErrorMessage(message: string) {
     Modal.error({
       title: "Error",
       content: message,
     })
   }
-
+  // 關閉表單與表單初始化
   const handleCancel = () => {
     console.log("Clicked cancel button")
     form.resetFields()
     setVisible(false)
   }
-
+  // 控制選取成員顯示方式
   function tagRender(props: any) {
     const { label, value, closable, onClose } = props
 
@@ -114,7 +119,7 @@ function NewDepartment(Props: Init) {
       </Tag>
     )
   }
-
+  // 跳出確認框與確認後跟後端更新變更資料
   function showPromiseConfirm() {
     const num: number[] = []
     member.forEach(item => {
@@ -144,7 +149,7 @@ function NewDepartment(Props: Init) {
       onCancel() {},
     })
   }
-
+  // 判斷是否變更資料有衝突
   const onFinish = (values: any) => {
     if (DepartmentData.some(temp => temp.name === changeData.name)) {
       showErrorMessage("已存在此部門")
@@ -154,20 +159,10 @@ function NewDepartment(Props: Init) {
     }
   }
 
-  const onFinishFailed = () => {
-    console.log("error")
-  }
-
   return (
     <>
       <Modal visible={visible} onCancel={handleCancel} footer={false}>
-        <Form
-          {...layout}
-          form={form}
-          name="control-hooks-NewDepartment"
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
+        <Form {...layout} form={form} name="control-hooks-NewDepartment" onFinish={onFinish}>
           <Form.Item name="title">
             <Row justify="start">
               <h1>新增部門</h1>

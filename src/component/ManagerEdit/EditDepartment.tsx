@@ -43,18 +43,25 @@ interface Init {
 const InitDepartment: Department = { name: "", attendees: [] }
 let changeData: Department = InitDepartment
 function EditDepartment(Props: Init) {
+  // 設定是否要顯示表單與是否更新主畫面日曆
   const { visible, setVisible, refresh, setrefresh } = Props
+  // 設定使用者選擇的成員
   const [member, setMember] = useState<Member[]>([])
+  // 設定使用者選擇的部門
   const [department, setDepartment] = useState<Department>(InitDepartment)
+  // 設定後端所回傳的部門資訊
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
+  // 抓取使用者token
   const token = useSelector((state: any) => state.tokenReducer)
+  // 與後端連線所需的設定
   const header: Headers = new Headers({
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   })
+  // 表單控制
   const [form] = Form.useForm()
-
+  // 取得所有使用者資訊
   async function getEmployeeInfo() {
     const data: Array<Member> = []
     await fetch("https://hw.seabao.ml/api/user", {
@@ -71,7 +78,7 @@ function EditDepartment(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 當成功抓取所有部門資訊後更新表單部門選項
   useEffect(() => {
     changeData.name = department.name
     getEmployeeInfo().then(() => {
@@ -83,7 +90,7 @@ function EditDepartment(Props: Init) {
       })
     })
   }, [department])
-
+  // 向後端抓取所有部門
   function getDepartment() {
     const data: Array<Department> = []
     fetch("https://hw.seabao.ml/api/department", {
@@ -100,7 +107,8 @@ function EditDepartment(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 當顯示表單時抓取所有部門資訊
+  // 當關閉表單時初始化changeData
   useEffect(() => {
     if (visible) {
       getDepartment()
@@ -108,20 +116,20 @@ function EditDepartment(Props: Init) {
       changeData = InitDepartment
     }
   }, [visible])
-
+  // 顯示錯誤框
   function showErrorMessage(message: string) {
     Modal.error({
       title: "Error",
       content: message,
     })
   }
-
+  // 關閉表單與初始化表單與
   const handleCancel = () => {
     console.log("Clicked cancel button")
     form.resetFields()
     setVisible(false)
   }
-
+  // 顯示成員列表的方式
   function tagRender(props: any) {
     const { label, value, closable, onClose } = props
 
@@ -131,7 +139,7 @@ function EditDepartment(Props: Init) {
       </Tag>
     )
   }
-
+  // 跳出確認框與當按下確認後更後端更新資料
   function showPromiseConfirm() {
     const num: number[] = []
     member.forEach(item => {
@@ -161,7 +169,8 @@ function EditDepartment(Props: Init) {
       onCancel() {},
     })
   }
-
+  // 判斷資料是否有變更
+  // 如沒有跳出警示框
   const onFinish = (values: any) => {
     if (
       changeData.attendees.length === department.attendees.length &&
@@ -172,20 +181,10 @@ function EditDepartment(Props: Init) {
     console.log("finish", changeData)
   }
 
-  const onFinishFailed = () => {
-    console.log("error")
-  }
-
   return (
     <>
       <Modal visible={visible} onCancel={handleCancel} footer={false}>
-        <Form
-          {...layout}
-          form={form}
-          name="control-hooks-EditDepartment"
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
+        <Form {...layout} form={form} name="control-hooks-EditDepartment" onFinish={onFinish}>
           <Form.Item name="title">
             <Row justify="start">
               <h1>編輯部門</h1>

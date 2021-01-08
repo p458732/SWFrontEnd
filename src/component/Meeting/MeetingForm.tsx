@@ -78,25 +78,32 @@ interface Init {
 }
 let changeData: Meeting = InitMeeting
 function MeetingForm(Props: Init) {
+  // 設定所有成員資訊
   const [member, setMember] = useState<Member[]>([])
+  // 設定所有房間資訊
   const [roomList, setRoomList] = useState<Array<Room>>([])
+  // 設定所有部門資訊
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
+  // 設定會議資料、是否要顯示表單與是否更新主畫面日曆
   const { visible, setVisible, meetingData, refresh, setrefresh } = Props
+  // 使用者token
   const token = useSelector((state: any) => state.tokenReducer)
+  // 與後端連線所需的資訊
   const header: Headers = new Headers({
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   })
+  // 控制表單
   const [form] = Form.useForm()
-
+  // 顯示錯誤框
   function showErrorMessage(message: string) {
     Modal.error({
       title: "Error",
       content: message,
     })
   }
-
+  // 抓取所有房間資訊
   function getRoomInfo() {
     fetch("https://hw.seabao.ml/api/room", {
       method: "GET",
@@ -109,7 +116,7 @@ function MeetingForm(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 抓取所有成員資訊
   function getEmployeeInfo() {
     const data: Array<Member> = []
     fetch("https://hw.seabao.ml/api/user", {
@@ -126,7 +133,7 @@ function MeetingForm(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 抓取所有部門資訊
   function getDepartment() {
     const data: Array<Department> = []
     fetch("https://hw.seabao.ml/api/department", {
@@ -143,11 +150,12 @@ function MeetingForm(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 當會議資訊變動時更新表單
   useEffect(() => {
     form.resetFields()
   }, [meetingData])
-
+  // 顯示表單時抓取所需資料
+  // 關閉表單時初始變數值
   useEffect(() => {
     if (visible) {
       changeData = meetingData
@@ -160,7 +168,7 @@ function MeetingForm(Props: Init) {
       setMember([])
     }
   }, [visible])
-
+  // 設定表單成員選項顯示項目
   useEffect(() => {
     if (member.length === 0) return
     const attendees = meetingData.attendees?.map(element => {
@@ -172,7 +180,7 @@ function MeetingForm(Props: Init) {
       member: attendees,
     })
   }, [member])
-
+  // 設定表單成員顯示方式
   function tagRender(props: any) {
     const { label, closable, onClose } = props
 
@@ -182,7 +190,7 @@ function MeetingForm(Props: Init) {
       </Tag>
     )
   }
-
+  // 跳出確認框與確認後跟後端更新變更資料
   function showPromiseConfirm() {
     const num: number[] = []
     member.forEach(item => {
@@ -215,7 +223,7 @@ function MeetingForm(Props: Init) {
       onCancel() {},
     })
   }
-
+  // 當按下刪除時跳出確認框與確認後跟後端更新刪除此會議
   function showPromiseDelete() {
     const num: number[] = []
     member.forEach(item => {
@@ -247,23 +255,18 @@ function MeetingForm(Props: Init) {
       onCancel() {},
     })
   }
-
+  // 關閉表單與初始化表單
   const handleCancel = () => {
     console.log("Clicked cancel button")
     form.resetFields()
     setVisible(false)
   }
-
+  // 跳出確認框
   const onFinish = (values: any) => {
     showPromiseConfirm()
     console.log("onFiniish", changeData)
   }
-
-  const onFinishFailed = () => {
-    showErrorMessage("請選擇日期!")
-    console.log("error")
-  }
-
+  // 儲存所變更的日期資訊
   function onChangeDate(dates: any, dateStrings: any) {
     console.log("From: ", changeData.fromDate, ", to: ", changeData.toDate)
     if (dates === null || dateStrings === null) return
@@ -279,7 +282,6 @@ function MeetingForm(Props: Init) {
           form={form}
           name="control-hooks-EditMeeting"
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           initialValues={{
             descript: meetingData.description,
             meetingRoom: meetingData.location,

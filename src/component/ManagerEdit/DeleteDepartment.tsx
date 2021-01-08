@@ -44,17 +44,24 @@ interface Init {
 }
 let Employee: Member[] = []
 function DeleteDepartment(Props: Init) {
+  // 設定是否要顯示表單與是否更新主畫面日曆
   const { visible, setVisible, refresh, setrefresh } = Props
+  // 設定使用者所選到的部門
   const [department, setDepartment] = useState<Department>()
+  // 設定後端回傳的所有部門資訊，以利刷新表單部門顯示選項
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
+  // 抓取使用者token
   const token = useSelector((state: any) => state.tokenReducer)
+  // 與後端連線所需的設定
   const header: Headers = new Headers({
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   })
+  // 控制表單
   const [form] = Form.useForm()
 
+  // 取得所有使用者資訊
   async function getEmployeeInfo() {
     const data: Array<Member> = []
     await fetch("https://hw.seabao.ml/api/user", {
@@ -72,6 +79,7 @@ function DeleteDepartment(Props: Init) {
       .catch(error => console.log("error", error))
   }
 
+  // 取得所有部門資訊
   function getDepartment() {
     const data: Array<Department> = []
     fetch("https://hw.seabao.ml/api/department", {
@@ -89,6 +97,7 @@ function DeleteDepartment(Props: Init) {
       .catch(error => console.log("error", error))
   }
 
+  // 當選取部門後自動填入部門成員至表單
   useEffect(() => {
     getEmployeeInfo().then(() => {
       const judgeData = Employee.filter(element => department?.attendees.some(judge => element.id === judge))
@@ -99,12 +108,14 @@ function DeleteDepartment(Props: Init) {
     })
   }, [department])
 
+  // 當顯示表單時向後端抓取部門資訊
   useEffect(() => {
     if (visible) {
       getDepartment()
     }
   }, [visible])
 
+  // 如有錯誤時顯示
   function showErrorMessage(message: string) {
     Modal.error({
       title: "Error",
@@ -112,12 +123,13 @@ function DeleteDepartment(Props: Init) {
     })
   }
 
+  // 將表單關閉顯示與初始表單
   const handleCancel = () => {
     console.log("Clicked cancel button")
     form.resetFields()
     setVisible(false)
   }
-
+  // 判斷是否要變更與按下確定後與後端變更資料
   function showPromiseConfirm() {
     confirm({
       title: "確認",
@@ -142,26 +154,15 @@ function DeleteDepartment(Props: Init) {
       onCancel() {},
     })
   }
-
+  // 按下表單刪除鍵時跳出確定是否刪除提示
   const onFinish = (values: any) => {
     showPromiseConfirm()
-    console.log("finish", DepartmentList)
-  }
-
-  const onFinishFailed = () => {
-    console.log("error", DepartmentList)
   }
 
   return (
     <>
       <Modal visible={visible} onCancel={handleCancel} footer={false}>
-        <Form
-          {...layout}
-          form={form}
-          name="control-hooks-DeleteDepartment"
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-        >
+        <Form {...layout} form={form} name="control-hooks-DeleteDepartment" onFinish={onFinish}>
           <Form.Item name="title">
             <Row justify="start">
               <h1>刪除部門</h1>

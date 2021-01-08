@@ -65,25 +65,32 @@ interface Init {
 const Allday: number = 0
 let changeData = InitMeeting
 function NewMeetingForm(Props: Init) {
+  // 設定是否要顯示表單與是否更新主畫面日曆
   const { visible, setVisible, refresh, setrefresh } = Props
+  // 設定所有成員資訊
   const [member, setMember] = useState<Member[]>([])
+  // 設定所有房間列表
   const [roomList, setRoomList] = useState<Array<Room>>([])
+  // 設定所有部門資訊
   const [DepartmentList, setDepartmentList] = useState<Department[]>([])
+  // 使用者token
   const token = useSelector((state: any) => state.tokenReducer)
+  // 後端連線所需要的設定
   const header: Headers = new Headers({
     Accept: "application/json",
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   })
+  // 控制表單
   const [form] = Form.useForm()
-
+  // 顯示錯誤框
   function showErrorMessage(message: string) {
     Modal.error({
       title: "Error",
       content: message,
     })
   }
-
+  // 抓取所有房間資訊
   function getRoomInfo() {
     fetch("https://hw.seabao.ml/api/room", {
       method: "GET",
@@ -96,7 +103,7 @@ function NewMeetingForm(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 抓取所有成員資訊
   function getEmployeeInfo() {
     const data: Array<Member> = []
     fetch("https://hw.seabao.ml/api/user", {
@@ -113,7 +120,7 @@ function NewMeetingForm(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 抓取所有部門資訊
   function getDepartment() {
     const data: Array<Department> = []
     fetch("https://hw.seabao.ml/api/department", {
@@ -130,7 +137,8 @@ function NewMeetingForm(Props: Init) {
       })
       .catch(error => console.log("error", error))
   }
-
+  // 顯示表單時抓取所需資訊
+  // 關閉表單時初始變數值
   useEffect(() => {
     if (visible) {
       getRoomInfo()
@@ -140,7 +148,7 @@ function NewMeetingForm(Props: Init) {
       changeData = InitMeeting
     }
   }, [visible])
-
+  // 跳出確認框與確認後跟後端更新資料
   function showPromiseConfirm() {
     const num: number[] = []
     member.forEach(item => {
@@ -172,7 +180,7 @@ function NewMeetingForm(Props: Init) {
       onCancel() {},
     })
   }
-
+  // 控制表單成員顯示方式
   function tagRender(props: any) {
     const { label, value, closable, onClose } = props
 
@@ -182,20 +190,16 @@ function NewMeetingForm(Props: Init) {
       </Tag>
     )
   }
-
+  // 關閉表單與初始化表單
   const handleCancel = () => {
     console.log("Clicked cancel button")
     form.resetFields()
     setVisible(false)
   }
-
+  // 跳出確認框
   const onFinish = (values: any) => {
     showPromiseConfirm()
     console.log("finish", changeData)
-  }
-
-  const onFinishFailed = () => {
-    console.log("error")
   }
 
   function onChangeDate(dates: any, dateStrings: any) {
@@ -207,14 +211,7 @@ function NewMeetingForm(Props: Init) {
   return (
     <>
       <Modal visible={visible} onCancel={handleCancel} footer={false}>
-        <Form
-          {...layout}
-          form={form}
-          name="control-hooks-NewMeeting"
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          key={Math.random()}
-        >
+        <Form {...layout} form={form} name="control-hooks-NewMeeting" onFinish={onFinish} key={Math.random()}>
           <Form.Item name="title">
             <Row justify="start">
               <h1> 新增會議</h1>
