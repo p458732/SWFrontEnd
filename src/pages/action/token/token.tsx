@@ -1,3 +1,11 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+/** @file token.tsx
+  * @brief used to provide an interface of Rudux
+   
+  * @author Hong Eric
+  * @date 2021-01-08
+  * */
+
 export const SETTOKEN = "SETTOKEN"
 export const SETEMAIL = "SETEMAIL"
 interface SetTOKENI {

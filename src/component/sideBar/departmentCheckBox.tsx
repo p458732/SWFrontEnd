@@ -5,6 +5,13 @@ import React, { useState, useCallback, useEffect } from "react"
 import { Checkbox } from "antd"
 import { Department } from "../utils/interface"
 
+/** @file departmentCheckBox.tsx
+  * @brief implement the DepartmentCheckBox
+   
+  * @author Hong Eric
+  * @date 2021-01-08
+  * */
+
 function DepartmentCheckBox(props: any) {
   let temp: any[] = [1]
   const defaultOption: any[] = []
