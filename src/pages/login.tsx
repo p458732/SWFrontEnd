@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Alert, Space } from "antd"
+import { Form, Input, Button,Row, Col, Image,Space } from "antd"
 import "./login.css"
-import { Link, HashRouter as router, Route, Switch } from "react-router-dom"
-import { useSelector, useDispatch, Provider } from "react-redux"
+import { Link,} from "react-router-dom"
+import { useDispatch } from "react-redux"
 import { setToken, setEmail } from "./action/token/token"
 import { setRole } from "./action/role/role"
-import store from "./reducers/configureStore"
-
+//layout 格式
 const layout = {
   labelCol: { span: 2 },
   wrapperCol: { span: 7 },
@@ -16,9 +15,13 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
   layout: "vertical",
 }
+// fetch URL
 const loginURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/token"
 const userInfoURL = "https://sw-virtualmeetingassitant-auth.azurewebsites.net/connect/userinfo"
+
+//登入頁面compoenent
 function Login() {
+  //redux 儲存 function
   const dispatch = useDispatch()
   const handleToken = (tokenStr: string): void => {
     dispatch(setToken(tokenStr))
@@ -29,6 +32,7 @@ function Login() {
   const handleRole = (roleStr: string): void => {
     dispatch(setRole(roleStr))
   }
+  // 儲存使用者輸入資訊的資料
   const loginInfo = { email: "", password: "" }
   const data = {
     grant_type: "password",
@@ -37,7 +41,7 @@ function Login() {
     client_id: "frontend.client",
     client_secret: "0AH#wjlzaU#&&P*XkY74",
   }
-
+  //輸入框內容更改後更新資料
   const emailChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     loginInfo.email = e.target.value
     console.log(JSON.stringify(loginInfo))
@@ -51,7 +55,9 @@ function Login() {
     data.password = loginInfo.password
     console.log(JSON.stringify(data))
   }
+  //在使用者登入後取得使用者身分權限
   function getUserRole(token: string) {
+    //fetch 使用者資訊
     fetch(userInfoURL, {
       method: "GET",
       headers: {
@@ -64,16 +70,17 @@ function Login() {
       .then(info => {
         console.log("AFDFDSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSLK:ALFS")
         console.log(info)
-
+        //把使用者身分權限存用redux存下，讓主頁面的component可以拿到資料
         handleRole(info.role)
       })
       .catch(e => {
         console.log("getUserRole error")
       })
   }
+  //登入驗證function，使用者按下login button 後即呼叫此function
   const authenticate = () => {
     updateData()
-
+    //fetch時需要攜帶的body資料
     const request = {
       grant_type: "password",
       username: data.username,
@@ -81,7 +88,8 @@ function Login() {
       client_id: "frontend.client",
       client_secret: "0AH#wjlzaU#&&P*XkY74",
     }
-
+    
+    //將request的資料重新編碼後帶給後端。
     var body = []
     for (var property in request) {
       var encodeKey = encodeURIComponent(property)
@@ -89,6 +97,8 @@ function Login() {
       body.push(encodeKey + "=" + encodeValue)
     }
     body = body.join("&")
+
+    //向後端 post 登入 request
     fetch(loginURL, {
       body: body,
       method: "POST",
@@ -113,16 +123,17 @@ function Login() {
       })
       .then(token => {
         getUserRole(token)
-        //
+        //登入成功就導向主頁面
         window.location.href = "/#/mainPage"
       })
       .catch(e => {
+        //錯誤資訊
         console.log(e.error_description)
         alert(e.error_description)
         console.log("faild")
       })
   }
-  // ;<img src={require("./img/background.jpg")} alt="Background" />
+  
   return (
     <div className="app">
       <Form {...layout} name="basic" initialValues={{ remember: true }}>

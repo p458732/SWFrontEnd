@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react"
 import "antd/dist/antd.css"
-import { Form, Input, Button, Checkbox, Layout, Row, Col, Image, Tooltip, Cascader, Select } from "antd"
+import { Form, Input, Button, Col, Select } from "antd"
 import "./login.css"
 import { Department } from "../component/utils/interface"
-import { HashRouter as Router, Route, Switch, Redirect } from "react-router-dom"
 const { Option } = Select
 const formItemLayout = {
   labelCol: {
@@ -35,19 +34,23 @@ const tailFormItemLayout = {
     },
   },
 }
-
+// fetch URL
 const getDepartmentURL = "https://hw.seabao.ml/api/department"
 const registrationURL = "https://hw.seabao.ml/api/user"
 
+//依照後端有的部門清單動態產生註冊時的選擇部門選項
 const generateOption = (members: string[]) => {
   return members.map(member => {
     return <Option value={member}>{member}</Option>
   })
 }
 
+//註冊頁面 component
 function Registration() {
   const [form] = Form.useForm()
+  //選擇部門選項member
   const [member, setMember] = useState<string[]>([])
+  //使用者註冊資訊
   const registrationInfor = {
     name: "",
     email: "",
@@ -55,6 +58,7 @@ function Registration() {
     password: "",
   }
   let passwordConfirm = false
+  //向後端取得部門清單
   const getDepartmentList = () => {
     var departmentList = []
     fetch(getDepartmentURL, {
@@ -69,16 +73,19 @@ function Registration() {
       })
       .then(List => {
         console.log(List)
+        //成功 fetch 到部門清單就把list加到member中
         setMember(List.map((l: Department) => l.name))
       })
       .catch(err => {
         alert("getDepartment error!")
       })
   }
+  //頁面一載入，就自動呼叫function，這裡是為了在一載入頁面時就取得部門清單，以利產生選項
   useEffect(() => {
     getDepartmentList()
   }, [])
 
+  //更新使用者輸入的資料
   const onFinish = async values => {
     console.log("Received values of form: ", values)
     registrationInfor.name = values.name
@@ -98,11 +105,15 @@ function Registration() {
     registrationInfor.departmentName = value
   }
 
+  //送出註冊 request
   function sendRegisterRequest() {
+    //使用者確認密碼必須正確，否則不送出request
     if (!passwordConfirm) {
       return
     } else {
+      //送出 request
       console.log("send request")
+      // 向後端 post request
       fetch(registrationURL, {
         method: "POST",
         body: JSON.stringify(registrationInfor),
@@ -110,14 +121,18 @@ function Registration() {
           "Content-Type": "application/json-patch+json",
         },
       }).then(res => {
+        // 後端回傳 status 500 代表信箱存在
         if (res.status === 500) {
           alert("信箱已存在")
         }
+        // 後端回傳 status 400 代表輸入內容不完全，或出現錯誤
         if (res.status === 400) {
           alert("請確認輸入內容")
         }
+        // 後端回傳 status 200 代表註冊成功
         if (res.status === 200) {
           alert("註冊成功")
+          //註冊成功跳轉回登入頁面，使用者可以立即登入
           window.location.href = "/"
         }
       })
@@ -191,12 +206,15 @@ function Registration() {
               message: "Please confirm your password!",
             },
             ({ getFieldValue }) => ({
+              //判斷兩個密碼輸入框內容是否相同
               validator(rule, value) {
                 if (!value || getFieldValue("password") === value) {
+                  //相同
                   passwordConfirm = true
                   passwordChanged(value)
                   return Promise.resolve()
                 }
+                //不相同
                 passwordConfirm = false
                 return Promise.reject("The two passwords that you entered do not match!")
               },
